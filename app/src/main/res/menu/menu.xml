@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item android:id="@+id/action_download"
+        android:title="@string/action_download"/>
+    <item android:id="@+id/action_reload"
+        android:title= "@string/action_reload"
+        />
+    <item android:id="@+id/action_home"
+        android:title="@string/action_home"
+        />
+    <item android:id="@+id/action_folder"
+        android:title="@string/action_folder"
+        />
+    <item android:id="@+id/action_rating"
+        android:title="@string/action_rating"
+        />
+    <item android:id="@+id/action_feedback"
+        android:title="@string/action_feedback"
+        />
+
+    <item android:id="@+id/action_search"
+        android:title="search video"
+        android:icon="@drawable/ic_search_white_24dp"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView"/>
+
+    <!-- Settings, should always be in the overflow -->
+    <!--<item android:id="@+id/action_setting"-->
+        <!--android:title="setting"-->
+        <!--android:icon="@drawable/ic_more_vert_white_24dp"-->
+        <!--app:showAsAction="ifRoom"/>-->
+
+
+</menu>

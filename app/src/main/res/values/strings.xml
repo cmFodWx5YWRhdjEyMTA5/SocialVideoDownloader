@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Social Video Downloader</string>
+    <string name="action_download">Download</string>
+    <string name="action_reload">Reload</string>
+    <string name="action_home">Home</string>
+    <string name="action_folder">Download Folder</string>
+    <string name="action_rating">Rating and Review</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="dev_email">Anbinh0990@gmail.com</string>
+    <string name="error_download_page">Not support this url, please go to video detail page</string>
+    <string name="error_content_copyright">Not support this channel because DCMA copyright!!!</string>
+    <string name="error_download_other_site">We will support this website soon!</string>
+    <string name="title_error_facebook">Download Facebook video</string>
+    <string name="message_error_facebook">Please click play video and then press download button</string>
+    <string name="ok">Ok</string>
+    <string name="downloading">Downloading...</string>
+    <string name="choose_quality">Choose quality</string>
+    <string name="search_hint">Enter url or search keyword</string>
+    <string name="title_error_connection">Internet Connection</string>
+    <string name="message_error_connection">Please check internet connection and try again!</string>
+    <string name="title_error_country">Not supported</string>
+    <string name="message_error_country">This application not supported in Japan!</string>
+    <string name="title_not_youtube">Youtube not supported</string>
+    <string name="message_not_youtube">We not support youtube downloader by google term of service</string>
+</resources>

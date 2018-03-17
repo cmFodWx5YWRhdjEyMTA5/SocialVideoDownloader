@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+
+
+
+    defaultConfig {
+        applicationId "com.freesocial.videodownloader"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 101
+        versionName "1.2"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+//    defaultConfig {
+//        applicationId "downloadapp.videodownloadmaster"
+//        minSdkVersion 15
+//        targetSdkVersion 25
+//        versionCode 20
+//        versionName "1.5"
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//    }
+
+//    defaultConfig {
+//        applicationId "videodownload.catchvideodownloader"
+//        minSdkVersion 15
+//        targetSdkVersion 25
+//        versionCode 5
+//        versionName "1.0.1"
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+//    productFlavors {
+//        catchvideodownload {
+//            applicationId "com.mui.catchvideodownload"
+//            resValue "string", "app_name", "Catch Video"
+//            versionName "1.0"
+//        }
+//        socialvideodownloader {
+//            applicationId "com.best.socialvideodownloader"
+//            resValue "string", "app_name", "Social Download"
+//            versionName "1.0"
+//        }
+//    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
+    compile 'com.android.support:support-v4:25.3.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
+    compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
+    compile 'com.google.firebase:firebase-ads:11.0.1'
+    compile 'com.facebook.android:audience-network-sdk:4.+'
+    compile 'io.github.kobakei:ratethisapp:1.2.0'
+
+    compile 'org.jsoup:jsoup:1.10.3'
+}
+

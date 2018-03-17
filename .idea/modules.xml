@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SocialVideoDownloader.iml" filepath="$PROJECT_DIR$/SocialVideoDownloader.iml" />
+      <module fileurl="file://C:\Users\Muicv\Documents\SocialVideoDownloader\SocialVideoDownloader.iml" filepath="C:\Users\Muicv\Documents\SocialVideoDownloader\SocialVideoDownloader.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Muicv\Documents\SocialVideoDownloader\app\app.iml" filepath="C:\Users\Muicv\Documents\SocialVideoDownloader\app\app.iml" />
     </modules>
   </component>
 </project>

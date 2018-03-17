@@ -105,10 +105,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        setContentView(R.layout.activity_main);
+
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
         gridView = (GridView) findViewById(R.id.gridView);
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
+
+        if (true)
+        {
+            
+        }
+
 
         webView.setWebViewClient(new WebViewClient() {
 

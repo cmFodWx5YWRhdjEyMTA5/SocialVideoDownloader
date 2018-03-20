@@ -435,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 //                Log.d("caomui3",ytFiles.size() +"");
+
                 if (ytFiles != null && ytFiles.size() > 0) {
                     final List<String> listTitle = new ArrayList<String>();
                     final List<String> listUrl = new ArrayList<String>();

@@ -8,7 +8,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.freesocial.videodownloader"
+        applicationId "com.mp4.video.downloader"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
@@ -16,6 +16,16 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
+//    defaultConfig {
+//        applicationId "com.freesocial.videodownloader"
+//        minSdkVersion 15
+//        targetSdkVersion 25
+//        versionCode 1
+//        versionName "1.0"
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//        vectorDrawables.useSupportLibrary = true
+//    }
 
 //    defaultConfig {
 //        applicationId "downloadapp.videodownloadmaster"

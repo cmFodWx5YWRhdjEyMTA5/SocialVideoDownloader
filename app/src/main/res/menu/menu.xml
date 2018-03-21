@@ -3,23 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
-    <item android:id="@+id/action_download"
-        android:title="@string/action_download"/>
+    <!--<item android:id="@+id/action_download"-->
+        <!--android:title="@string/action_download"/>-->
     <item android:id="@+id/action_reload"
         android:title= "@string/action_reload"
         />
-    <item android:id="@+id/action_home"
-        android:title="@string/action_home"
-        />
+    <!--<item android:id="@+id/action_home"-->
+        <!--android:title="@string/action_home"-->
+        <!--/>-->
     <item android:id="@+id/action_folder"
         android:title="@string/action_folder"
         />
-    <item android:id="@+id/action_rating"
-        android:title="@string/action_rating"
+    <item android:id="@+id/action_setting"
+        android:title="@string/action_setting"
         />
-    <item android:id="@+id/action_feedback"
-        android:title="@string/action_feedback"
-        />
+    <!--<item android:id="@+id/action_rating"-->
+        <!--android:title="@string/action_rating"-->
+        <!--/>-->
+    <!--<item android:id="@+id/action_feedback"-->
+        <!--android:title="@string/action_feedback"-->
+        <!--/>-->
 
     <item android:id="@+id/action_search"
         android:title="search video"

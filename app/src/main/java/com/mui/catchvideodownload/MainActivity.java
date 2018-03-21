@@ -83,7 +83,7 @@ import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
 
-    private GridView gridView;
+//    private GridView gridView;
     private JsonConfig jsonConfig;
     private WebView webView;
     private ProgressBar webProgress;
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
-        gridView = (GridView) findViewById(R.id.gridView);
+//        gridView = (GridView) findViewById(R.id.gridView);
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
 
@@ -149,23 +149,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 2)
-                {
-                    downloadOtherSite(jsonConfig.getSites().get(position).getUrl());
-                    return;
-                }
-                webProgress.setVisibility(ProgressBar.VISIBLE);
-                gridView.setVisibility(View.GONE);
-                webView.setVisibility(View.VISIBLE);
-                String url = jsonConfig.getSites().get(position).getUrl();
-                webView.loadUrl(url);
-//                webView.loadUrl("https://www.facebook.com/donghonamtop/videos/1945339439056984/");
-            }
-
-        });
+//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                if (position >= 2)
+//                {
+//                    downloadOtherSite(jsonConfig.getSites().get(position).getUrl());
+//                    return;
+//                }
+//                webProgress.setVisibility(ProgressBar.VISIBLE);
+//                gridView.setVisibility(View.GONE);
+//                webView.setVisibility(View.VISIBLE);
+//                String url = jsonConfig.getSites().get(position).getUrl();
+//                webView.loadUrl(url);
+////                webView.loadUrl("https://www.facebook.com/donghonamtop/videos/1945339439056984/");
+//            }
+//
+//        });
 
         dialogLoading = new ProgressDialog(this); // this = YourActivity
         dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -587,12 +587,6 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionClick(int position) {
-
-                    // Add clicked text to search box
-//                    CursorAdapter ca = searchView.getSuggestionsAdapter();
-//                    Cursor cursor = ca.getCursor();
-//                    cursor.moveToPosition(position);
-//                    searchView.setQuery(cursor.getString(cursor.getColumnIndex("fishName")),false);
                     if (!jsonConfig.getIsAccept() && strArrData[position].contains("youtube")) {
                         searchView.clearFocus();
                         showNotSupportYoutube();
@@ -600,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         String url = strArrData[position];
                         webProgress.setVisibility(ProgressBar.VISIBLE);
-                        gridView.setVisibility(View.GONE);
+//                        gridView.setVisibility(View.GONE);
                         webView.setVisibility(View.VISIBLE);
                         webView.loadUrl(url);
                         searchView.clearFocus();
@@ -624,7 +618,6 @@ public class MainActivity extends AppCompatActivity {
                             showNotSupportYoutube();
                         } else if (s.contains("http") || s.contains(".com")) {
                             webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
                             webView.setVisibility(View.VISIBLE);
                             webView.loadUrl(s);
                             searchView.clearFocus();
@@ -632,7 +625,6 @@ public class MainActivity extends AppCompatActivity {
                         {
                             String url = "https://vimeo.com/search?q=" + Uri.encode(s);
                             webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
                             webView.setVisibility(View.VISIBLE);
                             webView.loadUrl(url);
                             searchView.clearFocus();
@@ -642,14 +634,12 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         if (s.contains("http") || s.contains(".com")) {
                             webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
                             webView.setVisibility(View.VISIBLE);
                             webView.loadUrl(s);
                             searchView.clearFocus();
                         } else {
                             String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
                             webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
                             webView.setVisibility(View.VISIBLE);
                             webView.loadUrl(url);
                             searchView.clearFocus();
@@ -692,85 +682,87 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         searchView.clearFocus();
         switch (item.getItemId()) {
-            case R.id.action_download:
-                if (!isStoragePermissionGranted()) {
-                    return true;
-                }
-                if (webView.getUrl() == null) {
-                    showErrorDownload();
-                    return true;
-                }
-                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                    showPopupNewApp();
-                    return true;
-                }
-
-                if (webView.getUrl().contains("youtube.com")) {
-                    showFullAds();
-                    downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("facebook.com")) {
-
-                    if (urlDownloadFB == null) {
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(MainActivity.this);
-                        }
-                        builder.setTitle(R.string.title_error_facebook)
-                                .setMessage(R.string.message_error_facebook)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                    } else {
-                        showFullAds();
-                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
-                        r.allowScanningByMediaScanner();
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                        dm.enqueue(r);
-
-                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-                    }
-
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    showFullAds();
-                    downloadVimeo(webView.getUrl());
-                } else {
-                    if (webView.getVisibility() == View.GONE) {
-                        showErrorDownload();
-                    } else {
-                        downloadOtherSite(webView.getUrl());
-                    }
-                }
-                return  true;
+//            case R.id.action_download:
+//                if (!isStoragePermissionGranted()) {
+//                    return true;
+//                }
+//                if (webView.getUrl() == null) {
+//                    showErrorDownload();
+//                    return true;
+//                }
+//                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
+//                    showPopupNewApp();
+//                    return true;
+//                }
+//
+//                if (webView.getUrl().contains("youtube.com")) {
+//                    showFullAds();
+//                    downloadYoutube(webView.getUrl());
+//                } else if (webView.getUrl().contains("facebook.com")) {
+//
+//                    if (urlDownloadFB == null) {
+//                        AlertDialog.Builder builder;
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+//                        } else {
+//                            builder = new AlertDialog.Builder(MainActivity.this);
+//                        }
+//                        builder.setTitle(R.string.title_error_facebook)
+//                                .setMessage(R.string.message_error_facebook)
+//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        // continue with delete
+//                                        dialog.cancel();
+//                                    }
+//                                })
+//                                .setIcon(android.R.drawable.ic_dialog_alert)
+//                                .show();
+//                    } else {
+//                        showFullAds();
+//                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
+//                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
+//                        r.allowScanningByMediaScanner();
+//                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+//                        dm.enqueue(r);
+//
+//                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                } else if (webView.getUrl().contains("vimeo.com")) {
+//                    showFullAds();
+//                    downloadVimeo(webView.getUrl());
+//                } else {
+//                    if (webView.getVisibility() == View.GONE) {
+//                        showErrorDownload();
+//                    } else {
+//                        downloadOtherSite(webView.getUrl());
+//                    }
+//                }
+//                return  true;
             case R.id.action_reload:
                 if (webView.getVisibility() == View.VISIBLE)
                     webView.reload();
                 return true;
-            case R.id.action_home:
-                if (new Random().nextInt(20) == 0)
-                    showFullAds();
-                webView.loadUrl("about:blank");
-                isClearHistory = true;
-                webView.setVisibility(View.GONE);
-                gridView.setVisibility(View.VISIBLE);
-                return true;
+//            case R.id.action_home:
+//                if (new Random().nextInt(20) == 0)
+//                    showFullAds();
+//                webView.loadUrl("about:blank");
+//                isClearHistory = true;
+//                webView.setVisibility(View.GONE);
+//                return true;
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-            case R.id.action_rating:
-                launchMarket();
-                return true;
-            case R.id.action_feedback:
-                launchFeedback();
-                return true;
+//            case R.id.action_rating:
+//                launchMarket();
+//                return true;
+//            case R.id.action_feedback:
+//                launchFeedback();
+//                return true;
+            case  R.id.action_setting:
+                startActivity(new Intent(this,SettingsActivity.class));
+                return  true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -784,7 +776,6 @@ public class MainActivity extends AppCompatActivity {
             webView.loadUrl("about:blank");
             isClearHistory = true;
             webView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -827,8 +818,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
-                ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.getSites());
-                gridView.setAdapter(adapter);
                 strArrData = response.body().getUrlAccept().toArray(new String[0]);
 
                 SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);

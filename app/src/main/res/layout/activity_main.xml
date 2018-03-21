@@ -22,14 +22,14 @@
         android:layout_above="@+id/adsBannerView"
         android:layout_below="@id/webProgress">
 
-        <GridView
-            android:id="@+id/gridView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="1"
-            android:gravity="center"
+        <!--<GridView-->
+            <!--android:id="@+id/gridView"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:numColumns="1"-->
+            <!--android:gravity="center"-->
 
-            ></GridView>
+            <!--&gt;</GridView>-->
 
         <WebView
             android:id="@+id/webView"

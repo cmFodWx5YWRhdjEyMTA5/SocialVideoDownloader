@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload.network;
+package com.mp4.videodownloader.network;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

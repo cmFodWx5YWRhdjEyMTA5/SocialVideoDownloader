@@ -1,16 +1,13 @@
-package com.mui.catchvideodownload;
+package com.mp4.videodownloader;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
-import com.mui.catchvideodownload.network.Site;
+import com.mp4.videodownloader.network.Site;
 
 import java.util.List;
 

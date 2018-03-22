@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload.network;
+package com.mp4.videodownloader.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

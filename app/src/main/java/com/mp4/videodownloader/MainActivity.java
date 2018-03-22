@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload;
+package com.mp4.videodownloader;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -12,12 +12,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -36,11 +34,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -55,18 +53,11 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mui.catchvideodownload.network.GetConfig;
-import com.mui.catchvideodownload.network.JsonConfig;
+import com.mp4.videodownloader.network.GetConfig;
+import com.mp4.videodownloader.network.JsonConfig;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -117,13 +108,28 @@ public class MainActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
 
-        if (true)
-        {
 
-        }
-
-
+        Log.d("caomui22","kkkk");
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // Returning 'false' unconditionally is fine.
+                Log.d("caomui22",view.getUrl());
+                Log.d("caomui23",url);
+                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
+                {
+                    showNotSupportYoutube();
+                    return true;
+                }
+
+                return  false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Log.d("caomui33",view.getUrl());
+                return  true;
+            }
 
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -282,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestAds() {
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+        if (jsonConfig.getPriorityFull().equals("facebook")) {
             requestFBAds();
-        } else {
+        } else if (jsonConfig.getPriorityFull().equals("admob")){
             requestAdmob();
         }
     }
@@ -298,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds) {
+                if (isFirstAds ) {
                     isFirstAds = false;
                     mInterstitialAd.show();
                 }
@@ -685,6 +691,8 @@ public class MainActivity extends AppCompatActivity {
                             mc.addRow(new Object[]{i, strArrData[i]});
                     }
                     myAdapter.changeCursor(mc);
+
+
                     return false;
                 }
 
@@ -723,84 +731,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         searchView.clearFocus();
         switch (item.getItemId()) {
-//            case R.id.action_download:
-//                if (!isStoragePermissionGranted()) {
-//                    return true;
-//                }
-//                if (webView.getUrl() == null) {
-//                    showErrorDownload();
-//                    return true;
-//                }
-//                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
-//                    showPopupNewApp();
-//                    return true;
-//                }
-//
-//                if (webView.getUrl().contains("youtube.com")) {
-//                    showFullAds();
-//                    downloadYoutube(webView.getUrl());
-//                } else if (webView.getUrl().contains("facebook.com")) {
-//
-//                    if (urlDownloadFB == null) {
-//                        AlertDialog.Builder builder;
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-//                        } else {
-//                            builder = new AlertDialog.Builder(MainActivity.this);
-//                        }
-//                        builder.setTitle(R.string.title_error_facebook)
-//                                .setMessage(R.string.message_error_facebook)
-//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        // continue with delete
-//                                        dialog.cancel();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//                    } else {
-//                        showFullAds();
-//                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
-//                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
-//                        r.allowScanningByMediaScanner();
-//                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-//                        dm.enqueue(r);
-//
-//                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                } else if (webView.getUrl().contains("vimeo.com")) {
-//                    showFullAds();
-//                    downloadVimeo(webView.getUrl());
-//                } else {
-//                    if (webView.getVisibility() == View.GONE) {
-//                        showErrorDownload();
-//                    } else {
-//                        downloadOtherSite(webView.getUrl());
-//                    }
-//                }
-//                return  true;
             case R.id.action_reload:
                 if (webView.getVisibility() == View.VISIBLE)
                     webView.reload();
                 return true;
-//            case R.id.action_home:
-//                if (new Random().nextInt(20) == 0)
-//                    showFullAds();
-//                webView.loadUrl("about:blank");
-//                isClearHistory = true;
-//                webView.setVisibility(View.GONE);
-//                return true;
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-//            case R.id.action_rating:
-//                launchMarket();
-//                return true;
-//            case R.id.action_feedback:
-//                launchFeedback();
-//                return true;
             case R.id.action_setting:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
@@ -816,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             webView.loadUrl("about:blank");
 //            isClearHistory = true;
-            webView.setVisibility(View.GONE);
+//            webView.setVisibility(View.GONE);
         }
     }
 

@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="autoCompleteTextViewStyle">@style/myAutoCompleteTextViewStyle</item>
         <item name="textAppearanceSearchResultTitle">@style/mySearchResult</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
     <style name="Dialog" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">false</item>

@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.top1.videodownloader;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -53,8 +52,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mp4.videodownloader.network.GetConfig;
-import com.mp4.videodownloader.network.JsonConfig;
+import com.top1.videodownloader.network.GetConfig;
+import com.top1.videodownloader.network.JsonConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -102,20 +101,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        setContentView(R.layout.activity_main);
-
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
-
-
-        Log.d("caomui22","kkkk");
+        
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // Returning 'false' unconditionally is fine.
-                Log.d("caomui22",view.getUrl());
-                Log.d("caomui23",url);
                 if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
                 {
                     showNotSupportYoutube();

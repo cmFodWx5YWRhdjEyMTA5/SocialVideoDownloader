@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.top1.videodownloader;
 
 import android.content.Context;
 import android.view.View;
@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.mp4.videodownloader.network.Site;
+import com.top1.videodownloader.network.Site;
 
 import java.util.List;
 

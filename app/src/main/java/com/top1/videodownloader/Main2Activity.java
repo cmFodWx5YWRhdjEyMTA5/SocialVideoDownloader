@@ -39,9 +39,8 @@ public class Main2Activity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new HomeTabFragment(), "Home");
+        adapter.addFragment(new HomeTabFragment(), "Top site");
         adapter.addFragment(new BrowserTabFragment(), "Browser");
-//        adapter. addFragment(new SettingsActivity().getFragmentManager(),"Settings");
         adapter.addFragment(new SettingFragment(),"Settings");
         viewPager.setAdapter(adapter);
     }

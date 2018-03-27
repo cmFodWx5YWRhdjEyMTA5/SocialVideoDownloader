@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
+        android:key="@string/key_download_folder"
+        android:title="@string/download_folder"
+        />
+    <Preference
         android:key="@string/key_rating"
         android:title="@string/action_rating"
         />
     <Preference
         android:key="@string/key_feedback"
         android:title="@string/action_feedback" />
+    <Preference
+        android:key="@string/key_share"
+        android:title="@string/action_share"
+        />
     <Preference
         android:summary="1.0"
         android:title="@string/app_version" />

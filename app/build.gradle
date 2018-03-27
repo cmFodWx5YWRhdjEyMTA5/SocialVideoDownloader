@@ -73,7 +73,6 @@ dependencies {
     compile 'com.android.support:support-v4:27.1.0'
     compile 'com.android.support:appcompat-v7:27.1.0'
 
-//    implementation 'com.android.support:preference-v7:27.1.0'
     implementation 'com.android.support:preference-v14:27.1.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
 

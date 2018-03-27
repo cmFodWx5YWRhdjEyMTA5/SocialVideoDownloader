@@ -80,10 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private JsonConfig jsonConfig;
     private WebView webView;
     private ProgressBar webProgress;
-    //    private boolean isClearHistory = false;
     private ProgressDialog dialogLoading;
-//    private boolean isDownloadFacebook = false;
-//    private String urlDownloadFB;
 
     private SimpleCursorAdapter myAdapter;
 

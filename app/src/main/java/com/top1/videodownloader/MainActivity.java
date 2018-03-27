@@ -77,13 +77,10 @@ import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
 
-    private JsonConfig jsonConfig;
+    public static JsonConfig jsonConfig;
     private WebView webView;
     private ProgressBar webProgress;
-    //    private boolean isClearHistory = false;
     private ProgressDialog dialogLoading;
-//    private boolean isDownloadFacebook = false;
-//    private String urlDownloadFB;
 
     private SimpleCursorAdapter myAdapter;
 
@@ -104,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
-        
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -722,20 +719,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         searchView.clearFocus();
-        switch (item.getItemId()) {
-            case R.id.action_reload:
-                if (webView.getVisibility() == View.VISIBLE)
-                    webView.reload();
-                return true;
-            case R.id.action_folder:
-                startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
-                return true;
-            case R.id.action_setting:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

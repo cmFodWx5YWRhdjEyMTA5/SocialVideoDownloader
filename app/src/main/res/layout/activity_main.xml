@@ -22,8 +22,6 @@
         android:layout_above="@+id/adsBannerView"
         android:layout_below="@id/webProgress">
 
-
-
         <WebView
             android:id="@+id/webView"
             android:layout_width="match_parent"

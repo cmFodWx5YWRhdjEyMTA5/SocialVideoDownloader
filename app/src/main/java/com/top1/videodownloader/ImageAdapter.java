@@ -1,6 +1,7 @@
 package com.top1.videodownloader;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -17,9 +18,9 @@ import java.util.List;
 
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
-    private List<Site> sites;
+    private List<String> sites;
 
-    public  ImageAdapter(Context c, List<Site> listSite)
+    public  ImageAdapter(Context c, List<String> listSite)
     {
         this.mContext = c;
         this.sites = listSite;
@@ -39,7 +40,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return sites.get(position).getId();
+        return position;
     }
 
     @Override
@@ -49,12 +50,12 @@ public class ImageAdapter extends BaseAdapter {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
 //            imageView.setLayoutParams(new GridView.LayoutParams(4,3));
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth(),parent.getWidth()/3);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/3);
 //            layout.height = layout.width / 2;
             imageView.setLayoutParams(layout);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 //            imageView.setAdjustViewBounds(true);
-//            imageView.setPadding(8, 8, 8, 8);
+            imageView.setPadding(8, 8, 8, 8);
         } else {
             imageView = (ImageView) convertView;
         }
@@ -62,16 +63,11 @@ public class ImageAdapter extends BaseAdapter {
 //        imageView.setImageResource(mThumbIds[position]);
 
 //        Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
-
+        Log.e("caomui","2222" + position);
         if (position == 1)
             imageView.setImageResource(R.drawable.facebook);
         else if (position == 0)
             imageView.setImageResource(R.drawable.vimeo);
-        else
-            if (position == 2)
-            imageView.setImageResource(R.drawable.instagram);
-        else if (position == 3)
-            imageView.setImageResource(R.drawable.twitter);
 
         return imageView;
 

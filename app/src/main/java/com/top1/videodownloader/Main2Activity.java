@@ -642,7 +642,7 @@ public class Main2Activity extends AppCompatActivity {
         }
     }
 
-    private void loadUrlWebview(String url) {
+    public void loadUrlWebview(String url) {
         BrowserTabFragment browserTab = (BrowserTabFragment) adapter.getItem(1);
         browserTab.webView.loadUrl(url);
         changeToBrowserTab();

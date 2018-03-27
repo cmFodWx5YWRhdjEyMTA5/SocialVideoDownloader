@@ -22,6 +22,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -37,6 +38,7 @@ public class BrowserTabFragment extends Fragment {
     public WebView webView;
     private ProgressBar webProgress;
     private String urlDownloadOther;
+    private LinearLayout infomationView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +49,7 @@ public class BrowserTabFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        infomationView = (LinearLayout) view.findViewById(R.id.infomationView);
         webProgress = (ProgressBar) view.findViewById(R.id.webProgress);
         webProgress.setVisibility(ProgressBar.GONE);
         webView = (WebView) view.findViewById(R.id.webView);
@@ -173,6 +176,20 @@ public class BrowserTabFragment extends Fragment {
             }
         } else { //permission is automatically granted on sdk<23 upon installation
             return true;
+        }
+    }
+
+    public  void showWebview(boolean isShowWebView)
+    {
+        if (isShowWebView)
+        {
+            webView.setVisibility(WebView.VISIBLE);
+            infomationView.setVisibility(LinearLayout.GONE);
+        }
+        else
+        {
+            webView.setVisibility(WebView.GONE);
+            infomationView.setVisibility(LinearLayout.VISIBLE);
         }
     }
 

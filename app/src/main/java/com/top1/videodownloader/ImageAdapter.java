@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -40,26 +42,31 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return  position;//sites.get(position).hashCode();//position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView;
+
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
 //            imageView.setLayoutParams(new GridView.LayoutParams(4,3));
             LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/3);
-//            layout.height = layout.width / 2;
             imageView.setLayoutParams(layout);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 //            imageView.setAdjustViewBounds(true);
             imageView.setPadding(8, 8, 8, 8);
         } else {
             imageView = (ImageView) convertView;
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/3);
+            imageView.setLayoutParams(layout);
         }
 
+//        imageView.setLayoutParams(new
+//                AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
+//                AbsListView.LayoutParams.MATCH_PARENT));
 //        imageView.setImageResource(mThumbIds[position]);
 
 //        Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);

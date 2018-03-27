@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 
@@ -33,7 +34,14 @@ public class HomeTabFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         gridView = (GridView) view.findViewById(R.id.gridView);
-        Log.e("caomui","1111");
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Main2Activity main =(Main2Activity) getActivity();
+                main.loadUrlWebview(Main2Activity.jsonConfig.getUrlAccept().get(position));
+            }
+
+        });
 
         loadDataGridView();
     }
@@ -45,7 +53,8 @@ public class HomeTabFragment extends Fragment {
             ImageAdapter adapter = new ImageAdapter(getActivity(), Main2Activity.jsonConfig.getUrlAccept());
             gridView.setAdapter(adapter);
         }
-
     }
+
+
 
 }

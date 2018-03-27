@@ -446,7 +446,6 @@ public class Main2Activity extends AppCompatActivity {
                         return true;
                     } else {
                         String url = strArrData[position];
-//                        webProgress.setVisibility(ProgressBar.VISIBLE);
                         loadUrlWebview(url);
                         searchView.clearFocus();
                         searchItem.collapseActionView();
@@ -512,16 +511,37 @@ public class Main2Activity extends AppCompatActivity {
                 }
 
                 @Override
-                public boolean onQueryTextChange(String s) {
+                public boolean onQueryTextChange(final String s) {
+                    if (s.equals(""))
+                        return  false;
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(AppConstants.BASE_URL_SEARCH)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    final GetConfig config = retrofit.create(GetConfig.class);
 
-                    // Filter data
-                    final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-                    for (int i = 0; i < strArrData.length; i++) {
-                        if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
-                            mc.addRow(new Object[]{i, strArrData[i]});
-                    }
-                    myAdapter.changeCursor(mc);
+                    Call<String[]> call = config.getSuggestion(s);
+                    call.enqueue(new Callback<String[]>() {
+                        @Override
+                        public void onResponse(Call<String[]> call, Response<String[]> response) {
+                            Log.e("caomui",response.body().toString());
 
+                            strArrData = response.body();
+                            final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+                            int count = strArrData.length;
+                            if (count > 5 )
+                                count = 5;
+                            for (int i = 0; i < 5; i++) {
+                                if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
+                                    mc.addRow(new Object[]{i, strArrData[i]});
+                            }
+                            myAdapter.changeCursor(mc);
+                        }
+
+                        @Override
+                        public void onFailure(Call<String[]> call, Throwable t) {
+                        }
+                    });
                     return false;
                 }
 
@@ -543,29 +563,29 @@ public class Main2Activity extends AppCompatActivity {
 
     private void getConfigApp() {
         dialogLoading.show();
-        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
-            dialogLoading.hide();
-            AlertDialog.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
-            } else {
-                builder = new AlertDialog.Builder(Main2Activity.this);
-            }
-            builder.setTitle(R.string.title_error_country)
-                    .setMessage(R.string.message_error_country)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                            dialog.cancel();
-                            getConfigApp();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setCancelable(false)
-                    .show();
-            return;
-        }
+//        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
+//                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
+//            dialogLoading.hide();
+//            AlertDialog.Builder builder;
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
+//            } else {
+//                builder = new AlertDialog.Builder(Main2Activity.this);
+//            }
+//            builder.setTitle(R.string.title_error_country)
+//                    .setMessage(R.string.message_error_country)
+//                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            // continue with delete
+//                            dialog.cancel();
+//                            getConfigApp();
+//                        }
+//                    })
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .setCancelable(false)
+//                    .show();
+//            return;
+//        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
@@ -637,7 +657,9 @@ public class Main2Activity extends AppCompatActivity {
             if (browserTab.webView != null && browserTab.webView.canGoBack())
                 browserTab.webView.goBack();
             else {
-                browserTab.webView.loadUrl("about:blank");
+                browserTab.webView.stopLoading();
+                browserTab.clearHistory = true;
+                browserTab.showWebview(false);//webView.loadUrl("about:blank");
             }
         }
     }
@@ -645,6 +667,7 @@ public class Main2Activity extends AppCompatActivity {
     public void loadUrlWebview(String url) {
         BrowserTabFragment browserTab = (BrowserTabFragment) adapter.getItem(1);
         browserTab.webView.loadUrl(url);
+        browserTab.showWebview(true);
         changeToBrowserTab();
     }
 

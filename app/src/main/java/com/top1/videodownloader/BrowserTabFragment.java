@@ -40,6 +40,8 @@ public class BrowserTabFragment extends Fragment {
     private String urlDownloadOther;
     private LinearLayout infomationView;
 
+    public boolean clearHistory = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,6 +76,11 @@ public class BrowserTabFragment extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 urlDownloadOther = null;
+                if (clearHistory)
+                {
+                    clearHistory = false;
+                    webView.clearHistory();
+                }
                 super.onPageFinished(view, url);
             }
 

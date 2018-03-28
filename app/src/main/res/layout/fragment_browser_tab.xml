@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.top1.videodownloader.BrowserTabFragment">
+    tools:context="com.advance.videodownloader.BrowserTabFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <ProgressBar
@@ -61,7 +61,7 @@
             android:layout_marginBottom="0dp"
             android:layout_marginRight="36dp"
             android:clickable="true"
-            android:src="@drawable/ic_file_download_white_24dp"
+            android:src="@drawable/ic_save_white_24dp"
             app:backgroundTint="@color/colorPrimary"
             app:elevation="4dp"
             app:fabSize="normal"

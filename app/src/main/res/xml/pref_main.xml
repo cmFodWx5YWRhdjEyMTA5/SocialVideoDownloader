@@ -8,9 +8,7 @@
         android:key="@string/key_rating"
         android:title="@string/action_rating"
         />
-    <Preference
-        android:key="@string/key_feedback"
-        android:title="@string/action_feedback" />
+
     <Preference
         android:key="@string/key_share"
         android:title="@string/action_share"

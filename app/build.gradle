@@ -8,10 +8,10 @@ android {
 
 
     defaultConfig {
-        applicationId "com.mp4.video.downloader"
+        applicationId "com.best1.videodownload"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 10
+        versionCode 5
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

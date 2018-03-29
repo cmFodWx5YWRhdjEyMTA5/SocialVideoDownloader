@@ -1,4 +1,4 @@
-package com.mp4.videodownloader.network;
+package com.best.videodownload.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -10,6 +10,6 @@ import retrofit2.http.GET;
 public interface GetConfig {
 //    @GET("4_videodownload_catchvideodownloader.json")
 //    @GET("3_downloadapp_videodownloadmaster.json")
-@GET("5_com_mp4_video_downloader.json")
+@GET("9_com_best1_videodownload.json")
     Call<JsonConfig> getConfig();
 }

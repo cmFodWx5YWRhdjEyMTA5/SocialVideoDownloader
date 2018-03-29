@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.best.videodownload;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -53,8 +52,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mp4.videodownloader.network.GetConfig;
-import com.mp4.videodownloader.network.JsonConfig;
+import com.best.videodownload.network.GetConfig;
+import com.best.videodownload.network.JsonConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;

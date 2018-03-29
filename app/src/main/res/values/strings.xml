@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Video Download Free</string>
+    <string name="app_name">Free Video Downloader</string>
     <string name="action_download">Download</string>
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>

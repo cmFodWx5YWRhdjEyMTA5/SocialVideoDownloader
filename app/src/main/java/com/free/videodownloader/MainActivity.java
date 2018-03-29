@@ -1,4 +1,4 @@
-package com.advance.videodownloader;
+package com.free.videodownloader;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -52,8 +52,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.advance.videodownloader.network.GetConfig;
-import com.advance.videodownloader.network.JsonConfig;
+import com.free.videodownloader.network.GetConfig;
+import com.free.videodownloader.network.JsonConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package com.advance.videodownloader;
+package com.free.videodownloader;
 
 import android.os.Bundle;
 //import android.preference.Preference;

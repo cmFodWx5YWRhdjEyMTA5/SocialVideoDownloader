@@ -8,7 +8,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.free.videodownloader"
+        applicationId "com.freeno1.videodownloader"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 2

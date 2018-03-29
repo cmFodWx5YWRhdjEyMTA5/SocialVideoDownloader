@@ -113,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 // Returning 'false' unconditionally is fine.
-                Log.d("caomui22",view.getUrl());
-                Log.d("caomui23",url);
                 if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
                 {
                     showNotSupportYoutube();
@@ -759,29 +757,29 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
 
         dialogLoading.show();
-        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
-            dialogLoading.hide();
-            AlertDialog.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-            } else {
-                builder = new AlertDialog.Builder(MainActivity.this);
-            }
-            builder.setTitle(R.string.title_error_country)
-                    .setMessage(R.string.message_error_country)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                            dialog.cancel();
-                            getConfigApp();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setCancelable(false)
-                    .show();
-            return;
-        }
+//        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
+//                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
+//            dialogLoading.hide();
+//            AlertDialog.Builder builder;
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+//            } else {
+//                builder = new AlertDialog.Builder(MainActivity.this);
+//            }
+//            builder.setTitle(R.string.title_error_country)
+//                    .setMessage(R.string.message_error_country)
+//                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            // continue with delete
+//                            dialog.cancel();
+//                            getConfigApp();
+//                        }
+//                    })
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .setCancelable(false)
+//                    .show();
+//            return;
+//        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)

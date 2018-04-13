@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mp4 Video Downloader</string>
+    <string name="app_name">Catch Video Download</string>
     <string name="action_download">Download</string>
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>
@@ -10,7 +10,7 @@
     <string name="key_feedback">key_feedback</string>
     <string name="key_rating">key_rating</string>
     <string name="app_version">App version</string>
-    <string name="dev_email">support_mp4download@gmail.com</string>
+    <string name="dev_email">catchvideodownload@gmail.com</string>
     <string name="error_download_page">Not support this url, please go to video detail page</string>
     <string name="detect_download_link">Detect new video download link</string>
     <string name="error_content_copyright">Not support this channel because DCMA copyright!!!</string>

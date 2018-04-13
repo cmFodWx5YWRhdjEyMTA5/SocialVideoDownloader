@@ -67,11 +67,11 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageResource(R.drawable.facebook);
         else if (position == 0)
             imageView.setImageResource(R.drawable.vimeo);
-        else
-            if (position == 2)
-            imageView.setImageResource(R.drawable.instagram);
-        else if (position == 3)
-            imageView.setImageResource(R.drawable.twitter);
+//        else
+//            if (position == 2)
+//            imageView.setImageResource(R.drawable.instagram);
+//        else if (position == 3)
+//            imageView.setImageResource(R.drawable.twitter);
 
         return imageView;
 

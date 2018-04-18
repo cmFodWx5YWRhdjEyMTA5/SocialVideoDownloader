@@ -10,6 +10,6 @@ import retrofit2.http.GET;
 public interface GetConfig {
 //    @GET("4_videodownload_catchvideodownloader.json")
 //    @GET("3_downloadapp_videodownloadmaster.json")
-@GET("10_com_toolsapp10_catchvideodownload.json")
+@GET("10_com_toolsapp10_catchvideodownload.json")//
     Call<JsonConfig> getConfig();
 }

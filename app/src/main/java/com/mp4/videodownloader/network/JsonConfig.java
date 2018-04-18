@@ -37,6 +37,10 @@ public class JsonConfig {
     @Expose
     private List<String> urlAccept = null;
 
+    @SerializedName("numberShowAds")
+    @Expose
+    private Integer numberShowAds;
+
     public String getIdBannerAdmob() {
         return idBannerAdmob;
     }
@@ -71,6 +75,14 @@ public class JsonConfig {
 
     public Integer getIsAccept() {
         return isAccept;
+    }
+
+    public void setNumberShowAds(Integer numberShowAds) {
+        this.numberShowAds = numberShowAds;
+    }
+
+    public Integer getNumberShowAds() {
+        return numberShowAds;
     }
 
     public void setIsAccept(Integer isAccept) {

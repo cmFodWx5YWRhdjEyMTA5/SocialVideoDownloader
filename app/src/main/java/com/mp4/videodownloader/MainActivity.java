@@ -109,13 +109,10 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
 
 
-        Log.d("caomui22","kkkk");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 // Returning 'false' unconditionally is fine.
-                Log.d("caomui22",view.getUrl());
-                Log.d("caomui23",url);
                 if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
                 {
                     showNotSupportYoutube();
@@ -126,22 +123,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Log.d("caomui33",view.getUrl());
-                return  true;
-            }
-
-            @Override
             public void onPageFinished(WebView view, String url) {
-//                if (isClearHistory) {
-//                    isClearHistory = false;
-//                    webView.clearHistory();
-//                }
-//                if (url.contains("facebook.com")) {
-//                    isDownloadFacebook = true;
-//                    urlDownloadFB = null;
-//                }
-
                 urlDownloadOther = null;
                 super.onPageFinished(view, url);
             }
@@ -287,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void requestAds() {
+    private void requestFullAds() {
         if (jsonConfig.getPriorityFull().equals("facebook")) {
             requestFBAds();
         } else if (jsonConfig.getPriorityFull().equals("admob")){
@@ -402,7 +384,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showErrorDownload() {
 //        Log.d("cao","hhhh");
-        Toast.makeText(this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void downloadYoutube(String url) {
@@ -427,8 +415,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
                 if (vMeta.getChannelId().equalsIgnoreCase("UCl2aT0nRejTCQO_LHZAftBw")) {
-                    dialogLoading.dismiss();
-                    Toast.makeText(MainActivity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            Toast.makeText(MainActivity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                     return;
                 }
 //                Log.d("caomui3",ytFiles.size() +"");
@@ -448,7 +442,13 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     showErrorDownload();
                 }
-                dialogLoading.dismiss();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                    }
+                });
+
             }
         }.extract(urlExtra, false, false);
     }
@@ -524,29 +524,35 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.error_download_other_site, Toast.LENGTH_SHORT).show();
     }
 
-    private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
-        final Dialog dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.popup_download);
-        ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
-        myQualities.setAdapter(adapter);
-        myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void showListViewDownload(final List<String> listTitle, final List<String> listUrl, final String fileName) {
+        MainActivity.this.runOnUiThread(new Runnable() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                dialog.dismiss();
-                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-                r.allowScanningByMediaScanner();
-                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(r);
-                Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+            public void run() {
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.popup_download);
+                ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+                myQualities.setAdapter(adapter);
+                myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        dialog.dismiss();
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        r.allowScanningByMediaScanner();
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        dm.enqueue(r);
+                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                dialog.setCancelable(true);
+                dialog.show();
             }
         });
 
-        dialog.setCancelable(true);
-        dialog.show();
     }
 
 //    private  void initToolBar()
@@ -808,40 +814,69 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                dialogLoading.hide();
+
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.hide();
+                    }
+                });
+
                 if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                    addBannerAds();
-                    requestAds();
+                    SharedPreferences mPrefs2 = getPreferences(0);//getSharedPreferences("", 0);
+                    int count = mPrefs2.getInt("run_app",0);
+                    if (count >= jsonConfig.getNumberShowAds())
+                    {
+                        addBannerAds();
+                        requestFullAds();
+                    }
+                    else
+                    {
+                        jsonConfig.setPercentAds(0);
+                    }
 
                     RateThisApp.Config config = new RateThisApp.Config(1, 3);
                     RateThisApp.init(config);
                     RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                 } else {
-                    showPopupNewApp();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showPopupNewApp();
+                        }
+                    });
+
                 }
             }
 
             @Override
             public void onFailure(Call<JsonConfig> call, Throwable t) {
-                dialogLoading.hide();
-                AlertDialog.Builder builder;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                } else {
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                }
-                builder.setTitle(R.string.title_error_connection)
-                        .setMessage(R.string.message_error_connection)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // continue with delete
-                                dialog.cancel();
-                                getConfigApp();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setCancelable(false)
-                        .show();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.hide();
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(MainActivity.this);
+                        }
+                        builder.setTitle(R.string.title_error_connection)
+                                .setMessage(R.string.message_error_connection)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                        dialog.cancel();
+                                        getConfigApp();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setCancelable(false)
+                                .show();
+                    }
+                });
+
             }
         });
     }

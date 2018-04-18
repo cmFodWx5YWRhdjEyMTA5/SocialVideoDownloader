@@ -69,11 +69,6 @@ public class BrowserTabFragment extends Fragment {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return  true;
-            }
-
-            @Override
             public void onPageFinished(WebView view, String url) {
                 urlDownloadOther = null;
                 if (clearHistory)

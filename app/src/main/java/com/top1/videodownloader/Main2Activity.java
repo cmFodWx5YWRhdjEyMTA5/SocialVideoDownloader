@@ -142,7 +142,13 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     public void showErrorDownload() {
-        Toast.makeText(this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+        Main2Activity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(Main2Activity.this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     public void showPopupNewApp() {
@@ -330,7 +336,13 @@ public class Main2Activity extends AppCompatActivity {
                 } else {
                     showErrorDownload();
                 }
-                dialogLoading.dismiss();
+
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                    }
+                });
             }
         }.extract(urlExtra, false, false);
     }
@@ -399,29 +411,35 @@ public class Main2Activity extends AppCompatActivity {
         });
     }
 
-    private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
-        final Dialog dialog = new Dialog(Main2Activity.this);
-        dialog.setContentView(R.layout.popup_download);
-        ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(Main2Activity.this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
-        myQualities.setAdapter(adapter);
-        myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void showListViewDownload(final List<String> listTitle, final List<String> listUrl, final String fileName) {
+        Main2Activity.this.runOnUiThread(new Runnable() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                dialog.dismiss();
-                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-                r.allowScanningByMediaScanner();
-                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(r);
-                Toast.makeText(Main2Activity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+            public void run() {
+                final Dialog dialog = new Dialog(Main2Activity.this);
+                dialog.setContentView(R.layout.popup_download);
+                ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(Main2Activity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+                myQualities.setAdapter(adapter);
+                myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        dialog.dismiss();
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        r.allowScanningByMediaScanner();
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        dm.enqueue(r);
+                        Toast.makeText(Main2Activity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                dialog.setCancelable(true);
+                dialog.show();
             }
         });
 
-        dialog.setCancelable(true);
-        dialog.show();
     }
 
     @Override
@@ -563,29 +581,6 @@ public class Main2Activity extends AppCompatActivity {
 
     private void getConfigApp() {
         dialogLoading.show();
-//        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-//                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
-//            dialogLoading.hide();
-//            AlertDialog.Builder builder;
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
-//            } else {
-//                builder = new AlertDialog.Builder(Main2Activity.this);
-//            }
-//            builder.setTitle(R.string.title_error_country)
-//                    .setMessage(R.string.message_error_country)
-//                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            // continue with delete
-//                            dialog.cancel();
-//                            getConfigApp();
-//                        }
-//                    })
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .setCancelable(false)
-//                    .show();
-//            return;
-//        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
@@ -599,7 +594,7 @@ public class Main2Activity extends AppCompatActivity {
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
                 strArrData = response.body().getUrlAccept().toArray(new String[0]);
-                loadTopSite();
+
 
                 SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
                 if (jsonConfig.getIsAccept() > 0) {
@@ -612,40 +607,53 @@ public class Main2Activity extends AppCompatActivity {
                     }
                 }
 
-                dialogLoading.hide();
-                if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                    addBannerAds();
-                    requestAds();
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadTopSite();
+                        dialogLoading.dismiss();
+                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+                            addBannerAds();
+                            requestAds();
 
-                    RateThisApp.Config config = new RateThisApp.Config(1, 3);
-                    RateThisApp.init(config);
-                    RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
-                } else {
-                    showPopupNewApp();
-                }
+                            RateThisApp.Config config = new RateThisApp.Config(1, 3);
+                            RateThisApp.init(config);
+                            RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+                        } else {
+                            showPopupNewApp();
+                        }
+                    }
+                });
+
             }
 
             @Override
             public void onFailure(Call<JsonConfig> call, Throwable t) {
-                dialogLoading.hide();
-                AlertDialog.Builder builder;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
-                } else {
-                    builder = new AlertDialog.Builder(Main2Activity.this);
-                }
-                builder.setTitle(R.string.title_error_connection)
-                        .setMessage(R.string.message_error_connection)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // continue with delete
-                                dialog.cancel();
-                                getConfigApp();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setCancelable(false)
-                        .show();
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(Main2Activity.this);
+                        }
+                        builder.setTitle(R.string.title_error_connection)
+                                .setMessage(R.string.message_error_connection)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                        dialog.cancel();
+                                        getConfigApp();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setCancelable(false)
+                                .show();
+                    }
+                });
+
             }
         });
     }

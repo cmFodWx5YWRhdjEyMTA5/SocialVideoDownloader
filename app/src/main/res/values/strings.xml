@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Top Video Downloader</string>
+    <string name="app_name">All Video Downloader</string>
     <string name="action_download">Download</string>
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>
@@ -14,7 +14,7 @@
     <string name="download_folder">Download folder</string>
     <string name="key_share">key_share</string>
     <string name="action_share">Share this app</string>
-    <string name="dev_email">support_topdownload@gmail.com</string>
+    <string name="dev_email">alldownload111@gmail.com</string>
     <string name="error_download_page">Not support this url, please go to video detail page</string>
     <string name="detect_download_link">Detect new video download link</string>
     <string name="error_content_copyright">Not support this channel because DCMA copyright!!!</string>

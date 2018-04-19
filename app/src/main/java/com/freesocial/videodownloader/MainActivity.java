@@ -123,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (isClearHistory) {
+                    isClearHistory = false;
+                    webView.clearHistory();
+                }
                 urlDownloadOther = null;
                 super.onPageFinished(view, url);
             }
@@ -759,7 +763,7 @@ public class MainActivity extends AppCompatActivity {
             webView.goBack();
         else {
             webView.loadUrl("about:blank");
-//            isClearHistory = true;
+            isClearHistory = true;
 //            webView.setVisibility(View.GONE);
         }
     }

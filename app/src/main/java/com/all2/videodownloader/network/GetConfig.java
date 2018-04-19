@@ -9,8 +9,6 @@ import retrofit2.http.Query;
  */
 
 public interface GetConfig {
-//    @GET("4_videodownload_catchvideodownloader.json")
-//    @GET("3_downloadapp_videodownloadmaster.json")
 @GET("7_com_all2_videodownloader.json")
     Call<JsonConfig> getConfig();
 

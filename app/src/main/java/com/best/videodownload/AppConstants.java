@@ -5,6 +5,6 @@ package com.best.videodownload;
  */
 
 public class AppConstants {
-    public final static String URL_CONFIG = "https://config-app-game-1.firebaseio.com";
+    public final static String URL_CONFIG = "https://config-app-game2.firebaseio.com";
 
 }

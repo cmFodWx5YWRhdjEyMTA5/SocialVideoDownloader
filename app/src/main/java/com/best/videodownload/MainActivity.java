@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
 
 
-        Log.d("caomui22","kkkk");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -122,22 +121,9 @@ public class MainActivity extends AppCompatActivity {
                 return  false;
             }
 
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Log.d("caomui33",view.getUrl());
-                return  true;
-            }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-//                if (isClearHistory) {
-//                    isClearHistory = false;
-//                    webView.clearHistory();
-//                }
-//                if (url.contains("facebook.com")) {
-//                    isDownloadFacebook = true;
-//                    urlDownloadFB = null;
-//                }
 
                 urlDownloadOther = null;
                 super.onPageFinished(view, url);
@@ -399,7 +385,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showErrorDownload() {
 //        Log.d("cao","hhhh");
-        Toast.makeText(this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void downloadYoutube(String url) {
@@ -424,8 +416,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
                 if (vMeta.getChannelId().equalsIgnoreCase("UCl2aT0nRejTCQO_LHZAftBw")) {
-                    dialogLoading.dismiss();
-                    Toast.makeText(MainActivity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            Toast.makeText(MainActivity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                     return;
                 }
 //                Log.d("caomui3",ytFiles.size() +"");
@@ -517,53 +515,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadOtherSite(String url) {
-//        showErrorDownload();
         Toast.makeText(this, R.string.error_download_other_site, Toast.LENGTH_SHORT).show();
     }
 
-    private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
-        final Dialog dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.popup_download);
-        ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
-        myQualities.setAdapter(adapter);
-        myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void showListViewDownload(final List<String> listTitle, final List<String> listUrl, final String fileName) {
+        MainActivity.this.runOnUiThread(new Runnable() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                dialog.dismiss();
-                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-                r.allowScanningByMediaScanner();
-                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(r);
-                Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+            public void run() {
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.popup_download);
+                ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+                myQualities.setAdapter(adapter);
+                myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        dialog.dismiss();
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        r.allowScanningByMediaScanner();
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        dm.enqueue(r);
+                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                dialog.setCancelable(true);
+                dialog.show();
             }
         });
 
-        dialog.setCancelable(true);
-        dialog.show();
     }
-
-//    private  void initToolBar()
-//    {
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-//        getSupportActionBar().setDisplayShowTitleEnabled(false);
-//    }
-
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        Log.d("hhhhh","new itent");
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//            String query = intent.getStringExtra(SearchManager.QUERY);
-//            if (searchView != null) {
-//                searchView.clearFocus();
-//            }
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -757,29 +741,6 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
 
         dialogLoading.show();
-//        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-//                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
-//            dialogLoading.hide();
-//            AlertDialog.Builder builder;
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-//            } else {
-//                builder = new AlertDialog.Builder(MainActivity.this);
-//            }
-//            builder.setTitle(R.string.title_error_country)
-//                    .setMessage(R.string.message_error_country)
-//                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            // continue with delete
-//                            dialog.cancel();
-//                            getConfigApp();
-//                        }
-//                    })
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .setCancelable(false)
-//                    .show();
-//            return;
-//        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
@@ -792,6 +753,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
+//                Log.d("caomui336",response.body().getUrlAccept().size() +"");
                 strArrData = response.body().getUrlAccept().toArray(new String[0]);
 
                 SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
@@ -805,40 +767,52 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                dialogLoading.hide();
-                if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                    addBannerAds();
-                    requestAds();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+                            addBannerAds();
+                            requestAds();
 
-                    RateThisApp.Config config = new RateThisApp.Config(1, 3);
-                    RateThisApp.init(config);
-                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                } else {
-                    showPopupNewApp();
-                }
+                            RateThisApp.Config config = new RateThisApp.Config(1, 3);
+                            RateThisApp.init(config);
+                            RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                        } else {
+                            showPopupNewApp();
+                        }
+                    }
+                });
+
             }
 
             @Override
             public void onFailure(Call<JsonConfig> call, Throwable t) {
-                dialogLoading.hide();
-                AlertDialog.Builder builder;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                } else {
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                }
-                builder.setTitle(R.string.title_error_connection)
-                        .setMessage(R.string.message_error_connection)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // continue with delete
-                                dialog.cancel();
-                                getConfigApp();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setCancelable(false)
-                        .show();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(MainActivity.this);
+                        }
+                        builder.setTitle(R.string.title_error_connection)
+                                .setMessage(R.string.message_error_connection)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                        dialog.cancel();
+                                        getConfigApp();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setCancelable(false)
+                                .show();
+                    }
+                });
+
             }
         });
     }

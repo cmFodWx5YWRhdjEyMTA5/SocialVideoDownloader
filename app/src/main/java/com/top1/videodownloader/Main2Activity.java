@@ -54,6 +54,7 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.top1.videodownloader.network.GetConfig;
 import com.top1.videodownloader.network.JsonConfig;
+import com.top1.videodownloader.network.Suggest;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -512,36 +513,34 @@ public class Main2Activity extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(final String s) {
-                    if (s.equals(""))
-                        return  false;
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(AppConstants.BASE_URL_SEARCH)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    final GetConfig config = retrofit.create(GetConfig.class);
-
-                    Call<String[]> call = config.getSuggestion(s);
-                    call.enqueue(new Callback<String[]>() {
-                        @Override
-                        public void onResponse(Call<String[]> call, Response<String[]> response) {
-                            Log.e("caomui",response.body().toString());
-
-                            strArrData = response.body();
-                            final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-                            int count = strArrData.length;
-                            if (count > 5 )
-                                count = 5;
-                            for (int i = 0; i < 5; i++) {
-                                if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
-                                    mc.addRow(new Object[]{i, strArrData[i]});
-                            }
-                            myAdapter.changeCursor(mc);
-                        }
-
-                        @Override
-                        public void onFailure(Call<String[]> call, Throwable t) {
-                        }
-                    });
+//                    Retrofit retrofit = new Retrofit.Builder()
+//                            .baseUrl(AppConstants.BASE_URL_SEARCH)
+//                            .addConverterFactory(GsonConverterFactory.create())
+//                            .build();
+//                    final GetConfig config = retrofit.create(GetConfig.class);
+//
+//                    Call<Suggest> call = config.getSuggestion(s);
+//                    call.enqueue(new Callback<Suggest>() {
+//                        @Override
+//                        public void onResponse(Call<Suggest> call, Response<Suggest> response) {
+//                            Log.e("caomui",response.body().toString());
+//
+//                            strArrData = response.body().getListQuery();
+//                            final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+//                            int count = strArrData.length;
+//                            if (count > 5 )
+//                                count = 5;
+//                            for (int i = 0; i < 5; i++) {
+//                                if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
+//                                    mc.addRow(new Object[]{i, strArrData[i]});
+//                            }
+//                            myAdapter.changeCursor(mc);
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<Suggest> call, Throwable t) {
+//                        }
+//                    });
                     return false;
                 }
 

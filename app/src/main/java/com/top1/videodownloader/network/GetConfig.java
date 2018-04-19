@@ -15,5 +15,5 @@ public interface GetConfig {
     Call<JsonConfig> getConfig();
 
 @GET("/complete/search?client=youtube&ds=yt&client=firefox")
-Call<String[]> getSuggestion( @Query("q") String q);
+Call<Suggest> getSuggestion( @Query("q") String q);
 }

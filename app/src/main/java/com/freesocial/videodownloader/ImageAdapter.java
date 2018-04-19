@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.freesocial.videodownloader;
 
 import android.content.Context;
 import android.view.View;
@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.mp4.videodownloader.network.Site;
+import com.freesocial.videodownloader.network.Site;
 
 import java.util.List;
 
@@ -67,11 +67,7 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageResource(R.drawable.facebook);
         else if (position == 0)
             imageView.setImageResource(R.drawable.vimeo);
-        else
-            if (position == 2)
-            imageView.setImageResource(R.drawable.instagram);
-        else if (position == 3)
-            imageView.setImageResource(R.drawable.twitter);
+
 
         return imageView;
 

@@ -1,4 +1,4 @@
-package com.mp4.videodownloader.network;
+package com.freesocial.videodownloader.network;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

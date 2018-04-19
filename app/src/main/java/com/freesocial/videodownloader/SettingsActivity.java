@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.freesocial.videodownloader;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

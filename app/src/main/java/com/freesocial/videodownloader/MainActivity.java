@@ -1,4 +1,4 @@
-package com.mp4.videodownloader;
+package com.freesocial.videodownloader;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -34,7 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -53,8 +51,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mp4.videodownloader.network.GetConfig;
-import com.mp4.videodownloader.network.JsonConfig;
+import com.freesocial.videodownloader.network.GetConfig;
+import com.freesocial.videodownloader.network.JsonConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;

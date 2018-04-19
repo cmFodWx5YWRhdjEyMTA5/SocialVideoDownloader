@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
 //    private boolean isFirstAds = true;
     private String urlDownloadOther;
+    private  boolean isClearHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -739,7 +740,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
             case R.id.action_home:
-
+                if (new Random().nextInt(20) == 0)
+                    showFullAds();
+                webView.loadUrl("about:blank");
+                isClearHistory = true;
                 return true;
             case R.id.action_rating:
                 launchMarket();

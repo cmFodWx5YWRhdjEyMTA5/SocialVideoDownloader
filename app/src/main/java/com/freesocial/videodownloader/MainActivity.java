@@ -738,8 +738,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-            case R.id.action_setting:
-                startActivity(new Intent(this, SettingsActivity.class));
+            case R.id.action_home:
+
+                return true;
+            case R.id.action_rating:
+                launchMarket();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -759,29 +762,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void getConfigApp() {
         dialogLoading.show();
-        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {
-            dialogLoading.hide();
-            AlertDialog.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-            } else {
-                builder = new AlertDialog.Builder(MainActivity.this);
-            }
-            builder.setTitle(R.string.title_error_country)
-                    .setMessage(R.string.message_error_country)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                            dialog.cancel();
-                            getConfigApp();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setCancelable(false)
-                    .show();
-            return;
-        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
@@ -810,7 +790,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dialogLoading.hide();
+                        dialogLoading.dismiss();
                         if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
                             addBannerAds();
                             requestAds();
@@ -832,7 +812,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dialogLoading.hide();
+                        dialogLoading.dismiss();
                         AlertDialog.Builder builder;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);

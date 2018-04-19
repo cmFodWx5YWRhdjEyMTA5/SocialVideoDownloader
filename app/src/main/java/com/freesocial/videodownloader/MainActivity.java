@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     private com.facebook.ads.AdView adViewFb;
     private com.facebook.ads.InterstitialAd interstitialAdFb;
 
-    private boolean isFirstAds = true;
+//    private boolean isFirstAds = true;
     private String urlDownloadOther;
 
     @Override
@@ -284,10 +284,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds ) {
-                    isFirstAds = false;
-                    mInterstitialAd.show();
-                }
+//                if (isFirstAds ) {
+//                    isFirstAds = false;
+//                    mInterstitialAd.show();
+//                }
             }
 
             @Override
@@ -339,10 +339,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    interstitialAdFb.show();
-                }
+//                if (isFirstAds) {
+//                    isFirstAds = false;
+//                    interstitialAdFb.show();
+//                }
             }
 
             @Override
@@ -758,7 +758,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
-
         dialogLoading.show();
         if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
                 || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR")) {

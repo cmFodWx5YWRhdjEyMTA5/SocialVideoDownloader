@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "941833127295",
+    "firebase_url": "https://free-video-downloader-94388.firebaseio.com",
+    "project_id": "free-video-downloader-94388",
+    "storage_bucket": "free-video-downloader-94388.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941833127295:android:eab59ada5386c0a1",
+        "android_client_info": {
+          "package_name": "com.freeno1.videodownloader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941833127295-fg5i2aku3nq95i1u0or03th6mja3vnhd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [{ "current_key": "" }],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

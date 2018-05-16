@@ -597,7 +597,7 @@ public class Main2Activity extends AppCompatActivity {
 
 
                 SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
-                if (jsonConfig.getIsAccept() > 0) {
+                if (jsonConfig.getIsAccept() > 0 && jsonConfig.getIsAccept() > mPrefs.getInt("accept",0)) {
                     SharedPreferences.Editor mEditor = mPrefs.edit();
                     mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
                 } else {

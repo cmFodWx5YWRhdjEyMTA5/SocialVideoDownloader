@@ -11,8 +11,8 @@ android {
         applicationId "com.freeno1.videodownloader"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 301
-        versionName "1.5"
+        versionCode 401
+        versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -53,18 +53,6 @@ android {
         }
     }
 
-//    productFlavors {
-//        catchvideodownload {
-//            applicationId "com.mui.catchvideodownload"
-//            resValue "string", "app_name", "Catch Video"
-//            versionName "1.0"
-//        }
-//        socialvideodownloader {
-//            applicationId "com.best.socialvideodownloader"
-//            resValue "string", "app_name", "Social Download"
-//            versionName "1.0"
-//        }
-//    }
 }
 
 dependencies {
@@ -72,6 +60,8 @@ dependencies {
     compile 'com.android.support:design:27.1.0'
     compile 'com.android.support:support-v4:27.1.0'
     compile 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
 
     implementation 'com.android.support:preference-v14:27.1.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -86,14 +76,14 @@ dependencies {
 
     compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
     compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
-    compile 'com.google.firebase:firebase-ads:11.0.1'
+    compile 'com.google.firebase:firebase-ads:15.0.0'
     compile 'com.facebook.android:audience-network-sdk:4.+'
     compile 'io.github.kobakei:ratethisapp:1.2.0'
 
     compile 'org.jsoup:jsoup:1.10.3'
 }
 
-
+apply plugin: 'com.google.gms.google-services'
 
 
 

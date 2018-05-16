@@ -1,4 +1,4 @@
-package com.all2.videodownloader;
+package com.downloadapp.videodownloadmaster;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

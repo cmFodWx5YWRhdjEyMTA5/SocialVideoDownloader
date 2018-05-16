@@ -1,4 +1,4 @@
-package com.all2.videodownloader;
+package com.downloadapp.videodownloadmaster;
 
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -47,8 +47,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.all2.videodownloader.network.GetConfig;
-import com.all2.videodownloader.network.JsonConfig;
+import com.downloadapp.videodownloadmaster.network.GetConfig;
+import com.downloadapp.videodownloadmaster.network.JsonConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -209,10 +209,6 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    mInterstitialAd.show();
-                }
             }
 
             @Override
@@ -248,10 +244,6 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    interstitialAdFb.show();
-                }
             }
 
             @Override
@@ -530,36 +522,6 @@ public class Main2Activity extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(final String s) {
-                    if (s.equals(""))
-                        return  false;
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(AppConstants.BASE_URL_SEARCH)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    final GetConfig config = retrofit.create(GetConfig.class);
-
-                    Call<String[]> call = config.getSuggestion(s);
-                    call.enqueue(new Callback<String[]>() {
-                        @Override
-                        public void onResponse(Call<String[]> call, Response<String[]> response) {
-                            Log.e("caomui",response.body().toString());
-
-                            strArrData = response.body();
-                            final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-                            int count = strArrData.length;
-                            if (count > 5 )
-                                count = 5;
-                            for (int i = 0; i < 5; i++) {
-                                if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
-                                    mc.addRow(new Object[]{i, strArrData[i]});
-                            }
-                            myAdapter.changeCursor(mc);
-                        }
-
-                        @Override
-                        public void onFailure(Call<String[]> call, Throwable t) {
-                        }
-                    });
                     return false;
                 }
 

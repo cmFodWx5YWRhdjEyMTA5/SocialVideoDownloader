@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.all2.videodownloader.BrowserTabFragment">
+    tools:context="com.downloadapp.videodownloadmaster.BrowserTabFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <ProgressBar
@@ -26,15 +26,6 @@
             android:orientation="vertical"
             android:layout_centerInParent="true"
             >
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/icon"
-            android:maxWidth="200dp"
-            android:maxHeight="200dp"
-            android:adjustViewBounds="true"
-            android:layout_gravity="center_horizontal"
-            />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

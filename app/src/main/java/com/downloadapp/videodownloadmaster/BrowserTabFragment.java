@@ -1,4 +1,4 @@
-package com.all2.videodownloader;
+package com.downloadapp.videodownloadmaster;
 
 
 import android.app.DownloadManager;
@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;

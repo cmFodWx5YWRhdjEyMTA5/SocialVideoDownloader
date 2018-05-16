@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.all2.videodownloader.MainActivity">
+    tools:context="com.downloadapp.videodownloadmaster.MainActivity">
 
     <ProgressBar
         android:id="@+id/webProgress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="5dp"
         android:progressTint="@color/colorPrimaryDark"
         />
 

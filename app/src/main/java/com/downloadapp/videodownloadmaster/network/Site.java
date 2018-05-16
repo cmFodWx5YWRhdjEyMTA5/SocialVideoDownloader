@@ -1,4 +1,4 @@
-package com.all2.videodownloader.network;
+package com.downloadapp.videodownloadmaster.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

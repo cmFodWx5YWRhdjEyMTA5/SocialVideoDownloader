@@ -1,4 +1,4 @@
-package com.all2.videodownloader;
+package com.downloadapp.videodownloadmaster;
 
 /**
  * Created by muicv on 6/18/2017.

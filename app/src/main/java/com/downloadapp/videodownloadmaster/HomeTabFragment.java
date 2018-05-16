@@ -1,4 +1,4 @@
-package com.all2.videodownloader;
+package com.downloadapp.videodownloadmaster;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

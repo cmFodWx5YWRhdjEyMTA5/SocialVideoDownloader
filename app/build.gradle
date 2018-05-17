@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId "com.freeno1.videodownloader"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 401
         versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

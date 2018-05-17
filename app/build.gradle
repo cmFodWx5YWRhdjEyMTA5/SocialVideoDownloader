@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId "com.all2.videodownloader"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 36
-        versionName "1.2"
+        targetSdkVersion 26
+        versionCode 46
+        versionName "1.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

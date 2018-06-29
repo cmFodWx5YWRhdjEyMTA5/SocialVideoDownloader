@@ -183,6 +183,7 @@ public class Main2Activity extends AppCompatActivity {
         if (jsonConfig.getPriorityBanner().equals("facebook")) {
 
             adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+//            adViewFb = new com.facebook.ads.AdView(this, "2131666463713084_2131666530379744", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
             Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
             bannerView.addView(adViewFb);
             // Request an ad
@@ -199,11 +200,12 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void requestAds() {
-        if (jsonConfig.getPriorityFull().equals("facebook")) {
-            requestFBAds();
-        } else if (jsonConfig.getPriorityFull().equals("admob")) {
-            requestAdmob();
-        }
+        requestFBAds();
+//        if (jsonConfig.getPriorityFull().equals("facebook")) {
+//            requestFBAds();
+//        } else if (jsonConfig.getPriorityFull().equals("admob")) {
+//            requestAdmob();
+//        }
     }
 
     private void requestAdmob() {
@@ -232,8 +234,9 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void requestFBAds() {
-        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
-        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
+//        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, "2131666463713084_2131668597046204");
+        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, "402272580176266_402272920176232");
+//        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
@@ -248,7 +251,7 @@ public class Main2Activity extends AppCompatActivity {
 
             @Override
             public void onError(Ad ad, AdError adError) {
-//                Log.d("caomui1",adError.getErrorMessage());
+                Log.d("caomui1",adError.getErrorMessage());
             }
 
             @Override
@@ -610,18 +613,19 @@ public class Main2Activity extends AppCompatActivity {
                 Main2Activity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loadTopSite();
+                        requestAds();
+//                        loadTopSite();
                         dialogLoading.dismiss();
-                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                            addBannerAds();
-                            requestAds();
-
-                            RateThisApp.Config config = new RateThisApp.Config(1, 3);
-                            RateThisApp.init(config);
-                            RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
-                        } else {
-                            showPopupNewApp();
-                        }
+//                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+//                            addBannerAds();
+//                            requestAds();
+//
+//                            RateThisApp.Config config = new RateThisApp.Config(1, 3);
+//                            RateThisApp.init(config);
+//                            RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+//                        } else {
+//                            showPopupNewApp();
+//                        }
                     }
                 });
 

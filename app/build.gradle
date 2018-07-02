@@ -9,7 +9,6 @@ android {
 
     defaultConfig {
         applicationId "com.all2.videodownloader"
-//        applicationId "com.mp4.video.downloader"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 168

@@ -190,6 +190,7 @@ public class Main2Activity extends AppCompatActivity {
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
         }
+
     }
 
     private void requestAds() {
@@ -198,6 +199,7 @@ public class Main2Activity extends AppCompatActivity {
         } else if (jsonConfig.getPriorityFull().equals("admob")) {
             requestAdmob();
         }
+
     }
 
     private void requestAdmob() {
@@ -209,10 +211,10 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    mInterstitialAd.show();
-                }
+//                if (isFirstAds) {
+//                    isFirstAds = false;
+//                    mInterstitialAd.show();
+//                }
             }
 
             @Override
@@ -248,10 +250,10 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    interstitialAdFb.show();
-                }
+//                if (isFirstAds) {
+//                    isFirstAds = false;
+//                    interstitialAdFb.show();
+//                }
             }
 
             @Override
@@ -310,17 +312,14 @@ public class Main2Activity extends AppCompatActivity {
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                if (vMeta.getChannelId().equalsIgnoreCase("UCl2aT0nRejTCQO_LHZAftBw")) {
-                    Main2Activity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialogLoading.dismiss();
-                            Toast.makeText(Main2Activity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        showFullAds();
+                    }
+                });
 
-                    return;
-                }
                 if (ytFiles != null && ytFiles.size() > 0) {
                     final List<String> listTitle = new ArrayList<String>();
                     final List<String> listUrl = new ArrayList<String>();
@@ -336,12 +335,7 @@ public class Main2Activity extends AppCompatActivity {
                 } else {
                     showErrorDownload();
                 }
-                Main2Activity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                    }
-                });
+
 
             }
         }.extract(urlExtra, false, false);
@@ -391,6 +385,7 @@ public class Main2Activity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        showFullAds();
                         showListViewDownload(listTitle, listUrl, video.getTitle());
                     }
                 });

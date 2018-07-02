@@ -123,11 +123,11 @@ public class BrowserTabFragment extends Fragment {
                     }
                     else
                     {
-                        getMainActivity().showFullAds();
+//                        getMainActivity().showFullAds();
                         getMainActivity().downloadYoutube(webView.getUrl());
                     }
                 } else if (webView.getUrl().contains("vimeo.com")) {
-                    getMainActivity().showFullAds();
+//                    getMainActivity().showFullAds();
                     getMainActivity().downloadVimeo(webView.getUrl());
                 } else {
                     if (urlDownloadOther == null) {

@@ -180,23 +180,29 @@ public class Main2Activity extends AppCompatActivity {
 
     private void addBannerAds() {
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+//        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+//
+//            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+////            adViewFb = new com.facebook.ads.AdView(this, "2131666463713084_2131666530379744", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+//            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
+//            bannerView.addView(adViewFb);
+//            // Request an ad
+//            adViewFb.loadAd();
+//        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
+//            AdView adView = new AdView(this);
+//            adView.setAdSize(AdSize.SMART_BANNER);
+//            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
+//            bannerView.addView(adView);
+//
+//            AdRequest adRequest = new AdRequest.Builder().build();
+//            adView.loadAd(adRequest);
+//        }
 
-            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-//            adViewFb = new com.facebook.ads.AdView(this, "2131666463713084_2131666530379744", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
-            bannerView.addView(adViewFb);
-            // Request an ad
-            adViewFb.loadAd();
-        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
-            AdView adView = new AdView(this);
-            adView.setAdSize(AdSize.SMART_BANNER);
-            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
-            bannerView.addView(adView);
-
-            AdRequest adRequest = new AdRequest.Builder().build();
-            adView.loadAd(adRequest);
-        }
+        adViewFb = new com.facebook.ads.AdView(this, "440752169680029_441198396302073", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+        Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
+        bannerView.addView(adViewFb);
+        // Request an ad
+        adViewFb.loadAd();
     }
 
     private void requestAds() {
@@ -235,7 +241,7 @@ public class Main2Activity extends AppCompatActivity {
 
     private void requestFBAds() {
 //        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, "2131666463713084_2131668597046204");
-        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, "402272580176266_402272920176232");
+        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, "440752169680029_448494978905748");
 //        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
             @Override

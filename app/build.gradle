@@ -8,7 +8,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.applecat.aaaaa"
+        applicationId "com.applecat.worldchampion2018"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 201

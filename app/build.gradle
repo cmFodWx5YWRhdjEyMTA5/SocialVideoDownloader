@@ -86,7 +86,7 @@ dependencies {
 
     compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
     compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
-    compile 'com.google.firebase:firebase-ads:11.4.0'
+    compile 'com.google.android.gms:play-services-ads:15.0.1'//'com.google.firebase:firebase-ads:11.4.0'
     compile 'com.facebook.android:audience-network-sdk:4.+'
     compile 'io.github.kobakei:ratethisapp:1.2.0'
 

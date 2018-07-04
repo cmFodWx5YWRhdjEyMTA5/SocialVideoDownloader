@@ -38,17 +38,19 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.facebook.ads.InterstitialAdListener;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+//import com.facebook.ads.Ad;
+//import com.facebook.ads.AdError;
+//import com.facebook.ads.InterstitialAdListener;
+//import com.google.android.gms.ads.AdListener;
+//import com.google.android.gms.ads.AdRequest;
+//import com.google.android.gms.ads.AdSize;
+//import com.google.android.gms.ads.AdView;
+//import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.all2.videodownloader.network.GetConfig;
 import com.all2.videodownloader.network.JsonConfig;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -72,9 +74,9 @@ public class Main2Activity extends AppCompatActivity {
     public static JsonConfig jsonConfig;
     private ProgressDialog dialogLoading;
 
-    private InterstitialAd mInterstitialAd;
-    private com.facebook.ads.AdView adViewFb;
-    private com.facebook.ads.InterstitialAd interstitialAdFb;
+//    private InterstitialAd mInterstitialAd;
+//    private com.facebook.ads.AdView adViewFb;
+//    private com.facebook.ads.InterstitialAd interstitialAdFb;
 
     private SimpleCursorAdapter myAdapter;
     SearchView searchView = null;
@@ -87,6 +89,8 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StartAppSDK.init(this, "206190767", true);
+
         setContentView(R.layout.activity_main2);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -173,23 +177,23 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
-        RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
-
-            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
-            bannerView.addView(adViewFb);
-            // Request an ad
-            adViewFb.loadAd();
-        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
-            AdView adView = new AdView(this);
-            adView.setAdSize(AdSize.SMART_BANNER);
-            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
-            bannerView.addView(adView);
-
-            AdRequest adRequest = new AdRequest.Builder().build();
-            adView.loadAd(adRequest);
-        }
+//        RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
+//        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+//
+//            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+//            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
+//            bannerView.addView(adViewFb);
+//            // Request an ad
+//            adViewFb.loadAd();
+//        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
+//            AdView adView = new AdView(this);
+//            adView.setAdSize(AdSize.SMART_BANNER);
+//            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
+//            bannerView.addView(adView);
+//
+//            AdRequest adRequest = new AdRequest.Builder().build();
+//            adView.loadAd(adRequest);
+//        }
 
     }
 
@@ -203,92 +207,94 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void requestAdmob() {
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
-
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-//                if (isFirstAds) {
-//                    isFirstAds = false;
-//                    mInterstitialAd.show();
-//                }
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the interstitial ad is closed.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-            }
-        });
-
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//        mInterstitialAd = new InterstitialAd(this);
+//        mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
+//
+//
+//        mInterstitialAd.setAdListener(new AdListener() {
+//            @Override
+//            public void onAdLoaded() {
+//                // Code to be executed when an ad finishes loading.
+////                if (isFirstAds) {
+////                    isFirstAds = false;
+////                    mInterstitialAd.show();
+////                }
+//            }
+//
+//            @Override
+//            public void onAdClosed() {
+//                // Code to be executed when when the interstitial ad is closed.
+//                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//            }
+//        });
+//
+//        mInterstitialAd.loadAd(new AdRequest.Builder().build());
     }
 
     private void requestFBAds() {
-        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
-        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
-        interstitialAdFb.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-                // Interstitial displayed callback
-            }
-
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                // Interstitial dismissed callback
-                interstitialAdFb.loadAd();
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-//                Log.d("caomui1",adError.getErrorMessage());
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                // Show the ad when it's done loading.
-//                if (isFirstAds) {
-//                    isFirstAds = false;
-//                    interstitialAdFb.show();
-//                }
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                // Ad clicked callback
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                // Ad impression logged callback
-            }
-        });
-
-
-        // For auto play video ads, it's recommended to load the ad
-        // at least 30 seconds before it is shown
-        interstitialAdFb.loadAd();
+//        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
+//        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
+//        interstitialAdFb.setAdListener(new InterstitialAdListener() {
+//            @Override
+//            public void onInterstitialDisplayed(Ad ad) {
+//                // Interstitial displayed callback
+//            }
+//
+//            @Override
+//            public void onInterstitialDismissed(Ad ad) {
+//                // Interstitial dismissed callback
+//                interstitialAdFb.loadAd();
+//            }
+//
+//            @Override
+//            public void onError(Ad ad, AdError adError) {
+////                Log.d("caomui1",adError.getErrorMessage());
+//            }
+//
+//            @Override
+//            public void onAdLoaded(Ad ad) {
+//                // Show the ad when it's done loading.
+////                if (isFirstAds) {
+////                    isFirstAds = false;
+////                    interstitialAdFb.show();
+////                }
+//            }
+//
+//            @Override
+//            public void onAdClicked(Ad ad) {
+//                // Ad clicked callback
+//            }
+//
+//            @Override
+//            public void onLoggingImpression(Ad ad) {
+//                // Ad impression logged callback
+//            }
+//        });
+//
+//
+//        // For auto play video ads, it's recommended to load the ad
+//        // at least 30 seconds before it is shown
+//        interstitialAdFb.loadAd();
     }
 
     public void showFullAds() {
-        Random ran = new Random();
-        if (ran.nextInt(100) < jsonConfig.getPercentAds()) {
-            if (mInterstitialAd != null) {
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show();
-                else
-                    requestAdmob();
+        StartAppAd.showAd(this);
 
-            } else if (interstitialAdFb != null) {
-                if (interstitialAdFb.isAdLoaded())
-                    interstitialAdFb.show();
-                else
-                    requestFBAds();
-            }
-        }
+//        Random ran = new Random();
+//        if (ran.nextInt(100) < jsonConfig.getPercentAds()) {
+//            if (mInterstitialAd != null) {
+//                if (mInterstitialAd.isLoaded())
+//                    mInterstitialAd.show();
+//                else
+//                    requestAdmob();
+//
+//            } else if (interstitialAdFb != null) {
+//                if (interstitialAdFb.isAdLoaded())
+//                    interstitialAdFb.show();
+//                else
+//                    requestFBAds();
+//            }
+//        }
     }
 
     public void downloadYoutube(String url) {
@@ -658,10 +664,17 @@ public class Main2Activity extends AppCompatActivity {
             if (browserTab.webView != null && browserTab.webView.canGoBack())
                 browserTab.webView.goBack();
             else {
-                browserTab.webView.stopLoading();
-                browserTab.clearHistory = true;
-                browserTab.showWebview(false);//webView.loadUrl("about:blank");
+//                browserTab.webView.stopLoading();
+//                browserTab.clearHistory = true;
+//                browserTab.showWebview(false);//webView.loadUrl("about:blank");
+                StartAppAd.onBackPressed(this);
+                super.onBackPressed();
             }
+        }
+        else
+        {
+            StartAppAd.onBackPressed(this);
+            super.onBackPressed();
         }
     }
 
@@ -683,16 +696,16 @@ public class Main2Activity extends AppCompatActivity {
         browserTab.loadDataGridView();
     }
 
-    @Override
-    protected void onDestroy() {
-        if (adViewFb != null) {
-            adViewFb.destroy();
-        }
-        if (interstitialAdFb != null) {
-            interstitialAdFb.destroy();
-        }
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        if (adViewFb != null) {
+//            adViewFb.destroy();
+//        }
+//        if (interstitialAdFb != null) {
+//            interstitialAdFb.destroy();
+//        }
+//        super.onDestroy();
+//    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();

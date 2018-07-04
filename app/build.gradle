@@ -11,7 +11,7 @@ android {
         applicationId "com.all2.videodownloader"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 168
+        versionCode 268
         versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -86,9 +86,10 @@ dependencies {
 
     implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
     implementation 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
-    implementation 'com.google.firebase:firebase-ads:11.0.1'
-    implementation 'com.facebook.android:audience-network-sdk:4.+'
+//    implementation 'com.google.firebase:firebase-ads:11.0.1'
+//    implementation 'com.facebook.android:audience-network-sdk:4.+'
     implementation 'io.github.kobakei:ratethisapp:1.2.0'
+    api 'com.startapp:inapp-sdk:3.9.3'
 
     implementation 'org.jsoup:jsoup:1.10.3'
 }

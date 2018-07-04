@@ -19,15 +19,21 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/tabs"
-        android:layout_above="@+id/adsBannerView"/>
-
-
-    <RelativeLayout
-        android:id="@+id/adsBannerView"
+        android:layout_above="@+id/startAppBanner"
+        />
+    <com.startapp.android.publish.ads.banner.Banner
+        android:id="@+id/startAppBanner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        />
+        android:layout_alignParentBottom="true"/>
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/adsBannerView"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--/>-->
 
 </RelativeLayout>

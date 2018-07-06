@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion "25.0.2"
 
 
 
 
     defaultConfig {
-        applicationId "com.freesocial.videodownloader"
-        minSdkVersion 15
-        targetSdkVersion 25
+        applicationId "com.sdd3333.videodownloader"
+        minSdkVersion 19
+        targetSdkVersion 27
         versionCode 101
         versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

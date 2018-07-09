@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload.network;
+package com.v2social.socialdownloader.network;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

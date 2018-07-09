@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload;
+package com.v2social.socialdownloader;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -13,11 +13,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
-import android.os.StrictMode;
+import android.preference.DialogPreference;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -53,19 +51,11 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mui.catchvideodownload.network.GetConfig;
-import com.mui.catchvideodownload.network.JsonConfig;
+import com.v2social.socialdownloader.network.GetConfig;
+import com.v2social.socialdownloader.network.JsonConfig;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -90,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isClearHistory = false;
     private ProgressDialog dialogLoading;
     private boolean isDownloadFacebook = false;
-    private String urlDownloadFB;
+    private String urlDownloadOther;
 
     private SimpleCursorAdapter myAdapter;
 
@@ -173,67 +163,67 @@ public class MainActivity extends AppCompatActivity {
         dialogLoading.setCanceledOnTouchOutside(false);
         dialogLoading.dismiss();
 
-        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.btnDownload);
-        myFab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (!isStoragePermissionGranted()) {
-                    return;
-                }
-                if (webView.getUrl() == null) {
-                    showErrorDownload();
-                    return;
-                }
-                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                    showPopupNewApp();
-                    return;
-                }
-
-                if (webView.getUrl().contains("youtube.com")) {
-                    showFullAds();
-                    downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("facebook.com")) {
-
-                    if (urlDownloadFB == null) {
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(MainActivity.this);
-                        }
-                        builder.setTitle(R.string.title_error_facebook)
-                                .setMessage(R.string.message_error_facebook)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                    } else {
-                        showFullAds();
-                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
-                        r.allowScanningByMediaScanner();
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                        dm.enqueue(r);
-
-                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-                    }
-
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    showFullAds();
-                    downloadVimeo(webView.getUrl());
-                } else {
-                    if (webView.getVisibility() == View.GONE) {
-                        showErrorDownload();
-                    } else {
-                        downloadOtherSite(webView.getUrl());
-                    }
-                }
-            }
-        });
+//        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.btnDownload);
+//        myFab.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                if (!isStoragePermissionGranted()) {
+//                    return;
+//                }
+//                if (webView.getUrl() == null) {
+//                    showErrorDownload();
+//                    return;
+//                }
+//                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
+//                    showPopupNewApp();
+//                    return;
+//                }
+//
+//                if (webView.getUrl().contains("youtube.com")) {
+//                    showFullAds();
+//                    downloadYoutube(webView.getUrl());
+//                } else if (webView.getUrl().contains("facebook.com")) {
+//
+//                    if (urlDownloadFB == null) {
+//                        AlertDialog.Builder builder;
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+//                        } else {
+//                            builder = new AlertDialog.Builder(MainActivity.this);
+//                        }
+//                        builder.setTitle(R.string.title_error_facebook)
+//                                .setMessage(R.string.message_error_facebook)
+//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        // continue with delete
+//                                        dialog.cancel();
+//                                    }
+//                                })
+//                                .setIcon(android.R.drawable.ic_dialog_alert)
+//                                .show();
+//                    } else {
+//                        showFullAds();
+//                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
+//                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
+//                        r.allowScanningByMediaScanner();
+//                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+//                        dm.enqueue(r);
+//
+//                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                } else if (webView.getUrl().contains("vimeo.com")) {
+//                    showFullAds();
+//                    downloadVimeo(webView.getUrl());
+//                } else {
+//                    if (webView.getVisibility() == View.GONE) {
+//                        showErrorDownload();
+//                    } else {
+//                        downloadOtherSite(webView.getUrl());
+//                    }
+//                }
+//            }
+//        });
 
         final String[] from = new String[]{"fishName"};
         final int[] to = new int[]{android.R.id.text1};
@@ -396,8 +386,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showErrorDownload() {
-//        Log.d("cao","hhhh");
-        Toast.makeText(this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog show = builder.setTitle(R.string.title_error_connection)
+                .setMessage(R.string.error_download_page)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setCancelable(false)
+                .show();
     }
 
     private void downloadYoutube(String url) {
@@ -521,10 +522,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void downloadOtherSite(String url) {
-//        showErrorDownload();
-        Toast.makeText(this, R.string.error_download_other_site, Toast.LENGTH_SHORT).show();
-    }
+//    private void downloadOtherSite(String url) {
+//        Toast.makeText(this, R.string.error_download_other_site, Toast.LENGTH_SHORT).show();
+//    }
 
     private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
         final Dialog dialog = new Dialog(MainActivity.this);
@@ -764,12 +764,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-            case R.id.action_rating:
-                launchMarket();
-                return true;
-            case R.id.action_feedback:
-                launchFeedback();
-                return true;
+//            case R.id.action_rating:
+//                launchMarket();
+//                return true;
+//            case R.id.action_feedback:
+//                launchFeedback();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload;
+package com.v2social.socialdownloader;
 
 import android.content.Context;
 import android.view.View;
@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 
 //import com.bumptech.glide.Glide;
 
-import com.mui.catchvideodownload.network.Site;
+import com.v2social.socialdownloader.network.Site;
 
 import java.util.List;
 

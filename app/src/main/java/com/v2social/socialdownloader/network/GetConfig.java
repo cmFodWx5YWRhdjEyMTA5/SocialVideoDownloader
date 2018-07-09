@@ -1,4 +1,4 @@
-package com.mui.catchvideodownload.network;
+package com.v2social.socialdownloader.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

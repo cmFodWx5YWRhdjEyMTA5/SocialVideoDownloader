@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar webProgress;
     private boolean isClearHistory = false;
     private ProgressDialog dialogLoading;
-    private boolean isDownloadFacebook = false;
+    private boolean isDownloadOther = false;
     private String urlDownloadOther;
 
     private SimpleCursorAdapter myAdapter;
@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
                     webView.clearHistory();
                 }
                 if (url.contains("facebook.com")) {
-                    isDownloadFacebook = true;
-                    urlDownloadFB = null;
+//                    isDownloadFacebook = true;
+//                    urlDownloadFB = null;
                 }
 
                 super.onPageFinished(view, url);

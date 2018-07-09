@@ -1,15 +1,14 @@
 package com.mui.catchvideodownload;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
+//import com.bumptech.glide.Glide;
+
 import com.mui.catchvideodownload.network.Site;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return sites.get(position).getId();
+        return position;
     }
 
     @Override
@@ -52,11 +51,11 @@ public class ImageAdapter extends BaseAdapter {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
 //            imageView.setLayoutParams(new GridView.LayoutParams(4,3));
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth(),parent.getWidth()/3);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/2);
 //            layout.height = layout.width / 2;
             imageView.setLayoutParams(layout);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//            imageView.setAdjustViewBounds(true);
+            imageView.setAdjustViewBounds(true);
 //            imageView.setPadding(8, 8, 8, 8);
         } else {
             imageView = (ImageView) convertView;

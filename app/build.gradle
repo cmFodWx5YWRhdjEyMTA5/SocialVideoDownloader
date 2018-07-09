@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '27.0.3'
 
 
 
 
     defaultConfig {
-        applicationId "com.sdd3333.videodownloader"
+        applicationId "com.v2social.socialdownloader"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 101
@@ -57,22 +57,27 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
-    compile 'com.android.support:support-v4:25.3.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
-    compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
-    compile 'com.google.firebase:firebase-ads:11.0.1'
-    compile 'com.facebook.android:audience-network-sdk:4.+'
-    compile 'io.github.kobakei:ratethisapp:1.2.0'
+//    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:support-v4:27.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
 
-    compile 'org.jsoup:jsoup:1.10.3'
+    implementation 'com.android.support:preference-v14:27.1.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+//    compile 'com.github.bumptech.glide:glide:4.0.0-RC0'
+
+//    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
+    implementation 'com.google.code.gson:gson:2.8.0'
+
+    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
+    implementation 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
+    implementation group: 'com.google.firebase', name: 'firebase-ads', version: '15.0.1'
+    implementation group: 'com.facebook.android', name: 'audience-network-sdk', version: '4.99.0'
+    implementation 'io.github.kobakei:ratethisapp:1.2.0'
+    implementation 'org.jsoup:jsoup:1.10.3'
 }
 

@@ -9,42 +9,33 @@ public class JsonConfig {
     @SerializedName("idBannerAdmob")
     @Expose
     private String idBannerAdmob;
-    @SerializedName("idFullAdmob")
-    @Expose
-    private String idFullAdmob;
     @SerializedName("idBannerFacebook")
     @Expose
     private String idBannerFacebook;
+    @SerializedName("idFullAdmob")
+    @Expose
+    private String idFullAdmob;
     @SerializedName("idFullFacebook")
     @Expose
     private String idFullFacebook;
     @SerializedName("isAccept")
     @Expose
-    private Boolean isAccept;
-    @SerializedName("newAppTitle")
-    @Expose
-    private String newAppTitle;
+    private Integer isAccept;
     @SerializedName("newAppPackage")
     @Expose
     private String newAppPackage;
-    @SerializedName("percentUpdate")
+    @SerializedName("percentAds")
     @Expose
-    private Integer percentUpdate;
+    private Integer percentAds;
     @SerializedName("priorityBanner")
     @Expose
     private String priorityBanner;
     @SerializedName("priorityFull")
     @Expose
     private String priorityFull;
-    @SerializedName("server")
-    @Expose
-    private String server;
-    @SerializedName("sites")
-    @Expose
-    private List<Site> sites = null;
     @SerializedName("urlAccept")
     @Expose
-    private List<String> urlAccept = null;
+    private List<Site> urlAccept = null;
 
     public String getIdBannerAdmob() {
         return idBannerAdmob;
@@ -52,14 +43,6 @@ public class JsonConfig {
 
     public void setIdBannerAdmob(String idBannerAdmob) {
         this.idBannerAdmob = idBannerAdmob;
-    }
-
-    public String getIdFullAdmob() {
-        return idFullAdmob;
-    }
-
-    public void setIdFullAdmob(String idFullAdmob) {
-        this.idFullAdmob = idFullAdmob;
     }
 
     public String getIdBannerFacebook() {
@@ -70,6 +53,14 @@ public class JsonConfig {
         this.idBannerFacebook = idBannerFacebook;
     }
 
+    public String getIdFullAdmob() {
+        return idFullAdmob;
+    }
+
+    public void setIdFullAdmob(String idFullAdmob) {
+        this.idFullAdmob = idFullAdmob;
+    }
+
     public String getIdFullFacebook() {
         return idFullFacebook;
     }
@@ -78,20 +69,12 @@ public class JsonConfig {
         this.idFullFacebook = idFullFacebook;
     }
 
-    public Boolean getIsAccept() {
+    public Integer getIsAccept() {
         return isAccept;
     }
 
-    public void setIsAccept(Boolean isAccept) {
+    public void setIsAccept(Integer isAccept) {
         this.isAccept = isAccept;
-    }
-
-    public String getNewAppTitle() {
-        return newAppTitle;
-    }
-
-    public void setNewAppTitle(String newAppTitle) {
-        this.newAppTitle = newAppTitle;
     }
 
     public String getNewAppPackage() {
@@ -102,12 +85,12 @@ public class JsonConfig {
         this.newAppPackage = newAppPackage;
     }
 
-    public Integer getPercentUpdate() {
-        return percentUpdate;
+    public Integer getPercentAds() {
+        return percentAds;
     }
 
-    public void setPercentUpdate(Integer percentUpdate) {
-        this.percentUpdate = percentUpdate;
+    public void setPercentAds(Integer percentAds) {
+        this.percentAds = percentAds;
     }
 
     public String getPriorityBanner() {
@@ -126,28 +109,13 @@ public class JsonConfig {
         this.priorityFull = priorityFull;
     }
 
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public List<Site> getSites() {
-        return sites;
-    }
-
-    public void setSites(List<Site> sites) {
-        this.sites = sites;
-    }
-
-    public List<String> getUrlAccept() {
+    public List<Site> getUrlAccept() {
         return urlAccept;
     }
 
-    public void setUrlAccept(List<String> urlAccept) {
+    public void setUrlAccept(List<Site> urlAccept) {
         this.urlAccept = urlAccept;
     }
 
 }
+

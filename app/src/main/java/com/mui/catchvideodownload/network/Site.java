@@ -5,49 +5,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class Site {
 
-@SerializedName("id")
-@Expose
-private Integer id;
-@SerializedName("image")
-@Expose
-private String image;
-@SerializedName("name")
-@Expose
-private String name;
-@SerializedName("url")
-@Expose
-private String url;
+    @SerializedName("url")
+    @Expose
+    private String url;
+    @SerializedName("image")
+    @Expose
+    private String image;
 
-public Integer getId() {
-return id;
-}
+    public String getUrl() {
+        return url;
+    }
 
-public void setId(Integer id) {
-this.id = id;
-}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-public String getImage() {
-return image;
-}
+    public String getImage() {
+        return image;
+    }
 
-public void setImage(String image) {
-this.image = image;
-}
-
-public String getName() {
-return name;
-}
-
-public void setName(String name) {
-this.name = name;
-}
-
-public String getUrl() {
-return url;
-}
-
-public void setUrl(String url) {
-this.url = url;
-}
+    public void setImage(String image) {
+        this.image = image;
+    }
 
 }

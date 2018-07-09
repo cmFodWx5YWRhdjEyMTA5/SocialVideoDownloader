@@ -154,13 +154,13 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 2)
                 {
-                    downloadOtherSite(jsonConfig.getSites().get(position).getUrl());
+                    downloadOtherSite(jsonConfig.getUrlAccept().get(position).getUrl());
                     return;
                 }
                 webProgress.setVisibility(ProgressBar.VISIBLE);
                 gridView.setVisibility(View.GONE);
                 webView.setVisibility(View.VISIBLE);
-                String url = jsonConfig.getSites().get(position).getUrl();
+                String url = jsonConfig.getUrlAccept().get(position).getUrl();
                 webView.loadUrl(url);
 //                webView.loadUrl("https://www.facebook.com/donghonamtop/videos/1945339439056984/");
             }
@@ -299,9 +299,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (jsonConfig.getPercentUpdate() == 100)
+                if (jsonConfig.getPercentAds() == 100)
                 {
-                    jsonConfig.setPercentUpdate(0);
+                    jsonConfig.setPercentAds(0);
                     mInterstitialAd.show();
                 }
             }
@@ -356,10 +356,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (jsonConfig.getPercentUpdate() == 100)
+                if (jsonConfig.getPercentAds() == 100)
                 {
                     interstitialAdFb.show();
-                    jsonConfig.setPercentUpdate(0);
+                    jsonConfig.setPercentAds(0);
                 }
             }
 
@@ -592,7 +592,7 @@ public class MainActivity extends AppCompatActivity {
 //                    Cursor cursor = ca.getCursor();
 //                    cursor.moveToPosition(position);
 //                    searchView.setQuery(cursor.getString(cursor.getColumnIndex("fishName")),false);
-                    if (!jsonConfig.getIsAccept() && strArrData[position].contains("youtube")) {
+                    if (! (jsonConfig.getIsAccept() == 1) && strArrData[position].contains("youtube")) {
                         searchView.clearFocus();
                         showNotSupportYoutube();
                         return true;
@@ -617,7 +617,7 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    if (!jsonConfig.getIsAccept()) {
+                    if (! (jsonConfig.getIsAccept()== 1)) {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
@@ -790,30 +790,6 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
 
         dialogLoading.show();
-        if (Locale.getDefault().getISO3Country().equalsIgnoreCase("JPN") || Locale.getDefault().getISO3Language().equalsIgnoreCase("JPN")
-                || Locale.getDefault().getISO3Country().equalsIgnoreCase("KOR") || Locale.getDefault().getISO3Language().equalsIgnoreCase("KOR") )
-        {
-            dialogLoading.hide();
-            AlertDialog.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-            } else {
-                builder = new AlertDialog.Builder(MainActivity.this);
-            }
-            builder.setTitle(R.string.title_error_country)
-                    .setMessage(R.string.message_error_country)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                            dialog.cancel();
-                            getConfigApp();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setCancelable(false)
-                    .show();
-            return;
-        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
@@ -826,12 +802,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
-                ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.getSites());
+                ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.getUrlAccept());
                 gridView.setAdapter(adapter);
-                strArrData = response.body().getUrlAccept().toArray(new String[0]);
+//                strArrData = response.body().getUrlAccept().toArray(new String[0]);
 
                 SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
-                if (jsonConfig.getIsAccept())
+                if (jsonConfig.getIsAccept() == 1)
                 {
                     SharedPreferences.Editor mEditor = mPrefs.edit();
                     mEditor.putInt("accept", 1).commit();
@@ -841,7 +817,7 @@ public class MainActivity extends AppCompatActivity {
                     int support = mPrefs.getInt("accept",0); //getString("tag", "default_value_if_variable_not_found");
                     if(support == 1)
                     {
-                        jsonConfig.setIsAccept(true);
+                        jsonConfig.setIsAccept(1);
                     }
                 }
 

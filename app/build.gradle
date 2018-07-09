@@ -16,6 +16,11 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 //    defaultConfig {
 //        applicationId "downloadapp.videodownloadmaster"
 //        minSdkVersion 15
@@ -72,12 +77,13 @@ dependencies {
 
 //    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC0'
     implementation 'com.google.code.gson:gson:2.8.0'
-
     implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
     implementation 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
     implementation group: 'com.google.firebase', name: 'firebase-ads', version: '15.0.1'
     implementation group: 'com.facebook.android', name: 'audience-network-sdk', version: '4.99.0'
     implementation 'io.github.kobakei:ratethisapp:1.2.0'
     implementation 'org.jsoup:jsoup:1.10.3'
+    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
+    implementation 'com.iheartradio.m3u8:open-m3u8:0.2.4'
 }
 

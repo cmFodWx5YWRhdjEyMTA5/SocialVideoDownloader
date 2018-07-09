@@ -45,15 +45,25 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAdListener;
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.iheartradio.m3u8.Encoding;
+import com.iheartradio.m3u8.Format;
+import com.iheartradio.m3u8.PlaylistParser;
+import com.iheartradio.m3u8.data.Playlist;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.v2social.socialdownloader.network.GetConfig;
 import com.v2social.socialdownloader.network.JsonConfig;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -108,19 +118,21 @@ public class MainActivity extends AppCompatActivity {
                     isClearHistory = false;
                     webView.clearHistory();
                 }
-                if (url.contains("facebook.com")) {
+//                if (url.contains("facebook.com")) {
 //                    isDownloadFacebook = true;
 //                    urlDownloadFB = null;
-                }
-
+//                }
+                urlDownloadOther = null;
                 super.onPageFinished(view, url);
             }
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                if (isDownloadFacebook && url.contains(".mp4")) {
-                    urlDownloadFB = url;
+                if (url.contains(".mp4")) {
+                    urlDownloadOther = url;
+                    Log.d("caomui",urlDownloadOther);
                 }
+                Log.d("caomui",url);
             }
         });
 
@@ -142,11 +154,11 @@ public class MainActivity extends AppCompatActivity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 2)
-                {
-                    downloadOtherSite(jsonConfig.getUrlAccept().get(position).getUrl());
-                    return;
-                }
+//                if (position >= 2)
+//                {
+//                    downloadOtherSite(jsonConfig.getUrlAccept().get(position).getUrl());
+//                    return;
+//                }
                 webProgress.setVisibility(ProgressBar.VISIBLE);
                 gridView.setVisibility(View.GONE);
                 webView.setVisibility(View.VISIBLE);
@@ -238,7 +250,78 @@ public class MainActivity extends AppCompatActivity {
     //        StrictMode.setThreadPolicy(policy);
 //        new JsoupTask().execute();
 //        Log.d("caomui1","1111111111111");
+
+
     }
+
+    private void download() {
+        try
+        {
+
+            InputStream inputStream = (InputStream) new URL("http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8").getContent();//(InputStream) url.getContent();
+            PlaylistParser parser = new PlaylistParser(inputStream, Format.EXT_M3U, Encoding.UTF_8);
+            Playlist playlist = parser.parse();
+            Log.d("caomui3",playlist.getMediaPlaylist().toString());
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            Log.d("caomui3","111111111111111111");
+        }
+
+//        String downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);//new File(downloadPath);
+//        if (!dir.exists()) {
+//            //noinspection ResultOfMethodCallIgnored
+//            dir.mkdirs();
+//        }
+//
+//
+//        String cmd = String.format("-i %s -c copy -bsf:a aac_adtstoasc %s", "https://video.twimg.com/ext_tw_video/1016109554495442945/pu/pl/ywAIC-yWI4fdXtJu.m3u8?tag=3", dir.getAbsolutePath() +"/bigBuckBunny.mp4");
+//        String[] command = cmd.split(" ");
+//        execFFmpegBinary(command);
+
+    }
+
+    private void execFFmpegBinary(String[] command) {
+        try {
+            FFmpeg ffmpeg = FFmpeg.getInstance(MainActivity.this);
+            ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
+                @Override
+                public void onSuccess(String message) {
+                    Log.i("caomui", "onSuccess: " + message);
+//                    progressBar.dismiss();
+                }
+
+                @Override
+                public void onProgress(String message) {
+                    Log.i("caomui", "onProgress: " + message);
+//                    progressBar.setMessage("Progressing: \n " + message);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    Log.i("caomui", "onFailure: " + message);
+//                    progressBar.dismiss();
+                }
+
+                @Override
+                public void onStart() {
+//                    progressBar.show();
+                }
+
+                @Override
+                public void onFinish()
+                {
+                    //progressBar.dismiss();
+                }
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -709,7 +792,7 @@ public class MainActivity extends AppCompatActivity {
                     downloadYoutube(webView.getUrl());
                 } else if (webView.getUrl().contains("facebook.com")) {
 
-                    if (urlDownloadFB == null) {
+                    if (urlDownloadOther == null) {
                         AlertDialog.Builder builder;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
@@ -728,7 +811,7 @@ public class MainActivity extends AppCompatActivity {
                                 .show();
                     } else {
                         showFullAds();
-                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                         r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
                         r.allowScanningByMediaScanner();
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -745,13 +828,14 @@ public class MainActivity extends AppCompatActivity {
                     if (webView.getVisibility() == View.GONE) {
                         showErrorDownload();
                     } else {
-                        downloadOtherSite(webView.getUrl());
+//                        downloadOtherSite(webView.getUrl());
                     }
                 }
                 return  true;
             case R.id.action_reload:
-                if (webView.getVisibility() == View.VISIBLE)
-                    webView.reload();
+                download();
+//                if (webView.getVisibility() == View.VISIBLE)
+//                    webView.reload();
                 return true;
             case R.id.action_home:
                 if (new Random().nextInt(20) == 0)
@@ -914,15 +998,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, "Unable to find market app", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void launchFeedback() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("plain/text");
-        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.dev_email)});
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback " + getString(R.string.app_name));
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
-        startActivity(Intent.createChooser(intent, "Send"));
     }
 
     public boolean isStoragePermissionGranted() {

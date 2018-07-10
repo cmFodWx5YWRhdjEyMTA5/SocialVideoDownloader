@@ -27,11 +27,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.util.Patterns;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -67,6 +69,7 @@ import com.v2social.socialdownloader.network.JsonConfig;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,10 +134,6 @@ public class MainActivity extends AppCompatActivity {
                     isClearHistory = false;
                     webView.clearHistory();
                 }
-//                if (url.contains("facebook.com")) {
-//                    isDownloadFacebook = true;
-//                    urlDownloadFB = null;
-//                }
                 urlDownloadOther = null;
                 super.onPageFinished(view, url);
             }
@@ -142,8 +141,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadResource(WebView view, String url) {
                 if (url.contains(".mp4") || url.contains(".3gp")) {
-                    if(url.contains("https://www.facebook.com"))
+                    if(!isValidUrl(url))
                         return;
+
                     urlDownloadOther = url;
 
                     AlertDialog.Builder builder;
@@ -176,8 +176,7 @@ public class MainActivity extends AppCompatActivity {
                                     dialog.cancel();
                                 }
                             })
-//                            .setIcon(android.R.drawable.ic_dialog_alert)
-//                            .setCancelable(false)
+                            .setCancelable(false)
                             .show();
 
                 }
@@ -208,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                 webView.setVisibility(View.VISIBLE);
                 String url = jsonConfig.getUrlAccept().get(position).getUrl();
                 webView.loadUrl(url);
-//                webView.loadUrl("https://www.facebook.com/donghonamtop/videos/1945339439056984/");
             }
 
         });
@@ -726,6 +724,15 @@ public class MainActivity extends AppCompatActivity {
                     myAdapter.changeCursor(mc);
                     return false;
                 }
+
+                private boolean isValid(String urlString) {
+                    try {
+                        URL url = new URL(urlString);
+                        return URLUtil.isValidUrl(urlString) && Patterns.WEB_URL.matcher(urlString).matches();
+                    } catch (MalformedURLException e) {
+                    }
+                    return false;
+                }
             });
         }
 
@@ -1045,6 +1052,15 @@ public class MainActivity extends AppCompatActivity {
 //                   alertNoUrl();
             return null;
         }
+    }
+
+    private boolean isValidUrl(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            return URLUtil.isValidUrl(urlString) && Patterns.WEB_URL.matcher(urlString).matches();
+        } catch (MalformedURLException e) {
+        }
+        return false;
     }
 
 }

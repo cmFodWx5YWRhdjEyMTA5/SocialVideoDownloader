@@ -127,6 +127,15 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
+                {
+                    showNotSupportYoutube();
+                    return true;
+                }
+                return  false;
+            }
 
             @Override
             public void onPageFinished(WebView view, String url) {

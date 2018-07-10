@@ -129,12 +129,11 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
-                {
+                if ((url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0) {
                     showNotSupportYoutube();
                     return true;
                 }
-                return  false;
+                return false;
             }
 
             @Override
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadResource(WebView view, String url) {
                 if (url.contains(".mp4") || url.contains(".3gp")) {
-                    if(!isValidUrl(url))
+                    if (!isValidUrl(url))
                         return;
 
                     urlDownloadOther = url;
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     AlertDialog.Builder builder;
                     builder = new AlertDialog.Builder(MainActivity.this);
                     AlertDialog show = builder.setTitle(R.string.new_video_found)
-                            .setMessage(urlDownloadOther )
+                            .setMessage(urlDownloadOther)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -296,10 +295,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         getConfigApp();
-
         //        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         //        StrictMode.setThreadPolicy(policy);
 //        new JsoupTask().execute();
+        RateThisApp.onCreate(this);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.init(config1);
     }
 
     @Override
@@ -321,6 +322,31 @@ public class MainActivity extends AppCompatActivity {
             Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
             bannerView.addView(adViewFb);
             // Request an ad
+            adViewFb.setAdListener(new com.facebook.ads.AdListener() {
+                @Override
+                public void onError(Ad ad, AdError adError) {
+                    if(adError.getErrorCode() != AdError.NETWORK_ERROR_CODE)
+                    {
+                        jsonConfig.setPriorityBanner("admob");
+                        addBannerAds();
+                    }
+                }
+
+                @Override
+                public void onAdLoaded(Ad ad) {
+
+                }
+
+                @Override
+                public void onAdClicked(Ad ad) {
+
+                }
+
+                @Override
+                public void onLoggingImpression(Ad ad) {
+
+                }
+            });
             adViewFb.loadAd();
         } else {
             AdView adView = new AdView(this);
@@ -333,27 +359,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void requestAds() {
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
-            requestFBAds();
-        } else {
-            requestAdmob();
+    private void requestFullAds() {
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if ( !mPrefs.getBoolean("isNoAds", false)) {
+            if (jsonConfig.getPriorityFull().equals("facebook")) {
+                requestFBAds();
+            } else {
+                requestAdmob();
+            }
         }
     }
 
     private void requestAdmob() {
+        interstitialAdFb = null;
+
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
-
 
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (jsonConfig.getPercentAds() == 100) {
-                    jsonConfig.setPercentAds(0);
-                    mInterstitialAd.show();
-                }
             }
 
             @Override
@@ -382,6 +408,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestFBAds() {
+        mInterstitialAd = null;
+
         interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
         Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
@@ -399,16 +427,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
-//                Log.d("caomui1",adError.getErrorMessage());
+                if(adError.getErrorCode() != AdError.NETWORK_ERROR_CODE)
+                {
+                    jsonConfig.setPriorityFull("admob");
+                    requestAdmob();
+                }
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (jsonConfig.getPercentAds() == 100) {
-                    interstitialAdFb.show();
-                    jsonConfig.setPercentAds(0);
-                }
             }
 
             @Override
@@ -422,24 +450,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         // For auto play video ads, it's recommended to load the ad
         // at least 30 seconds before it is shown
         interstitialAdFb.loadAd();
     }
 
     private void showFullAds() {
-        if (mInterstitialAd != null) {
-            if (mInterstitialAd.isLoaded())
-                mInterstitialAd.show();
-            else
-                requestAdmob();
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if ( !mPrefs.getBoolean("isNoAds", false)  && jsonConfig.getPercentAds() != 0) {
+            if (mInterstitialAd != null) {
+                if (mInterstitialAd.isLoaded())
+                    mInterstitialAd.show();
+                else
+                    requestAdmob();
 
-        } else if (interstitialAdFb != null) {
-            if (interstitialAdFb.isAdLoaded())
-                interstitialAdFb.show();
-            else
-                requestFBAds();
+            } else if (interstitialAdFb != null) {
+                if (interstitialAdFb.isAdLoaded())
+                    interstitialAdFb.show();
+                else
+                    requestFBAds();
+            }
         }
     }
 
@@ -861,26 +891,42 @@ public class MainActivity extends AppCompatActivity {
                 ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.getUrlAccept());
                 gridView.setAdapter(adapter);
 //                strArrData = response.body().getUrlAccept().toArray(new String[0]);
+                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
 
-                SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
-                if (jsonConfig.getIsAccept() == 1) {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    mEditor.putInt("accept", 1).commit();
-                } else {
-                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support == 1) {
-                        jsonConfig.setIsAccept(1);
+                if (mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 100) {
+                    jsonConfig.setPercentAds(0);
+                    jsonConfig.setIsAccept(2);
+                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                }
+
+                else {
+                    if (!mPrefs.contains("isNoAds")) {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        if ( new Random().nextInt(100) < jsonConfig.getPercentRate())
+                        {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            jsonConfig.setPercentAds(0);
+                            jsonConfig.setIsAccept(2);
+                        }
+                        else
+                            mEditor.putBoolean("isNoAds", false).commit();
+                    }
+
+                    if (jsonConfig.getIsAccept() == 1) {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        mEditor.putInt("accept", 1).commit();
+                    } else {
+                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+                        if (support >= 1) {
+                            jsonConfig.setIsAccept(2);
+                        }
                     }
                 }
 
                 dialogLoading.hide();
                 if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
                     addBannerAds();
-                    requestAds();
-
-                    RateThisApp.Config config = new RateThisApp.Config(1, 3);
-                    RateThisApp.init(config);
-                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                    requestFullAds();
                 } else {
                     showPopupNewApp();
                 }

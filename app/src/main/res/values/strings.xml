@@ -10,8 +10,8 @@
     <string name="error_download_page">Not support this url, please go to video detail page</string>
     <string name="error_content_copyright">Not support this channel because DCMA copyright!!!</string>
     <string name="error_download_other_site">We will support this website soon!</string>
-    <string name="title_error_facebook">Download Facebook video</string>
-    <string name="message_error_facebook">Please click play video and then press download button</string>
+    <string name="title_error_facebook">How to download video</string>
+    <string name="message_error_facebook">Please go to video detail page -> click play video -> and then press download button</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="downloading">Downloading...</string>
@@ -23,4 +23,7 @@
     <string name="message_error_country">This application not supported in Japan!</string>
     <string name="title_not_youtube">Youtube not supported</string>
     <string name="message_not_youtube">We not support youtube downloader by google term of service</string>
+
+    <string name="new_video_found">New video found!</string>
+    <string name="new_video_message">Detect new video url: </string>
 </resources>

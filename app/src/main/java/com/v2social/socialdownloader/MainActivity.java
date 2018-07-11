@@ -720,7 +720,7 @@ public class MainActivity extends AppCompatActivity {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
                             } else {
-                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -1175,35 +1175,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-
-
-//class JsoupTask extends AsyncTask<Void, Void, Document> {
-//    protected Document doInBackground(Void... nothing) {
-//        //        String html = "<p>An <a href='http://example.com/'><b>example</b></a> link.</p>";
-////        Document doc = Jsoup.parse(html);
-////        Log.d("mmmm",doc.select("a").first().attr("href"));
-//        Document doc = null;
-//
-//        try {
-//            doc = Jsoup.connect("http://www.xnxx.com/new/").get();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        Elements videos = doc.select("div.thumb-block");
-//        Log.d("mmmm",videos.size()+"");
-//        for(Element element : videos)
-//        {
-//            Log.d("bbbbb",element.outerHtml());
-//
-//        }
-//
-////        Log.d("cccc", doc.getElementById("video_22554071").text());
-//        return doc;
-//    }
-//
-//
-//    protected void onPostExecute(Document doc) {
-//        // do something with doc
-//
-//    }
-//}

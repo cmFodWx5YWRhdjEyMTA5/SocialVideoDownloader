@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
+                                    showFullAds();
                                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                                     String fName = UUID.randomUUID().toString();
                                     if (urlDownloadOther.endsWith(".mp4")) {
@@ -458,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
     private void showFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
         if ( !mPrefs.getBoolean("isNoAds", false)  && jsonConfig.getPercentAds() != 0) {
+
             if (mInterstitialAd != null) {
                 if (mInterstitialAd.isLoaded())
                     mInterstitialAd.show();
@@ -896,8 +898,6 @@ public class MainActivity extends AppCompatActivity {
                     webView.reload();
                 return true;
             case R.id.action_home:
-                if (new Random().nextInt(20) == 0)
-                    showFullAds();
                 webView.loadUrl("about:blank");
                 isClearHistory = true;
                 webView.setVisibility(View.GONE);
@@ -906,12 +906,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-//            case R.id.action_rating:
-//                launchMarket();
-//                return true;
-//            case R.id.action_feedback:
-//                launchFeedback();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

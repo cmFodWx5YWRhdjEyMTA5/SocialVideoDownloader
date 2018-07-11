@@ -680,45 +680,92 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    if (!(jsonConfig.getIsAccept() == 1)) {
+                    if (jsonConfig.getIsAccept() == 0) {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
-                        } else if (s.contains("http") || s.contains(".com")) {
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(s);
-                            searchView.clearFocus();
                         }
-                        {
-                            String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(url);
-                            searchView.clearFocus();
+                        else {
+                            if (isValid(s)) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else {
+                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                loadUrlWebview(url);
+                                searchView.clearFocus();
+                            }
                         }
-
                         return true;
                     } else {
-                        if (s.contains("http") || s.contains(".com")) {
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(s);
-                            searchView.clearFocus();
+                        if (jsonConfig.getIsAccept() == 2) {
+                            if (isValid(s)) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else {
+                                String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
+                                loadUrlWebview(url);
+                                searchView.clearFocus();
+                            }
                         } else {
-                            String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(url);
-                            searchView.clearFocus();
+                            if (s.equalsIgnoreCase("https://m.youtube.com")) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else if (s.contains("youtube")) {
+                                searchView.clearFocus();
+                                showNotSupportYoutube();
+                            } else {
+                                if (isValid(s)) {
+                                    loadUrlWebview(s);
+                                    searchView.clearFocus();
+                                } else {
+                                    String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                    loadUrlWebview(url);
+                                    searchView.clearFocus();
+                                }
+                            }
                         }
-
-                        return true;
                     }
+                    return true;
+
+//                    if (!(jsonConfig.getIsAccept() == 1)) {
+//                        if (s.contains("youtube")) {
+//                            searchView.clearFocus();
+//                            showNotSupportYoutube();
+//                        } else if (s.contains("http") || s.contains(".com")) {
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(s);
+//                            searchView.clearFocus();
+//                        }
+//                        {
+//                            String url = "https://vimeo.com/search?q=" + Uri.encode(s);
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(url);
+//                            searchView.clearFocus();
+//                        }
+//
+//                        return true;
+//                    } else {
+//                        if (s.contains("http") || s.contains(".com")) {
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(s);
+//                            searchView.clearFocus();
+//                        } else {
+//                            String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(url);
+//                            searchView.clearFocus();
+//                        }
+//
+//                        return true;
+//                    }
                 }
 
                 @Override
@@ -746,6 +793,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadUrlWebview(String url)
+    {
+        webProgress.setVisibility(ProgressBar.VISIBLE);
+        gridView.setVisibility(View.GONE);
+        webView.setVisibility(View.VISIBLE);
+        webView.loadUrl(url);
+        searchView.clearFocus();
     }
 
     @Override

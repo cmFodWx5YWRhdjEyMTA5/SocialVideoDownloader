@@ -962,7 +962,7 @@ public class MainActivity extends AppCompatActivity {
 
         dialogLoading.show();
 
-        Retrofit retrofit = new Retrofit.Builder()
+        Retrofit  v = new Retrofit.Builder()
                 .baseUrl(AppConstants.URL_CONFIG)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

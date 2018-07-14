@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
 
 
@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId "com.mp4.video.downloader"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 101
-        versionName "1.1"
+        targetSdkVersion 27
+        versionCode 201
+        versionName "2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -80,7 +80,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.android.support:design:25.3.1'
     compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
-    compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.1'
+    compile 'com.github.ed-george:AndroidVimeoExtractor:1.1.2'
     compile 'com.google.firebase:firebase-ads:11.0.1'
     compile 'com.facebook.android:audience-network-sdk:4.+'
     compile 'io.github.kobakei:ratethisapp:1.2.0'

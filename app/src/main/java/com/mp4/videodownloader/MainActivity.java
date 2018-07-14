@@ -55,6 +55,10 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.mp4.videodownloader.network.GetConfig;
 import com.mp4.videodownloader.network.JsonConfig;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -96,13 +100,23 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isFirstAds = true;
     private String urlDownloadOther;
+    private boolean isInitAds = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
+            StartAppSDK.init(this, "206407431", true);
+            isInitAds = true;
+        }
 
-//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .twitterAuthConfig(new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
 
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
         webView = (WebView) findViewById(R.id.webView);

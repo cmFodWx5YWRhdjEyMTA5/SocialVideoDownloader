@@ -27,6 +27,10 @@ public class JsonConfig {
     @SerializedName("percentAds")
     @Expose
     private Integer percentAds;
+    @SerializedName("percentRate")
+    @Expose
+    private Integer percentRate;
+
     @SerializedName("priorityBanner")
     @Expose
     private String priorityBanner;
@@ -91,6 +95,14 @@ public class JsonConfig {
 
     public void setPercentAds(Integer percentAds) {
         this.percentAds = percentAds;
+    }
+
+    public Integer getPercentRate() {
+        return percentRate;
+    }
+
+    public void setPercentRate(Integer percentRate) {
+        this.percentRate = percentRate;
     }
 
     public String getPriorityBanner() {

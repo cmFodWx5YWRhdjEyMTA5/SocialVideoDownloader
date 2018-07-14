@@ -48,12 +48,15 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAdListener;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
@@ -106,16 +109,20 @@ public class MainActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd;
     private com.facebook.ads.AdView adViewFb;
     private com.facebook.ads.InterstitialAd interstitialAdFb;
+    private boolean isInitAds = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-//        TwitterAuthConfig authConfig = new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET);
-//        Fabric.with(this, new Twitter(authConfig));
 
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
+            StartAppSDK.init(this, "206407431", true);
+            isInitAds = true;
+        }
+
+        setContentView(R.layout.activity_main);
         TwitterConfig config = new TwitterConfig.Builder(this)
-//                .logger(new DefaultLogger(Log.DEBUG))
                 .twitterAuthConfig(new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET))
                 .debug(true)
                 .build();
@@ -162,10 +169,12 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
+                                    showFullAds();
                                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                                     String fName = UUID.randomUUID().toString();
                                     if (urlDownloadOther.endsWith(".mp4")) {
                                         fName += ".mp4";
+
                                     } else if (urlDownloadOther.endsWith(".3gp")) {
                                         fName += ".3gp";
                                     }
@@ -175,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                                     DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                                     dm.enqueue(r);
+                                    logSiteDownloaded();
                                     Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
                                 }
                             })
@@ -315,6 +325,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
+        if (jsonConfig.getPercentAds() == 0)
+            return;
+
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
         if (jsonConfig.getPriorityBanner().equals("facebook")) {
 
@@ -325,8 +338,7 @@ public class MainActivity extends AppCompatActivity {
             adViewFb.setAdListener(new com.facebook.ads.AdListener() {
                 @Override
                 public void onError(Ad ad, AdError adError) {
-                    if(adError.getErrorCode() != AdError.NETWORK_ERROR_CODE)
-                    {
+                    if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
                         jsonConfig.setPriorityBanner("admob");
                         addBannerAds();
                     }
@@ -361,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if ( !mPrefs.getBoolean("isNoAds", false)) {
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
             if (jsonConfig.getPriorityFull().equals("facebook")) {
                 requestFBAds();
             } else {
@@ -427,8 +439,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
-                if(adError.getErrorCode() != AdError.NETWORK_ERROR_CODE)
-                {
+                if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
                     jsonConfig.setPriorityFull("admob");
                     requestAdmob();
                 }
@@ -457,18 +468,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if ( !mPrefs.getBoolean("isNoAds", false)  && jsonConfig.getPercentAds() != 0) {
-            if (mInterstitialAd != null) {
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show();
-                else
-                    requestAdmob();
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
+            if (new Random().nextInt(100) < jsonConfig.getPercentAds()) {
+                if (interstitialAdFb != null) {
+                    if (interstitialAdFb.isAdLoaded())
+                        interstitialAdFb.show();
+                    else
+                        requestFBAds();
+                } else if (mInterstitialAd != null) {
+                    if (mInterstitialAd.isLoaded())
+                        mInterstitialAd.show();
+                    else
+                        requestAdmob();
 
-            } else if (interstitialAdFb != null) {
-                if (interstitialAdFb.isAdLoaded())
-                    interstitialAdFb.show();
-                else
-                    requestFBAds();
+                }
             }
         }
     }
@@ -510,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void downloadYoutube(String url) {
         dialogLoading.show();
-
+        logEventFb("YOUTUBE");
         String urlExtra = url;
         if (url.contains("?list")) {
             if (url.contains("&v=")) {
@@ -541,17 +554,33 @@ public class MainActivity extends AppCompatActivity {
                             listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
                         listUrl.add(file.getUrl());
                     }
-                    showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            showFullAds();
+                            showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+                        }
+                    });
+
                 } else {
-                    showErrorDownload();
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            showErrorDownload();
+                        }
+                    });
+
                 }
-                dialogLoading.dismiss();
             }
         }.extract(urlExtra, false, false);
     }
 
     private void downloadVimeo(String url) {
         dialogLoading.show();
+        logEventFb("VIMEO");
+
         VimeoExtractor.getInstance().fetchVideoWithURL(url, null, new OnVimeoExtractionListener() {
             @Override
             public void onSuccess(final VimeoVideo video) {
@@ -595,6 +624,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        showFullAds();
                         showListViewDownload(listTitle, listUrl, video.getTitle());
                     }
                 });
@@ -637,6 +667,7 @@ public class MainActivity extends AppCompatActivity {
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(r);
                 Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
             }
         });
 
@@ -710,45 +741,92 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    if (!(jsonConfig.getIsAccept() == 1)) {
+                    if (jsonConfig.getIsAccept() == 0) {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
-                        } else if (s.contains("http") || s.contains(".com")) {
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(s);
-                            searchView.clearFocus();
+                        } else {
+                            if (isValid(s)) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else {
+//                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
+                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                loadUrlWebview(url);
+                                searchView.clearFocus();
+                            }
                         }
-                        {
-                            String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(url);
-                            searchView.clearFocus();
-                        }
-
                         return true;
                     } else {
-                        if (s.contains("http") || s.contains(".com")) {
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(s);
-                            searchView.clearFocus();
+                        if (jsonConfig.getIsAccept() == 2) {
+                            if (isValid(s)) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else {
+                                String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
+                                loadUrlWebview(url);
+                                searchView.clearFocus();
+                            }
                         } else {
-                            String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
-                            webProgress.setVisibility(ProgressBar.VISIBLE);
-                            gridView.setVisibility(View.GONE);
-                            webView.setVisibility(View.VISIBLE);
-                            webView.loadUrl(url);
-                            searchView.clearFocus();
+                            if (s.equalsIgnoreCase("https://m.youtube.com")) {
+                                loadUrlWebview(s);
+                                searchView.clearFocus();
+                            } else if (s.contains("youtube")) {
+                                searchView.clearFocus();
+                                showNotSupportYoutube();
+                            } else {
+                                if (isValid(s)) {
+                                    loadUrlWebview(s);
+                                    searchView.clearFocus();
+                                } else {
+                                    String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                    loadUrlWebview(url);
+                                    searchView.clearFocus();
+                                }
+                            }
                         }
-
-                        return true;
                     }
+                    return true;
+
+//                    if (!(jsonConfig.getIsAccept() == 1)) {
+//                        if (s.contains("youtube")) {
+//                            searchView.clearFocus();
+//                            showNotSupportYoutube();
+//                        } else if (s.contains("http") || s.contains(".com")) {
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(s);
+//                            searchView.clearFocus();
+//                        }
+//                        {
+//                            String url = "https://vimeo.com/search?q=" + Uri.encode(s);
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(url);
+//                            searchView.clearFocus();
+//                        }
+//
+//                        return true;
+//                    } else {
+//                        if (s.contains("http") || s.contains(".com")) {
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(s);
+//                            searchView.clearFocus();
+//                        } else {
+//                            String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
+//                            webProgress.setVisibility(ProgressBar.VISIBLE);
+//                            gridView.setVisibility(View.GONE);
+//                            webView.setVisibility(View.VISIBLE);
+//                            webView.loadUrl(url);
+//                            searchView.clearFocus();
+//                        }
+//
+//                        return true;
+//                    }
                 }
 
                 @Override
@@ -776,6 +854,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadUrlWebview(String url) {
+        webProgress.setVisibility(ProgressBar.VISIBLE);
+        gridView.setVisibility(View.GONE);
+        webView.setVisibility(View.VISIBLE);
+        webView.loadUrl(url);
+        searchView.clearFocus();
     }
 
     @Override
@@ -829,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         dm.enqueue(r);
-
+                        logSiteDownloaded();
                         Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
                     }
 
@@ -840,8 +926,6 @@ public class MainActivity extends AppCompatActivity {
                     webView.reload();
                 return true;
             case R.id.action_home:
-                if (new Random().nextInt(20) == 0)
-                    showFullAds();
                 webView.loadUrl("about:blank");
                 isClearHistory = true;
                 webView.setVisibility(View.GONE);
@@ -850,12 +934,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-//            case R.id.action_rating:
-//                launchMarket();
-//                return true;
-//            case R.id.action_feedback:
-//                launchFeedback();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -866,10 +944,17 @@ public class MainActivity extends AppCompatActivity {
         if (webView != null && webView.canGoBack())
             webView.goBack();
         else {
-            webView.loadUrl("about:blank");
-            isClearHistory = true;
-            webView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
+            if (webView.getVisibility() == View.GONE) {
+                if (isInitAds) {
+                    StartAppAd.onBackPressed(this);
+                }
+                super.onBackPressed();
+            } else {
+                webView.loadUrl("about:blank");
+                isClearHistory = true;
+                webView.setVisibility(View.GONE);
+                gridView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -893,18 +978,19 @@ public class MainActivity extends AppCompatActivity {
 //                strArrData = response.body().getUrlAccept().toArray(new String[0]);
                 SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
 
-                if (mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 100) {
+                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
                     jsonConfig.setPercentAds(0);
                     jsonConfig.setIsAccept(2);
                     RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                }
-
-                else {
+                } else {
                     if (!mPrefs.contains("isNoAds")) {
                         SharedPreferences.Editor mEditor = mPrefs.edit();
-                        if ( new Random().nextInt(100) < jsonConfig.getPercentRate())
-                        {
+                        if (jsonConfig.getPercentAds() == 0) {
                             mEditor.putBoolean("isNoAds", true).commit();
+                        }
+                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            mEditor.putInt("accept", 2).commit();
                             jsonConfig.setPercentAds(0);
                             jsonConfig.setIsAccept(2);
                         }
@@ -912,13 +998,13 @@ public class MainActivity extends AppCompatActivity {
                             mEditor.putBoolean("isNoAds", false).commit();
                     }
 
-                    if (jsonConfig.getIsAccept() == 1) {
+                    if (jsonConfig.getIsAccept() >= 1) {
                         SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", 1).commit();
+                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
                     } else {
                         int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
                         if (support >= 1) {
-                            jsonConfig.setIsAccept(2);
+                            jsonConfig.setIsAccept(support);
                         }
                     }
                 }
@@ -1036,7 +1122,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         dialogLoading.show();
-
+        logEventFb("TWITTER");
 
         TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
         StatusesService statusesService = twitterApiClient.getStatusesService();
@@ -1118,36 +1204,21 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private void logSiteDownloaded() {
+        if (webView == null || webView.getUrl() == null)
+            return;
+        if (webView.getUrl().contains("facebook")) {
+            logEventFb("FACEBOOK");
+        } else if (webView.getUrl().contains("instagram")) {
+            logEventFb("INSTAGRAM");
+        } else {
+            logEventFb("OTHER_WEB");
+        }
+    }
+
+    private void logEventFb(String event) {
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        logger.logEvent(event);
+    }
+
 }
-
-
-//class JsoupTask extends AsyncTask<Void, Void, Document> {
-//    protected Document doInBackground(Void... nothing) {
-//        //        String html = "<p>An <a href='http://example.com/'><b>example</b></a> link.</p>";
-////        Document doc = Jsoup.parse(html);
-////        Log.d("mmmm",doc.select("a").first().attr("href"));
-//        Document doc = null;
-//
-//        try {
-//            doc = Jsoup.connect("http://www.xnxx.com/new/").get();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        Elements videos = doc.select("div.thumb-block");
-//        Log.d("mmmm",videos.size()+"");
-//        for(Element element : videos)
-//        {
-//            Log.d("bbbbb",element.outerHtml());
-//
-//        }
-//
-////        Log.d("cccc", doc.getElementById("video_22554071").text());
-//        return doc;
-//    }
-//
-//
-//    protected void onPostExecute(Document doc) {
-//        // do something with doc
-//
-//    }
-//}

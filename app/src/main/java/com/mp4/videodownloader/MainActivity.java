@@ -853,93 +853,93 @@ public class MainActivity extends AppCompatActivity {
                 jsonConfig = response.body();
                 strArrData = response.body().getUrlAccept().toArray(new String[0]);
 
-                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-
-                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
-                    jsonConfig.setPercentAds(0);
-                    jsonConfig.setIsAccept(2);
-                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                } else {
-                    if (!mPrefs.contains("isNoAds")) {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        if (jsonConfig.getPercentAds() == 0) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                        }
-                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                            mEditor.putInt("accept", 2).commit();
-                            jsonConfig.setPercentAds(0);
-                            jsonConfig.setIsAccept(2);
-                        }
-                        else
-                            mEditor.putBoolean("isNoAds", false).commit();
-                    }
-
-                    if (jsonConfig.getIsAccept() >= 1) {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                    } else {
-                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                        if (support >= 1) {
-                            jsonConfig.setIsAccept(support);
-                        }
-                    }
-                }
-
-
-
-                if (jsonConfig.getIsAccept() >= 1) {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                } else {
-                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support >= 1) {
-                        jsonConfig.setIsAccept(support);
-                    }
-                }
-
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                            addBannerAds();
-                            requestAds();
-                        } else {
-                            showPopupNewApp();
-                        }
-                    }
-                });
+//                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+//
+//                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
+//                    jsonConfig.setPercentAds(0);
+//                    jsonConfig.setIsAccept(2);
+//                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+//                } else {
+//                    if (!mPrefs.contains("isNoAds")) {
+//                        SharedPreferences.Editor mEditor = mPrefs.edit();
+//                        if (jsonConfig.getPercentAds() == 0) {
+//                            mEditor.putBoolean("isNoAds", true).commit();
+//                        }
+//                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+//                            mEditor.putBoolean("isNoAds", true).commit();
+//                            mEditor.putInt("accept", 2).commit();
+//                            jsonConfig.setPercentAds(0);
+//                            jsonConfig.setIsAccept(2);
+//                        }
+//                        else
+//                            mEditor.putBoolean("isNoAds", false).commit();
+//                    }
+//
+//                    if (jsonConfig.getIsAccept() >= 1) {
+//                        SharedPreferences.Editor mEditor = mPrefs.edit();
+//                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+//                    } else {
+//                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+//                        if (support >= 1) {
+//                            jsonConfig.setIsAccept(support);
+//                        }
+//                    }
+//                }
+//
+//
+//
+//                if (jsonConfig.getIsAccept() >= 1) {
+//                    SharedPreferences.Editor mEditor = mPrefs.edit();
+//                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+//                } else {
+//                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+//                    if (support >= 1) {
+//                        jsonConfig.setIsAccept(support);
+//                    }
+//                }
+//
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dialogLoading.dismiss();
+//                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+//                            addBannerAds();
+//                            requestAds();
+//                        } else {
+//                            showPopupNewApp();
+//                        }
+//                    }
+//                });
 
             }
 
             @Override
             public void onFailure(Call<JsonConfig> call, Throwable t) {
 
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(MainActivity.this);
-                        }
-                        builder.setTitle(R.string.title_error_connection)
-                                .setMessage(R.string.message_error_connection)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                        getConfigApp();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setCancelable(false)
-                                .show();
-                    }
-                });
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dialogLoading.dismiss();
+//                        AlertDialog.Builder builder;
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+//                        } else {
+//                            builder = new AlertDialog.Builder(MainActivity.this);
+//                        }
+//                        builder.setTitle(R.string.title_error_connection)
+//                                .setMessage(R.string.message_error_connection)
+//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        // continue with delete
+//                                        dialog.cancel();
+//                                        getConfigApp();
+//                                    }
+//                                })
+//                                .setIcon(android.R.drawable.ic_dialog_alert)
+//                                .setCancelable(false)
+//                                .show();
+//                    }
+//                });
 
             }
         });

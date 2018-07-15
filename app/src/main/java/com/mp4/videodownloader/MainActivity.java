@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isFirstAds = true;
     private String urlDownloadOther;
     private boolean isInitAds = false;
+    private boolean isClearHistory = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,12 +134,13 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
 
 
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 // Returning 'false' unconditionally is fine.
-                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0)
-                {
+
+                if ((url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0) {
                     showNotSupportYoutube();
                     return true;
                 }
@@ -148,15 +150,69 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (isClearHistory) {
+                    isClearHistory = false;
+                    webView.clearHistory();
+                }
+
                 urlDownloadOther = null;
                 super.onPageFinished(view, url);
             }
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                if (url.contains(".mp4")) {
+                if (url.contains(".mp4") || url.contains(".3gp")) {
+//                    if (!isValidUrl(url))
+//                        return;
+
                     urlDownloadOther = url;
-                    Toast.makeText(MainActivity.this, R.string.detect_download_link, Toast.LENGTH_SHORT).show();
+
+                    AlertDialog.Builder builder;
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    AlertDialog show = builder.setTitle(R.string.new_video_found)
+                            .setMessage(urlDownloadOther)
+                            .setPositiveButton(R.string.action_download, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+
+                                    try
+                                    {
+                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
+                                        String fName = UUID.randomUUID().toString();
+                                        if (urlDownloadOther.contains(".mp4")) {
+                                            fName += ".mp4";
+
+                                        } else if (urlDownloadOther.contains(".3gp")) {
+                                            fName += ".3gp";
+                                        }
+
+                                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
+                                        r.allowScanningByMediaScanner();
+                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                                        dm.enqueue(r);
+                                        logSiteDownloaded();
+                                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+
+                                        showFullAds();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        showPlayThenDownloadError();
+                                    }
+
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+
                 }
             }
         });
@@ -207,21 +263,30 @@ public class MainActivity extends AppCompatActivity {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
                     } else {
-                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                        String fName = UUID.randomUUID().toString();
-                        if (urlDownloadOther.endsWith(".mp4")) {
-                            fName += ".mp4";
-                        } else if (urlDownloadOther.endsWith(".3gp")) {
-                            fName += ".3gp";
+                        try
+                        {
+                            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
+                            String fName = UUID.randomUUID().toString();
+                            if (urlDownloadOther.endsWith(".mp4")) {
+                                fName += ".mp4";
+                            } else if (urlDownloadOther.endsWith(".3gp")) {
+                                fName += ".3gp";
+                            }
+
+                            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
+                            r.allowScanningByMediaScanner();
+                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                            dm.enqueue(r);
+                            logSiteDownloaded();
+                            Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                            showFullAds();
+                        }
+                        catch (Exception e)
+                        {
+                            showPlayThenDownloadError();
                         }
 
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
-                        r.allowScanningByMediaScanner();
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                        dm.enqueue(r);
-                        logSiteDownloaded();
-                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -287,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        showFullAds();
                         showListViewDownload(listTitle, listUrl, filename);
                     }
                 });
@@ -299,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        logEventFb("FAIL_TWITTER");
                         showErrorDownload();
                     }
                 });
@@ -520,17 +587,13 @@ public class MainActivity extends AppCompatActivity {
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                if (vMeta.getChannelId().equalsIgnoreCase("UCl2aT0nRejTCQO_LHZAftBw")) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialogLoading.dismiss();
-                            Toast.makeText(MainActivity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    return;
-                }
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        showFullAds();
+                    }
+                });
 
                 if (ytFiles != null && ytFiles.size() > 0) {
                     final List<String> listTitle = new ArrayList<String>();
@@ -547,12 +610,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     showErrorDownload();
                 }
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                    }
-                });
+
 
             }
         }.extract(urlExtra, false, false);
@@ -604,6 +662,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        showFullAds();
                         showListViewDownload(listTitle, listUrl, video.getTitle());
                     }
                 });
@@ -643,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         dialog.dismiss();
                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + ".mp4");
                         r.allowScanningByMediaScanner();
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
@@ -734,7 +793,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             }
                             else {
-                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") +"&tbm=vid";
+                                String url = "https://vimeo.com/search?q=" + Uri.encode(s );
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(url);
                                 searchView.clearFocus();
@@ -753,7 +812,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             }
                             else {
-                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s) +"&tbm=vid";
+                                String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(url);
                                 searchView.clearFocus();
@@ -780,7 +839,7 @@ public class MainActivity extends AppCompatActivity {
                                     searchView.clearFocus();
                                 }
                                 else {
-                                    String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") +"&tbm=vid";
+                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s );
                                     webProgress.setVisibility(ProgressBar.VISIBLE);
                                     webView.loadUrl(url);
                                     searchView.clearFocus();
@@ -842,11 +901,15 @@ public class MainActivity extends AppCompatActivity {
         searchView.clearFocus();
         switch (item.getItemId()) {
             case R.id.action_home:
+                webView.loadUrl("about:blank");
 
+                searchView.clearFocus();
+                isClearHistory = true;
                 return true;
             case R.id.action_reload:
                 if (webView.getVisibility() == View.VISIBLE)
                     webView.reload();
+                searchView.clearFocus();
                 return true;
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
@@ -901,17 +964,23 @@ public class MainActivity extends AppCompatActivity {
                 {
                     strArrData[count++] = site.getUrl();
                 }
-//                strArrData = jsonConfig.getUrlAccept().toArray(new String[0]);
 
                 SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-
                 if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
-                    jsonConfig.setPercentAds(0);
+
                     jsonConfig.setIsAccept(2);
-                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                    boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                    if(!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5)
+                    {
+                        mPrefs.edit().putBoolean("isNoAds", false).commit();
+                    }
+                    else
+                    {
+                        jsonConfig.setPercentAds(0);
+                    }
                 } else {
+                    SharedPreferences.Editor mEditor = mPrefs.edit();
                     if (!mPrefs.contains("isNoAds")) {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
                         if (jsonConfig.getPercentAds() == 0) {
                             mEditor.putBoolean("isNoAds", true).commit();
                         }
@@ -924,23 +993,14 @@ public class MainActivity extends AppCompatActivity {
                         else
                             mEditor.putBoolean("isNoAds", false).commit();
                     }
-
-                    if (jsonConfig.getIsAccept() >= 1) {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                    } else {
-                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                        if (support >= 1) {
-                            jsonConfig.setIsAccept(support);
-                        }
-                    }
                 }
 
-
-
                 if (jsonConfig.getIsAccept() >= 1) {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                    if(mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept())
+                    {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                    }
                 } else {
                     int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
                     if (support >= 1) {
@@ -966,30 +1026,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<JsonConfig> call, Throwable t) {
 
-//                MainActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        dialogLoading.dismiss();
-//                        AlertDialog.Builder builder;
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-//                        } else {
-//                            builder = new AlertDialog.Builder(MainActivity.this);
-//                        }
-//                        builder.setTitle(R.string.title_error_connection)
-//                                .setMessage(R.string.message_error_connection)
-//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        // continue with delete
-//                                        dialog.cancel();
-//                                        getConfigApp();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .setCancelable(false)
-//                                .show();
-//                    }
-//                });
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(MainActivity.this);
+                        }
+                        builder.setTitle(R.string.title_error_connection)
+                                .setMessage(R.string.message_error_connection)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                        dialog.cancel();
+                                        getConfigApp();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setCancelable(false)
+                                .show();
+                    }
+                });
 
             }
         });

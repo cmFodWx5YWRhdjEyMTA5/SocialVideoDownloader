@@ -16,7 +16,7 @@
     <string name="detect_download_link">Detect new video download link</string>
     <string name="error_content_copyright">Not support this channel because DCMA copyright!!!</string>
     <string name="error_download_other_site">We will support this website soon!</string>
-    <string name="title_error_facebook">Download Facebook video</string>
+    <string name="title_error_facebook">Error download video</string>
     <string name="message_error_facebook">Please click play video and then press download button</string>
     <string name="ok">Ok</string>
     <string name="downloading">Downloading...</string>
@@ -29,6 +29,10 @@
     <string name="title_not_youtube">Youtube not supported</string>
     <string name="message_not_youtube">We not support youtube downloader by google term of service</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="new_video_found">New video found!</string>
+    <string name="cancel">Cancel</string>
+    <string name="facebook_app_id">206403349880091</string>
+    <string name="fb_login_protocol_scheme">fb206403349880091</string>
 
     <!-- Strings related to Settings -->
 

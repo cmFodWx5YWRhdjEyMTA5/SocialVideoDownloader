@@ -118,43 +118,43 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setupActionBar();
         addPreferencesFromResource(R.xml.pref_main);
 
-        Preference rate = findPreference(getString(R.string.key_rating));
-        rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                launchMarket();
-                return true;
-            }
-        });
-
-        Preference feedback = findPreference(getString(R.string.key_feedback));
-        feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                launchFeedback();
-                return true;
-            }
-        });
+//        Preference rate = findPreference(getString(R.string.key_rating));
+//        rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                launchMarket();
+//                return true;
+//            }
+//        });
+//
+//        Preference feedback = findPreference(getString(R.string.key_feedback));
+//        feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                launchFeedback();
+//                return true;
+//            }
+//        });
     }
 
-    private void launchMarket() {
-        Uri uri = Uri.parse("market://details?id=" + getPackageName());
-        Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
-        try {
-            startActivity(myAppLinkToMarket);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "Unable to find market app", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void launchFeedback() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("plain/text");
-        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.dev_email)});
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback " + getString(R.string.app_name));
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
-        startActivity(Intent.createChooser(intent, "Send"));
-    }
+//    private void launchMarket() {
+//        Uri uri = Uri.parse("market://details?id=" + getPackageName());
+//        Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
+//        try {
+//            startActivity(myAppLinkToMarket);
+//        } catch (ActivityNotFoundException e) {
+//            Toast.makeText(this, "Unable to find market app", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//
+//    private void launchFeedback() {
+//        Intent intent = new Intent(Intent.ACTION_SEND);
+//        intent.setType("plain/text");
+//        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.dev_email)});
+//        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback " + getString(R.string.app_name));
+//        intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
+//        startActivity(Intent.createChooser(intent, "Send"));
+//    }
 
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.

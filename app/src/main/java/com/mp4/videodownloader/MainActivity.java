@@ -56,6 +56,8 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.mp4.videodownloader.network.GetConfig;
 import com.mp4.videodownloader.network.JsonConfig;
+import com.mp4.videodownloader.network.Site;
+import com.startapp.android.publish.adsCommon.StartAppAd;
 import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
         if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
-            StartAppSDK.init(this, "206407431", true);
+            StartAppSDK.init(this, "206901903", true);
             isInitAds = true;
         }
 
@@ -316,6 +318,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
+        if (jsonConfig.getPercentAds() == 0)
+            return;
+
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
         if (jsonConfig.getPriorityBanner().equals("facebook")) {
 
@@ -323,8 +328,32 @@ public class MainActivity extends AppCompatActivity {
             Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
             bannerView.addView(adViewFb);
             // Request an ad
+            adViewFb.setAdListener(new com.facebook.ads.AdListener() {
+                @Override
+                public void onError(Ad ad, AdError adError) {
+                    if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
+                        jsonConfig.setPriorityBanner("admob");
+                        addBannerAds();
+                    }
+                }
+
+                @Override
+                public void onAdLoaded(Ad ad) {
+
+                }
+
+                @Override
+                public void onAdClicked(Ad ad) {
+
+                }
+
+                @Override
+                public void onLoggingImpression(Ad ad) {
+
+                }
+            });
             adViewFb.loadAd();
-        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
+        } else {
             AdView adView = new AdView(this);
             adView.setAdSize(AdSize.SMART_BANNER);
             adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
@@ -335,11 +364,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void requestAds() {
-        if (jsonConfig.getPriorityFull().equals("facebook")) {
-            requestFBAds();
-        } else if (jsonConfig.getPriorityFull().equals("admob")){
-            requestAdmob();
+    private void requestFullAds() {
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
+            if (jsonConfig.getPriorityFull().equals("facebook")) {
+                requestFBAds();
+            } else {
+                requestAdmob();
+            }
         }
     }
 
@@ -352,10 +384,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds ) {
-                    isFirstAds = false;
-                    mInterstitialAd.show();
-                }
             }
 
             @Override
@@ -402,15 +430,15 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
 //                Log.d("caomui1",adError.getErrorMessage());
+                if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
+                    jsonConfig.setPriorityFull("admob");
+                    requestAdmob();
+                }
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    interstitialAdFb.show();
-                }
             }
 
             @Override
@@ -431,19 +459,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFullAds() {
-        Random ran = new Random();
-        if (ran.nextInt(100)< jsonConfig.getPercentAds()) {
-            if (mInterstitialAd != null) {
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show();
-                else
-                    requestAdmob();
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
+            if (new Random().nextInt(100) < jsonConfig.getPercentAds()) {
+                if (interstitialAdFb != null) {
+                    if (interstitialAdFb.isAdLoaded())
+                        interstitialAdFb.show();
+                    else
+                        requestFBAds();
+                } else if (mInterstitialAd != null) {
+                    if (mInterstitialAd.isLoaded())
+                        mInterstitialAd.show();
+                    else
+                        requestAdmob();
 
-            } else if (interstitialAdFb != null) {
-                if (interstitialAdFb.isAdLoaded())
-                    interstitialAdFb.show();
-                else
-                    requestFBAds();
+                }
             }
         }
     }
@@ -811,6 +841,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         searchView.clearFocus();
         switch (item.getItemId()) {
+            case R.id.action_home:
+
+                return true;
             case R.id.action_reload:
                 if (webView.getVisibility() == View.VISIBLE)
                     webView.reload();
@@ -828,12 +861,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+//        if (webView != null && webView.canGoBack())
+//            webView.goBack();
+//        else {
+//            webView.loadUrl("about:blank");
+////            isClearHistory = true;
+////            webView.setVisibility(View.GONE);
+//        }
+
         if (webView != null && webView.canGoBack())
             webView.goBack();
         else {
             webView.loadUrl("about:blank");
-//            isClearHistory = true;
-//            webView.setVisibility(View.GONE);
+            if (isInitAds) {
+                StartAppAd.onBackPressed(this);
+            }
+            super.onBackPressed();
+
         }
     }
 
@@ -851,65 +895,71 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
-                strArrData = response.body().getUrlAccept().toArray(new String[0]);
+                strArrData = new String[jsonConfig.getUrlAccept().size()];
+                int count = 0;
+                for (Site site: jsonConfig.getUrlAccept() )
+                {
+                    strArrData[count++] = site.getUrl();
+                }
+//                strArrData = jsonConfig.getUrlAccept().toArray(new String[0]);
 
-//                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-//
-//                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
-//                    jsonConfig.setPercentAds(0);
-//                    jsonConfig.setIsAccept(2);
-//                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-//                } else {
-//                    if (!mPrefs.contains("isNoAds")) {
-//                        SharedPreferences.Editor mEditor = mPrefs.edit();
-//                        if (jsonConfig.getPercentAds() == 0) {
-//                            mEditor.putBoolean("isNoAds", true).commit();
-//                        }
-//                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
-//                            mEditor.putBoolean("isNoAds", true).commit();
-//                            mEditor.putInt("accept", 2).commit();
-//                            jsonConfig.setPercentAds(0);
-//                            jsonConfig.setIsAccept(2);
-//                        }
-//                        else
-//                            mEditor.putBoolean("isNoAds", false).commit();
-//                    }
-//
-//                    if (jsonConfig.getIsAccept() >= 1) {
-//                        SharedPreferences.Editor mEditor = mPrefs.edit();
-//                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-//                    } else {
-//                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-//                        if (support >= 1) {
-//                            jsonConfig.setIsAccept(support);
-//                        }
-//                    }
-//                }
-//
-//
-//
-//                if (jsonConfig.getIsAccept() >= 1) {
-//                    SharedPreferences.Editor mEditor = mPrefs.edit();
-//                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-//                } else {
-//                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-//                    if (support >= 1) {
-//                        jsonConfig.setIsAccept(support);
-//                    }
-//                }
-//
-//                MainActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        dialogLoading.dismiss();
-//                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-//                            addBannerAds();
-//                            requestAds();
-//                        } else {
-//                            showPopupNewApp();
-//                        }
-//                    }
-//                });
+                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+
+                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
+                    jsonConfig.setPercentAds(0);
+                    jsonConfig.setIsAccept(2);
+                    RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                } else {
+                    if (!mPrefs.contains("isNoAds")) {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        if (jsonConfig.getPercentAds() == 0) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                        }
+                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            mEditor.putInt("accept", 2).commit();
+                            jsonConfig.setPercentAds(0);
+                            jsonConfig.setIsAccept(2);
+                        }
+                        else
+                            mEditor.putBoolean("isNoAds", false).commit();
+                    }
+
+                    if (jsonConfig.getIsAccept() >= 1) {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                    } else {
+                        int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+                        if (support >= 1) {
+                            jsonConfig.setIsAccept(support);
+                        }
+                    }
+                }
+
+
+
+                if (jsonConfig.getIsAccept() >= 1) {
+                    SharedPreferences.Editor mEditor = mPrefs.edit();
+                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                } else {
+                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+                    if (support >= 1) {
+                        jsonConfig.setIsAccept(support);
+                    }
+                }
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+                            addBannerAds();
+                            requestFullAds();
+                        } else {
+                            showPopupNewApp();
+                        }
+                    }
+                });
 
             }
 

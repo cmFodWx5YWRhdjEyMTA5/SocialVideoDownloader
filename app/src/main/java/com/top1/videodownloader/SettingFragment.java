@@ -30,24 +30,24 @@ public class SettingFragment extends PreferenceFragmentCompat {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_main);
-        Preference rate = findPreference(getString(R.string.key_rating));
-        rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                launchMarket();
-                return true;
-            }
-        });
-
-        Preference feedback = findPreference(getString(R.string.key_feedback));
-        feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                launchFeedback();
-                return true;
-            }
-        });
-
+//        Preference rate = findPreference(getString(R.string.key_rating));
+//        rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                launchMarket();
+//                return true;
+//            }
+//        });
+//
+//        Preference feedback = findPreference(getString(R.string.key_feedback));
+//        feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                launchFeedback();
+//                return true;
+//            }
+//        });
+//
         Preference download_folder = findPreference(getString(R.string.key_download_folder));
         download_folder.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

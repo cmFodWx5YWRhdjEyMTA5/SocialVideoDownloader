@@ -84,7 +84,7 @@ public class Main2Activity extends AppCompatActivity {
 
     private SimpleCursorAdapter myAdapter;
     SearchView searchView = null;
-    private String[] strArrData = {};
+//    private String[] strArrData = {};
     private boolean isFirstAds = true;
 
     private TabLayout tabLayout;
@@ -198,7 +198,7 @@ public class Main2Activity extends AppCompatActivity {
         }
     }
 
-    private void requestAds() {
+    private void requestFullAds() {
         if (jsonConfig.getPriorityFull().equals("facebook")) {
             requestFBAds();
         } else if (jsonConfig.getPriorityFull().equals("admob")) {
@@ -455,29 +455,29 @@ public class Main2Activity extends AppCompatActivity {
 //            searchView.setIconified(false);
             searchView.setSuggestionsAdapter(myAdapter);
             // Getting selected (clicked) item suggestion
-            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-                @Override
-                public boolean onSuggestionClick(int position) {
-                    if (jsonConfig.getIsAccept() == 0 && strArrData[position].contains("youtube")) {
-                        searchView.clearFocus();
-                        showNotSupportYoutube();
-                        return true;
-                    } else {
-                        String url = strArrData[position];
-                        loadUrlWebview(url);
-                        searchView.clearFocus();
-                        searchItem.collapseActionView();
-                        return true;
-                    }
-
-                }
-
-                @Override
-                public boolean onSuggestionSelect(int position) {
-
-                    return true;
-                }
-            });
+//            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+//                @Override
+//                public boolean onSuggestionClick(int position) {
+//                    if (jsonConfig.getIsAccept() == 0 && strArrData[position].contains("youtube")) {
+//                        searchView.clearFocus();
+//                        showNotSupportYoutube();
+//                        return true;
+//                    } else {
+//                        String url = strArrData[position];
+//                        loadUrlWebview(url);
+//                        searchView.clearFocus();
+//                        searchItem.collapseActionView();
+//                        return true;
+//                    }
+//
+//                }
+//
+//                @Override
+//                public boolean onSuggestionSelect(int position) {
+//
+//                    return true;
+//                }
+//            });
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
@@ -490,7 +490,7 @@ public class Main2Activity extends AppCompatActivity {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
                             } else {
-                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                String url = "https://vimeo.com/search?q=" + Uri.encode(s );
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -502,7 +502,7 @@ public class Main2Activity extends AppCompatActivity {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
                             } else {
-                                String url = "https://www.google.com.vn/search?q=" + Uri.encode(s) + "&tbm=vid";
+                                String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -510,56 +510,24 @@ public class Main2Activity extends AppCompatActivity {
                             if (s.equalsIgnoreCase("https://m.youtube.com")) {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
-                            } else if (s.contains("youtube")) {
-                                searchView.clearFocus();
-                                showNotSupportYoutube();
-                            } else {
+                            }
+                            else {
                                 if (isValid(s)) {
                                     loadUrlWebview(s);
                                     searchView.clearFocus();
                                 } else {
-                                    String url = "https://www.google.com.vn/search?q=" + Uri.encode(s + " -site:youtube.com") + "&tbm=vid";
+                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s );
                                     loadUrlWebview(url);
                                     searchView.clearFocus();
                                 }
                             }
                         }
-                        return true;
                     }
+                    return true;
                 }
 
                 @Override
                 public boolean onQueryTextChange(final String s) {
-                    if (s.equals(""))
-                        return  false;
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(AppConstants.BASE_URL_SEARCH)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    final GetConfig config = retrofit.create(GetConfig.class);
-
-                    Call<String[]> call = config.getSuggestion(s);
-                    call.enqueue(new Callback<String[]>() {
-                        @Override
-                        public void onResponse(Call<String[]> call, Response<String[]> response) {
-                            Log.e("caomui",response.body().toString());
-
-                            strArrData = response.body();
-                            final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-                            int count = strArrData.length;
-                            if (count > 5 )
-                                count = 5;
-                            for (int i = 0; i < 5; i++) {
-                                if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
-                                    mc.addRow(new Object[]{i, strArrData[i]});
-                            }
-                            myAdapter.changeCursor(mc);
-                        }
-
-                        @Override
-                        public void onFailure(Call<String[]> call, Throwable t) {
-                        }
-                    });
                     return false;
                 }
 
@@ -593,16 +561,48 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
-                strArrData = response.body().getUrlAccept().toArray(new String[0]);
+//                strArrData = response.body().getUrlAccept().toArray(new String[0]);
 
 
-                SharedPreferences mPrefs = getSharedPreferences("support_yt", 0);
-                if (jsonConfig.getIsAccept() > 0) {
+                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
+
+                    jsonConfig.setIsAccept(2);
+                    boolean isRate = RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+                    if(!isRate && RateThisApp.getLaunchCount(Main2Activity.this) >= 5)
+                    {
+                        mPrefs.edit().putBoolean("isNoAds", false).commit();
+                    }
+                    else
+                    {
+                        jsonConfig.setPercentAds(0);
+                    }
+                } else {
                     SharedPreferences.Editor mEditor = mPrefs.edit();
-                    mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                    if (!mPrefs.contains("isNoAds")) {
+                        if (jsonConfig.getPercentAds() == 0) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                        }
+                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            mEditor.putInt("accept", 2).commit();
+                            jsonConfig.setPercentAds(0);
+                            jsonConfig.setIsAccept(2);
+                        }
+                        else
+                            mEditor.putBoolean("isNoAds", false).commit();
+                    }
+                }
+
+                if (jsonConfig.getIsAccept() >= 1) {
+                    if(mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept())
+                    {
+                        SharedPreferences.Editor mEditor = mPrefs.edit();
+                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+                    }
                 } else {
                     int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support > 0) {
+                    if (support >= 1) {
                         jsonConfig.setIsAccept(support);
                     }
                 }
@@ -610,15 +610,10 @@ public class Main2Activity extends AppCompatActivity {
                 Main2Activity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loadTopSite();
                         dialogLoading.dismiss();
                         if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
                             addBannerAds();
-                            requestAds();
-
-                            RateThisApp.Config config = new RateThisApp.Config(1, 3);
-                            RateThisApp.init(config);
-                            RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+                            requestFullAds();
                         } else {
                             showPopupNewApp();
                         }

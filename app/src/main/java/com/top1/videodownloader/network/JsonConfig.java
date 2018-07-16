@@ -27,6 +27,10 @@ public class JsonConfig {
     @SerializedName("percentAds")
     @Expose
     private Integer percentAds;
+
+    @SerializedName("percentRate")
+    @Expose
+    private Integer percentRate;
     @SerializedName("priorityBanner")
     @Expose
     private String priorityBanner;
@@ -35,7 +39,7 @@ public class JsonConfig {
     private String priorityFull;
     @SerializedName("urlAccept")
     @Expose
-    private List<String> urlAccept = null;
+    private List<Site> urlAccept = null;
 
     public String getIdBannerAdmob() {
         return idBannerAdmob;
@@ -93,6 +97,14 @@ public class JsonConfig {
         this.percentAds = percentAds;
     }
 
+    public Integer getPercentRate() {
+        return percentRate;
+    }
+
+    public void setPercentRate(Integer percentRate) {
+        this.percentRate = percentRate;
+    }
+
     public String getPriorityBanner() {
         return priorityBanner;
     }
@@ -109,11 +121,11 @@ public class JsonConfig {
         this.priorityFull = priorityFull;
     }
 
-    public List<String> getUrlAccept() {
+    public List<Site> getUrlAccept() {
         return urlAccept;
     }
 
-    public void setUrlAccept(List<String> urlAccept) {
+    public void setUrlAccept(List<Site> urlAccept) {
         this.urlAccept = urlAccept;
     }
 

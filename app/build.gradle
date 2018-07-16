@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
 
 
@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId "com.top1.videodownloader"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 201
-        versionName "2.0"
+        targetSdkVersion 27
+        versionCode 301
+        versionName "3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

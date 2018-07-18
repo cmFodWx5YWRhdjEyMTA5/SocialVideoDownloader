@@ -299,6 +299,9 @@ public class MainActivity extends AppCompatActivity {
         // setup SimpleCursorAdapter
         myAdapter = new SimpleCursorAdapter(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
+        RateThisApp.onCreate(this);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.init(config1);
 
         getConfigApp();
     }
@@ -708,6 +711,8 @@ public class MainActivity extends AppCompatActivity {
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         dm.enqueue(r);
                         Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+
+                        RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                     }
                 });
 
@@ -970,7 +975,7 @@ public class MainActivity extends AppCompatActivity {
 
                     jsonConfig.setIsAccept(2);
                     boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                    if(!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5)
+                    if(!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
                     {
                         mPrefs.edit().putBoolean("isNoAds", false).commit();
                     }

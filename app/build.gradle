@@ -11,7 +11,7 @@ android {
         applicationId "com.mp4.video.downloader"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 201
+        versionCode 206
         versionName "2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

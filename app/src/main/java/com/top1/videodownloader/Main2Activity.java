@@ -46,14 +46,27 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAdListener;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.top1.videodownloader.network.GetConfig;
 import com.top1.videodownloader.network.JsonConfig;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterApiClient;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.core.models.VideoInfo;
+import com.twitter.sdk.android.core.services.StatusesService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -82,17 +95,29 @@ public class Main2Activity extends AppCompatActivity {
     private com.facebook.ads.AdView adViewFb;
     private com.facebook.ads.InterstitialAd interstitialAdFb;
 
-    private SimpleCursorAdapter myAdapter;
+//    private SimpleCursorAdapter myAdapter;
     SearchView searchView = null;
 //    private String[] strArrData = {};
     private boolean isFirstAds = true;
 
     private TabLayout tabLayout;
     private ViewPagerAdapter adapter;
+    private boolean isInitAds = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
+            StartAppSDK.init(this, "206129972", true);
+            isInitAds = true;
+        }
+
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .twitterAuthConfig(new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
         setContentView(R.layout.activity_main2);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -100,17 +125,21 @@ public class Main2Activity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
+
         dialogLoading = new ProgressDialog(this); // this = YourActivity
         dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialogLoading.setIndeterminate(true);
         dialogLoading.setCanceledOnTouchOutside(false);
         dialogLoading.dismiss();
 
-        final String[] from = new String[]{"fishName"};
-        final int[] to = new int[]{android.R.id.text1};
-        myAdapter = new SimpleCursorAdapter(Main2Activity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+//        final String[] from = new String[]{"fishName"};
+//        final int[] to = new int[]{android.R.id.text1};
+//        myAdapter = new SimpleCursorAdapter(Main2Activity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
         getConfigApp();
+        RateThisApp.onCreate(this);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.init(config1);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -145,10 +174,40 @@ public class Main2Activity extends AppCompatActivity {
         Main2Activity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(Main2Activity.this, R.string.error_download_page, Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder;
+                builder = new AlertDialog.Builder(Main2Activity.this);
+                AlertDialog show = builder.setTitle(R.string.error_download_title)
+                        .setMessage(R.string.error_download_page)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .show();
             }
         });
+    }
 
+    public void showPlayThenDownloadError() {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(Main2Activity.this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(Main2Activity.this);
+        }
+        builder.setTitle(R.string.title_error_facebook)
+                .setMessage(R.string.message_error_facebook)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        dialog.cancel();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     public void showPopupNewApp() {
@@ -179,6 +238,9 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
+        if (jsonConfig.getPercentAds() == 0)
+            return;
+
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
         if (jsonConfig.getPriorityBanner().equals("facebook")) {
 
@@ -186,8 +248,32 @@ public class Main2Activity extends AppCompatActivity {
             Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
             bannerView.addView(adViewFb);
             // Request an ad
+            adViewFb.setAdListener(new com.facebook.ads.AdListener() {
+                @Override
+                public void onError(Ad ad, AdError adError) {
+                    if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
+                        jsonConfig.setPriorityBanner("admob");
+                        addBannerAds();
+                    }
+                }
+
+                @Override
+                public void onAdLoaded(Ad ad) {
+
+                }
+
+                @Override
+                public void onAdClicked(Ad ad) {
+
+                }
+
+                @Override
+                public void onLoggingImpression(Ad ad) {
+
+                }
+            });
             adViewFb.loadAd();
-        } else if (jsonConfig.getPriorityBanner().equals("admob")) {
+        } else {
             AdView adView = new AdView(this);
             adView.setAdSize(AdSize.SMART_BANNER);
             adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
@@ -199,14 +285,19 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void requestFullAds() {
-        if (jsonConfig.getPriorityFull().equals("facebook")) {
-            requestFBAds();
-        } else if (jsonConfig.getPriorityFull().equals("admob")) {
-            requestAdmob();
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
+            if (jsonConfig.getPriorityFull().equals("facebook")) {
+                requestFBAds();
+            } else {
+                requestAdmob();
+            }
         }
     }
 
     private void requestAdmob() {
+        interstitialAdFb = null;
+
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
 
@@ -215,10 +306,10 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    mInterstitialAd.show();
-                }
+//                if (isFirstAds) {
+//                    isFirstAds = false;
+//                    mInterstitialAd.show();
+//                }
             }
 
             @Override
@@ -232,6 +323,8 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void requestFBAds() {
+        mInterstitialAd = null;
+
         interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
         Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
@@ -248,16 +341,16 @@ public class Main2Activity extends AppCompatActivity {
 
             @Override
             public void onError(Ad ad, AdError adError) {
-//                Log.d("caomui1",adError.getErrorMessage());
+                // Ad error callback
+                if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
+                    jsonConfig.setPriorityFull("admob");
+                    requestAdmob();
+                }
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Show the ad when it's done loading.
-                if (isFirstAds) {
-                    isFirstAds = false;
-                    interstitialAdFb.show();
-                }
             }
 
             @Override
@@ -271,32 +364,34 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
-
         // For auto play video ads, it's recommended to load the ad
         // at least 30 seconds before it is shown
         interstitialAdFb.loadAd();
     }
 
     public void showFullAds() {
-        Random ran = new Random();
-        if (ran.nextInt(100) < jsonConfig.getPercentAds()) {
-            if (mInterstitialAd != null) {
-                if (mInterstitialAd.isLoaded())
-                    mInterstitialAd.show();
-                else
-                    requestAdmob();
+        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
+            if (new Random().nextInt(100) < jsonConfig.getPercentAds()) {
+                if (interstitialAdFb != null) {
+                    if (interstitialAdFb.isAdLoaded())
+                        interstitialAdFb.show();
+                    else
+                        requestFBAds();
+                } else if (mInterstitialAd != null) {
+                    if (mInterstitialAd.isLoaded())
+                        mInterstitialAd.show();
+                    else
+                        requestAdmob();
 
-            } else if (interstitialAdFb != null) {
-                if (interstitialAdFb.isAdLoaded())
-                    interstitialAdFb.show();
-                else
-                    requestFBAds();
+                }
             }
         }
     }
 
     public void downloadYoutube(String url) {
         dialogLoading.show();
+        logEventFb("YOUTUBE");
 
         String urlExtra = url;
         if (url.contains("?list")) {
@@ -332,6 +427,12 @@ public class Main2Activity extends AppCompatActivity {
                             listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
                         listUrl.add(file.getUrl());
                     }
+                    Main2Activity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showFullAds();
+                        }
+                    });
                     showListViewDownload(listTitle, listUrl, vMeta.getTitle());
                 } else {
                     showErrorDownload();
@@ -343,12 +444,16 @@ public class Main2Activity extends AppCompatActivity {
                         dialogLoading.dismiss();
                     }
                 });
+
+
             }
         }.extract(urlExtra, false, false);
     }
 
     public void downloadVimeo(String url) {
         dialogLoading.show();
+        logEventFb("VIMEO");
+
         VimeoExtractor.getInstance().fetchVideoWithURL(url, null, new OnVimeoExtractionListener() {
             @Override
             public void onSuccess(final VimeoVideo video) {
@@ -391,6 +496,7 @@ public class Main2Activity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+                        showFullAds();
                         showListViewDownload(listTitle, listUrl, video.getTitle());
                     }
                 });
@@ -426,12 +532,14 @@ public class Main2Activity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         dialog.dismiss();
                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + ".mp4");
                         r.allowScanningByMediaScanner();
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         dm.enqueue(r);
                         Toast.makeText(Main2Activity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+
+                        RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
                     }
                 });
 
@@ -453,7 +561,7 @@ public class Main2Activity extends AppCompatActivity {
         if (searchView != null) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(Main2Activity.this.getComponentName()));
 //            searchView.setIconified(false);
-            searchView.setSuggestionsAdapter(myAdapter);
+//            searchView.setSuggestionsAdapter(myAdapter);
             // Getting selected (clicked) item suggestion
 //            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
 //                @Override
@@ -561,15 +669,15 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
                 jsonConfig = response.body();
-//                strArrData = response.body().getUrlAccept().toArray(new String[0]);
-
+                HomeTabFragment homeTab = (HomeTabFragment)(adapter.getItem(0));
+                homeTab.loadDataGridView();
 
                 SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
                 if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
 
                     jsonConfig.setIsAccept(2);
                     boolean isRate = RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
-                    if(!isRate && RateThisApp.getLaunchCount(Main2Activity.this) >= 5)
+                    if(!isRate && RateThisApp.getLaunchCount(Main2Activity.this) >= 2)
                     {
                         mPrefs.edit().putBoolean("isNoAds", false).commit();
                     }
@@ -660,10 +768,27 @@ public class Main2Activity extends AppCompatActivity {
             if (browserTab.webView != null && browserTab.webView.canGoBack())
                 browserTab.webView.goBack();
             else {
-                browserTab.webView.stopLoading();
-                browserTab.clearHistory = true;
-                browserTab.showWebview(false);//webView.loadUrl("about:blank");
+                if (browserTab.webView.getVisibility() == View.VISIBLE)
+                {
+                    browserTab.webView.stopLoading();
+                    browserTab.clearHistory = true;
+                    browserTab.showWebview(false);//webView.loadUrl("about:blank");
+                }
+                else
+                {
+                    if (isInitAds) {
+                        StartAppAd.onBackPressed(this);
+                    }
+                    super.onBackPressed();
+                }
             }
+        }
+        else
+        {
+            if (isInitAds) {
+                StartAppAd.onBackPressed(this);
+            }
+            super.onBackPressed();
         }
     }
 
@@ -723,6 +848,106 @@ public class Main2Activity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+    public void downloadTwitter(String urlVideo) {
+        final Long id = getTweetId(urlVideo);
+        if (id == null) {
+            showErrorDownload();
+            return;
+        }
+        dialogLoading.show();
+        logEventFb("TWITTER");
+
+        TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
+        StatusesService statusesService = twitterApiClient.getStatusesService();
+        Call<Tweet> tweetCall = statusesService.show(id, null, null, null);
+        tweetCall.enqueue(new com.twitter.sdk.android.core.Callback<Tweet>() {
+            @Override
+            public void success(Result<Tweet> result) {
+                //Check if media is present
+                boolean isNoMedia = false;
+                if (result.data.extendedEntities == null && result.data.entities.media == null) {
+                    isNoMedia = true;
+                }
+                //Check if gif or mp4 present in the file
+                else if (!(result.data.extendedEntities.media.get(0).type).equals("video")) {// && !(result.data.extendedEntities.media.get(0).type).equals("animated_gif")
+                    isNoMedia = true;
+                }
+                if (isNoMedia) {
+                    Main2Activity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            showErrorDownload();
+                        }
+                    });
+                    return;
+                }
+
+                List<String> listTitle = new ArrayList<String>();
+                List<String> listUrl = new ArrayList<String>();
+                String filename = result.data.extendedEntities.media.get(0).idStr;
+
+                for (VideoInfo.Variant video : result.data.extendedEntities.media.get(0).videoInfo.variants) {
+                    if (video.contentType.equals("video/mp4")) {
+                        listTitle.add("Bitrate " + video.bitrate);
+                        listUrl.add(video.url);
+                    }
+                }
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        showFullAds();
+                        showListViewDownload(listTitle, listUrl, filename);
+                    }
+                });
+
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        showErrorDownload();
+                    }
+                });
+            }
+        });
+    }
+
+    private Long getTweetId(String s) {
+        try {
+            String[] split = s.split("\\/");
+            String id = split[5].split("\\?")[0];
+            return Long.parseLong(id);
+        } catch (Exception e) {
+            Log.d("TAG", "getTweetId: " + e.getLocalizedMessage());
+//                   alertNoUrl();
+            return null;
+        }
+    }
+
+
+
+    public void logSiteDownloaded(String url) {
+        if (url == null || url == "")
+            return;
+        if (url.contains("facebook")) {
+            logEventFb("FACEBOOK");
+        } else if (url.contains("instagram")) {
+            logEventFb("INSTAGRAM");
+        } else {
+            logEventFb("OTHER_WEB");
+        }
+    }
+
+    public void logEventFb(String event) {
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        logger.logEvent(event);
     }
 
 }

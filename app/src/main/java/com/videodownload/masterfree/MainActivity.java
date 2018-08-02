@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.BaseColumns;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -224,67 +225,58 @@ public class MainActivity extends AppCompatActivity {
         dialogLoading.setCanceledOnTouchOutside(false);
         dialogLoading.dismiss();
 
-//        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.btnDownload);
-//        myFab.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                if (!isStoragePermissionGranted()) {
-//                    return;
-//                }
-//                if (webView.getUrl() == null) {
-//                    showErrorDownload();
-//                    return;
-//                }
-//                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
-//                    showPopupNewApp();
-//                    return;
-//                }
-//
-//                if (webView.getUrl().contains("youtube.com")) {
-//                    showFullAds();
-//                    downloadYoutube(webView.getUrl());
-//                } else if (webView.getUrl().contains("facebook.com")) {
-//
-//                    if (urlDownloadFB == null) {
-//                        AlertDialog.Builder builder;
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-//                        } else {
-//                            builder = new AlertDialog.Builder(MainActivity.this);
-//                        }
-//                        builder.setTitle(R.string.title_error_facebook)
-//                                .setMessage(R.string.message_error_facebook)
-//                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        // continue with delete
-//                                        dialog.cancel();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//                    } else {
-//                        showFullAds();
-//                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadFB));
-//                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
-//                        r.allowScanningByMediaScanner();
-//                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-//                        dm.enqueue(r);
-//
-//                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                } else if (webView.getUrl().contains("vimeo.com")) {
-//                    showFullAds();
-//                    downloadVimeo(webView.getUrl());
-//                } else {
-//                    if (webView.getVisibility() == View.GONE) {
-//                        showErrorDownload();
-//                    } else {
-//                        downloadOtherSite(webView.getUrl());
-//                    }
-//                }
-//            }
-//        });
+        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.btnDownload);
+        myFab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (!isStoragePermissionGranted()) {
+                    return;
+                }
+                if (webView.getUrl() == null) {
+                    showErrorDownload();
+                    return;
+                }
+                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
+                    showPopupNewApp();
+                    return;
+                }
+
+                if (webView.getUrl().contains("youtube.com")) {
+                    downloadYoutube(webView.getUrl());
+                } else if (webView.getUrl().contains("vimeo.com")) {
+                    downloadVimeo(webView.getUrl());
+                }else {
+                    if (urlDownloadOther == null) {
+                        showPlayThenDownloadError();
+                    } else {
+                        try
+                        {
+                            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
+                            String fName = UUID.randomUUID().toString();
+                            if (urlDownloadOther.contains(".mp4")) {
+                                fName += ".mp4";
+                            } else if (urlDownloadOther.contains(".3gp")) {
+                                fName += ".3gp";
+                            }
+
+                            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
+                            r.allowScanningByMediaScanner();
+                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                            dm.enqueue(r);
+                            logSiteDownloaded();
+                            Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                            showFullAds();
+                        }
+                        catch (Exception e)
+                        {
+                            showPlayThenDownloadError();
+                        }
+
+                    }
+
+                }
+            }
+        });
 
         final String[] from = new String[]{"fishName"};
         final int[] to = new int[]{android.R.id.text1};

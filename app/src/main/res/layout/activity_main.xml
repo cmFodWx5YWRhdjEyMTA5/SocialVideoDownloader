@@ -46,19 +46,19 @@
         android:layout_centerHorizontal="true"
         />
 
-    <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/btnDownload"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_above="@id/adsBannerView"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_marginBottom="0dp"-->
-        <!--android:layout_marginRight="36dp"-->
-        <!--android:clickable="true"-->
-        <!--android:src="@drawable/ic_file_download_white_24dp"-->
-        <!--app:backgroundTint="@color/colorPrimary"-->
-        <!--app:elevation="4dp"-->
-        <!--app:fabSize="normal"-->
-        <!--/>-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnDownload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/adsBannerView"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="0dp"
+        android:layout_marginRight="36dp"
+        android:clickable="true"
+        android:src="@drawable/ic_file_download_white_24dp"
+        app:backgroundTint="@color/colorPrimary"
+        app:elevation="4dp"
+        app:fabSize="normal"
+        />
 
 </RelativeLayout>

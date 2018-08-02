@@ -8,11 +8,11 @@ android {
 
 
     defaultConfig {
-        applicationId "com.v2social.socialdownloader"
+        applicationId "com.video.downloadmasterfree"
         minSdkVersion 16
-        targetSdkVersion 27
-        versionCode 128
-        versionName "1.0"
+        targetSdkVersion 26
+        versionCode 10
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -85,9 +85,9 @@ dependencies {
     implementation 'io.github.kobakei:ratethisapp:1.2.0'
     implementation 'org.jsoup:jsoup:1.10.3'
 
-    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
-        transitive = true
-    }
+//    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
+//        transitive = true
+//    }
 
 
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'

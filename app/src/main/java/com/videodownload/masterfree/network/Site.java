@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.network;
+package com.videodownload.masterfree.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

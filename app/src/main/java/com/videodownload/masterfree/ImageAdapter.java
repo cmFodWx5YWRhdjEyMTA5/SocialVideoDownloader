@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader;
+package com.videodownload.masterfree;
 
 import android.content.Context;
 import android.view.View;
@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 //import com.bumptech.glide.Glide;
 
 import com.bumptech.glide.Glide;
-import com.v2social.socialdownloader.network.Site;
+import com.videodownload.masterfree.network.Site;
 
 import java.util.List;
 
@@ -70,8 +70,8 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageResource(R.drawable.vimeo);
         else if (position == 2)
             imageView.setImageResource(R.drawable.instagram);
-        else if (position == 3)
-            imageView.setImageResource(R.drawable.twitter);
+//        else if (position == 3)
+//            imageView.setImageResource(R.drawable.twitter);
         else
             Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
 

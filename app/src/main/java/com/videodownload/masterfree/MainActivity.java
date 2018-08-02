@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader;
+package com.videodownload.masterfree;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -15,11 +15,8 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.DialogPreference;
 import android.provider.BaseColumns;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -57,21 +54,9 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.startapp.android.publish.adsCommon.StartAppAd;
 import com.startapp.android.publish.adsCommon.StartAppSDK;
-import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.Twitter;
-import com.twitter.sdk.android.core.TwitterApiClient;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterConfig;
-import com.twitter.sdk.android.core.TwitterCore;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.models.Tweet;
-import com.twitter.sdk.android.core.models.VideoInfo;
-import com.twitter.sdk.android.core.services.StatusesService;
-import com.v2social.socialdownloader.network.GetConfig;
-import com.v2social.socialdownloader.network.JsonConfig;
+import com.videodownload.masterfree.network.GetConfig;
+import com.videodownload.masterfree.network.JsonConfig;
 
-import java.io.File;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -122,11 +107,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .twitterAuthConfig(new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
 
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
         gridView = (GridView) findViewById(R.id.gridView);
@@ -863,8 +843,6 @@ public class MainActivity extends AppCompatActivity {
                     downloadYoutube(webView.getUrl());
                 } else if (webView.getUrl().contains("vimeo.com")) {
                     downloadVimeo(webView.getUrl());
-                } else if (webView.getUrl().contains("twitter.com")) {
-                    downloadTwitter(webView.getUrl());
                 } else {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
@@ -1113,73 +1091,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void downloadTwitter(String urlVideo) {
-        final Long id = getTweetId(urlVideo);
-        if (id == null) {
-            showErrorDownload();
-            return;
-        }
-        dialogLoading.show();
-        logEventFb("TWITTER");
 
-        TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
-        StatusesService statusesService = twitterApiClient.getStatusesService();
-        Call<Tweet> tweetCall = statusesService.show(id, null, null, null);
-        tweetCall.enqueue(new com.twitter.sdk.android.core.Callback<Tweet>() {
-            @Override
-            public void success(Result<Tweet> result) {
-                //Check if media is present
-                boolean isNoMedia = false;
-                if (result.data.extendedEntities == null && result.data.entities.media == null) {
-                    isNoMedia = true;
-                }
-                //Check if gif or mp4 present in the file
-                else if (!(result.data.extendedEntities.media.get(0).type).equals("video")) {// && !(result.data.extendedEntities.media.get(0).type).equals("animated_gif")
-                    isNoMedia = true;
-                }
-                if (isNoMedia) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialogLoading.dismiss();
-                            showErrorDownload();
-                        }
-                    });
-                    return;
-                }
-
-                List<String> listTitle = new ArrayList<String>();
-                List<String> listUrl = new ArrayList<String>();
-                String filename = result.data.extendedEntities.media.get(0).idStr;
-
-                for (VideoInfo.Variant video : result.data.extendedEntities.media.get(0).videoInfo.variants) {
-                    if (video.contentType.equals("video/mp4")) {
-                        listTitle.add("Bitrate " + video.bitrate);
-                        listUrl.add(video.url);
-                    }
-                }
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showListViewDownload(listTitle, listUrl, filename);
-                    }
-                });
-
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showErrorDownload();
-                    }
-                });
-            }
-        });
-    }
 
     private Long getTweetId(String s) {
         try {

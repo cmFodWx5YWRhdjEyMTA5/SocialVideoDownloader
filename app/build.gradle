@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.v2social.socialdownloader"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 128
         versionName "1.0"

@@ -1,6 +1,8 @@
 package com.v2social.socialdownloader;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -12,6 +14,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -20,6 +25,7 @@ import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -114,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        Activity.setTaskDescription(new ActivityManager.TaskDescription().TaskDescription(label, icon, color));
+//        Activity.setTa
+
 
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
         if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
@@ -170,8 +179,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
 
-                                    try
-                                    {
+                                    try {
                                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                                         String fName = UUID.randomUUID().toString();
                                         if (urlDownloadOther.contains(".mp4")) {
@@ -190,9 +198,7 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
 
                                         showFullAds();
-                                    }
-                                    catch (Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         showPlayThenDownloadError();
                                     }
                                 }
@@ -320,6 +326,11 @@ public class MainActivity extends AppCompatActivity {
         RateThisApp.onCreate(this);
         RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
         RateThisApp.init(config1);
+
+//        Bitmap myLogo = ((BitmapDrawable) ResourcesCompat.getDrawable(this.getResources(), R.drawable.btn, null)).getBitmap();
+//        setTaskDescription( new ActivityManager.TaskDescription("aaa",myLogo,R.color.colorTask));
+//        setTaskDescription( new ActivityManager.TaskDescription());
+
     }
 
     @Override
@@ -760,7 +771,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             } else {
 //                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                                String url = "https://vimeo.com/search?q=" + Uri.encode(s );
+                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -780,13 +791,12 @@ public class MainActivity extends AppCompatActivity {
                             if (s.equalsIgnoreCase("https://m.youtube.com")) {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
-                            }
-                            else {
+                            } else {
                                 if (isValid(s)) {
                                     loadUrlWebview(s);
                                     searchView.clearFocus();
                                 } else {
-                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s );
+                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s);
                                     loadUrlWebview(url);
                                     searchView.clearFocus();
                                 }
@@ -869,8 +879,7 @@ public class MainActivity extends AppCompatActivity {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
                     } else {
-                        try
-                        {
+                        try {
                             DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                             String fName = UUID.randomUUID().toString();
                             if (urlDownloadOther.contains(".mp4")) {
@@ -889,9 +898,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
 
                             showFullAds();
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             showPlayThenDownloadError();
                         }
                     }
@@ -918,6 +925,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
         if (webView != null && webView.canGoBack())
             webView.goBack();
         else {
@@ -936,6 +944,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
+//        if (true) {
+//            View rootView = getWindow().getDecorView().getRootView();
+//            Log.d("caomui",rootView.toString());
+//            return;
+//        }
+
 
         dialogLoading.show();
 
@@ -955,16 +969,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                 SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
+                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept", 0) == 2) {
 
                     jsonConfig.setIsAccept(2);
                     boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                    if(!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5)
-                    {
+                    if (!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5) {
                         mPrefs.edit().putBoolean("isNoAds", false).commit();
-                    }
-                    else
-                    {
+                    } else {
                         jsonConfig.setPercentAds(0);
                     }
                 } else {
@@ -972,21 +983,18 @@ public class MainActivity extends AppCompatActivity {
                     if (!mPrefs.contains("isNoAds")) {
                         if (jsonConfig.getPercentAds() == 0) {
                             mEditor.putBoolean("isNoAds", true).commit();
-                        }
-                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+                        } else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
                             mEditor.putBoolean("isNoAds", true).commit();
                             mEditor.putInt("accept", 2).commit();
                             jsonConfig.setPercentAds(0);
                             jsonConfig.setIsAccept(2);
-                        }
-                        else
+                        } else
                             mEditor.putBoolean("isNoAds", false).commit();
                     }
                 }
 
                 if (jsonConfig.getIsAccept() >= 1) {
-                    if(mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept())
-                    {
+                    if (mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept()) {
                         SharedPreferences.Editor mEditor = mPrefs.edit();
                         mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
                     }

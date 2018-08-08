@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
         if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
-            StartAppSDK.init(this, "206407431", true);
+            StartAppSDK.init(this, "207311934", true);
             isInitAds = true;
         }
 

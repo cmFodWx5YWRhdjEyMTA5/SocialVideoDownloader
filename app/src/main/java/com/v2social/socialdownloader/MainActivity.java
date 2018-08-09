@@ -75,6 +75,7 @@ import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
 import com.v2social.socialdownloader.network.GetConfig;
 import com.v2social.socialdownloader.network.JsonConfig;
+import com.v2social.socialdownloader.services.MyService;
 
 import java.io.File;
 import java.io.InputStream;
@@ -944,13 +945,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
-//        if (true) {
-//            View rootView = getWindow().getDecorView().getRootView();
-//            Log.d("caomui",rootView.toString());
-//            return;
-//        }
-
-
         dialogLoading.show();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -968,55 +962,58 @@ public class MainActivity extends AppCompatActivity {
                 gridView.setAdapter(adapter);
 
 
-                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept", 0) == 2) {
+//                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+//                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept", 0) == 2) {
+//
+//                    jsonConfig.setIsAccept(2);
+//                    boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+//                    if (!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5) {
+//                        mPrefs.edit().putBoolean("isNoAds", false).commit();
+//                    } else {
+//                        jsonConfig.setPercentAds(0);
+//                    }
+//                } else {
+//                    SharedPreferences.Editor mEditor = mPrefs.edit();
+//                    if (!mPrefs.contains("isNoAds")) {
+//                        if (jsonConfig.getPercentAds() == 0) {
+//                            mEditor.putBoolean("isNoAds", true).commit();
+//                        } else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
+//                            mEditor.putBoolean("isNoAds", true).commit();
+//                            mEditor.putInt("accept", 2).commit();
+//                            jsonConfig.setPercentAds(0);
+//                            jsonConfig.setIsAccept(2);
+//                        } else
+//                            mEditor.putBoolean("isNoAds", false).commit();
+//                    }
+//                }
+//
+//                if (jsonConfig.getIsAccept() >= 1) {
+//                    if (mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept()) {
+//                        SharedPreferences.Editor mEditor = mPrefs.edit();
+//                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
+//                    }
+//                } else {
+//                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+//                    if (support >= 1) {
+//                        jsonConfig.setIsAccept(support);
+//                    }
+//                }
+//
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dialogLoading.dismiss();
+//                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
+//                            addBannerAds();
+//                            requestFullAds();
+//                        } else {
+//                            showPopupNewApp();
+//                        }
+//                    }
+//                });
 
-                    jsonConfig.setIsAccept(2);
-                    boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                    if (!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 5) {
-                        mPrefs.edit().putBoolean("isNoAds", false).commit();
-                    } else {
-                        jsonConfig.setPercentAds(0);
-                    }
-                } else {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    if (!mPrefs.contains("isNoAds")) {
-                        if (jsonConfig.getPercentAds() == 0) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                        } else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                            mEditor.putInt("accept", 2).commit();
-                            jsonConfig.setPercentAds(0);
-                            jsonConfig.setIsAccept(2);
-                        } else
-                            mEditor.putBoolean("isNoAds", false).commit();
-                    }
-                }
-
-                if (jsonConfig.getIsAccept() >= 1) {
-                    if (mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept()) {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                    }
-                } else {
-                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support >= 1) {
-                        jsonConfig.setIsAccept(support);
-                    }
-                }
-
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                            addBannerAds();
-                            requestFullAds();
-                        } else {
-                            showPopupNewApp();
-                        }
-                    }
-                });
+                Intent myIntent = new Intent(MainActivity.this, MyService.class);
+                startService(myIntent);
             }
 
             @Override

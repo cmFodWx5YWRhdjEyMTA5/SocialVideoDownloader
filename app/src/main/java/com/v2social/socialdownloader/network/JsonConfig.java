@@ -2,8 +2,6 @@ package com.v2social.socialdownloader.network;
 
 import java.util.List;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class JsonConfig {
     public String idBannerAdmob;

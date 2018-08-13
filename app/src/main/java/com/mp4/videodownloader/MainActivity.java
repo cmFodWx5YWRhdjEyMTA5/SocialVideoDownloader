@@ -948,7 +948,6 @@ public class MainActivity extends AppCompatActivity {
         Request okRequest = new Request.Builder()
                 .url(AppConstants.URL_CONFIG + "?id=" + uuid)
                 .build();
-//        Log.d("caomui",AppConstants.URL_CONFIG);
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {

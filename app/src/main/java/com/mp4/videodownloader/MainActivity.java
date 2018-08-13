@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -34,7 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -56,9 +54,10 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.mp4.videodownloader.network.GetConfig;
 import com.mp4.videodownloader.network.JsonConfig;
 import com.mp4.videodownloader.network.Site;
+import com.mp4.videodownloader.services.MyService;
+import com.mp4.videodownloader.utils.AppConstants;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
@@ -75,7 +74,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -85,6 +83,8 @@ import at.huber.youtubeExtractor.YtFile;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Call;
 import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
 import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 // Returning 'false' unconditionally is fine.
 
-                if ((url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.getIsAccept() == 0) {
+                if ((url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && jsonConfig.isAccept == 0) {
                     showNotSupportYoutube();
                     return true;
                 }
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                     showErrorDownload();
                     return;
                 }
-                if (!getPackageName().equals(jsonConfig.getNewAppPackage())) {
+                if (!getPackageName().equals(jsonConfig.newAppPackage)) {
                     showPopupNewApp();
                     return;
                 }
@@ -377,21 +377,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
-        if (jsonConfig.getPercentAds() == 0)
+        if (jsonConfig.percentAds == 0)
             return;
 
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+        if (jsonConfig.priorityBanner.equals("facebook")) {
 
-            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
+            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.idBannerFacebook, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+            Log.d("idbanner = ", jsonConfig.idBannerFacebook);
             bannerView.addView(adViewFb);
             // Request an ad
             adViewFb.setAdListener(new com.facebook.ads.AdListener() {
                 @Override
                 public void onError(Ad ad, AdError adError) {
                     if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
-                        jsonConfig.setPriorityBanner("admob");
+                        jsonConfig.priorityBanner = "admob";
                         addBannerAds();
                     }
                 }
@@ -415,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             AdView adView = new AdView(this);
             adView.setAdSize(AdSize.SMART_BANNER);
-            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
+            adView.setAdUnitId(jsonConfig.idBannerAdmob);
             bannerView.addView(adView);
 
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -425,8 +425,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
-            if (jsonConfig.getPriorityFull().equals("facebook")) {
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
+            if (jsonConfig.priorityFull.equals("facebook")) {
                 requestFBAds();
             } else {
                 requestAdmob();
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestAdmob() {
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
+        mInterstitialAd.setAdUnitId(jsonConfig.idFullAdmob);
 
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -471,8 +471,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestFBAds() {
-        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
-        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
+        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.idFullFacebook);
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
@@ -490,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
                 // Ad error callback
 //                Log.d("caomui1",adError.getErrorMessage());
                 if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
-                    jsonConfig.setPriorityFull("admob");
+                    jsonConfig.priorityFull = "admob";
                     requestAdmob();
                 }
             }
@@ -519,8 +518,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
-            if (new Random().nextInt(100) < jsonConfig.getPercentAds()) {
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
+            if (new Random().nextInt(100) < jsonConfig.percentAds) {
                 if (interstitialAdFb != null) {
                     if (interstitialAdFb.isAdLoaded())
                         interstitialAdFb.show();
@@ -747,7 +746,7 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    if (jsonConfig.getIsAccept() == 0 && strArrData[position].contains("youtube"))
+                    if (jsonConfig.isAccept == 0 && strArrData[position].contains("youtube"))
                     {
                         searchView.clearFocus();
                         showNotSupportYoutube();
@@ -774,7 +773,7 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    if (jsonConfig.getIsAccept() == 0) {
+                    if (jsonConfig.isAccept == 0) {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
@@ -797,7 +796,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        if (jsonConfig.getIsAccept() == 2)
+                        if (jsonConfig.isAccept == 2)
                         {
                             if (isValid(s))
                             {
@@ -949,7 +948,7 @@ public class MainActivity extends AppCompatActivity {
         Request okRequest = new Request.Builder()
                 .url(AppConstants.URL_CONFIG + "?id=" + uuid)
                 .build();
-
+//        Log.d("caomui",AppConstants.URL_CONFIG);
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
@@ -1023,8 +1022,12 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         dialogLoading.dismiss();
 
-                        ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
-                        gridView.setAdapter(adapter);
+                        strArrData = new String[jsonConfig.urlAccept.size()];
+                        int count = 0;
+                        for (Site site: jsonConfig.urlAccept )
+                        {
+                            strArrData[count++] = site.getUrl();
+                        }
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);
@@ -1045,117 +1048,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void getConfigApp() {
-
-        dialogLoading.show();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(AppConstants.URL_CONFIG)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        GetConfig config = retrofit.create(GetConfig.class);
-
-        Call<JsonConfig> call = config.getConfig();
-        call.enqueue(new Callback<JsonConfig>() {
-            @Override
-            public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
-                jsonConfig = response.body();
-                strArrData = new String[jsonConfig.getUrlAccept().size()];
-                int count = 0;
-                for (Site site: jsonConfig.getUrlAccept() )
-                {
-                    strArrData[count++] = site.getUrl();
-                }
-
-                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
-
-                    jsonConfig.setIsAccept(2);
-                    boolean isRate = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
-                    if(!isRate && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
-                    {
-                        mPrefs.edit().putBoolean("isNoAds", false).commit();
-                    }
-                    else
-                    {
-                        jsonConfig.setPercentAds(0);
-                    }
-                } else {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    if (!mPrefs.contains("isNoAds")) {
-                        if (jsonConfig.getPercentAds() == 0) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                        }
-                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                            mEditor.putInt("accept", 2).commit();
-                            jsonConfig.setPercentAds(0);
-                            jsonConfig.setIsAccept(2);
-                        }
-                        else
-                            mEditor.putBoolean("isNoAds", false).commit();
-                    }
-                }
-
-                if (jsonConfig.getIsAccept() >= 1) {
-                    if(mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept())
-                    {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                    }
-                } else {
-                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support >= 1) {
-                        jsonConfig.setIsAccept(support);
-                    }
-                }
-
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                            addBannerAds();
-                            requestFullAds();
-                        } else {
-                            showPopupNewApp();
-                        }
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFailure(Call<JsonConfig> call, Throwable t) {
-
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(MainActivity.this);
-                        }
-                        builder.setTitle(R.string.title_error_connection)
-                                .setMessage(R.string.message_error_connection)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                        getConfigApp();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setCancelable(false)
-                                .show();
-                    }
-                });
-
-            }
-        });
-    }
-
     private void showPopupNewApp() {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -1169,7 +1061,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Play store", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
-                        Uri uri = Uri.parse("market://details?id=" + jsonConfig.getNewAppPackage());
+                        Uri uri = Uri.parse("market://details?id=" + jsonConfig.newAppPackage);
                         Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
                         try {
                             startActivity(myAppLinkToMarket);

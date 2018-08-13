@@ -85,6 +85,8 @@ public class MyService extends Service {
                 int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
+                Log.d("caomui",idFullService);
+
                 if (!isContinousShowAds || (totalTime < delayService * 60)) {
                     return;
                 }
@@ -103,6 +105,7 @@ public class MyService extends Service {
                     public void onResponse(Call call, Response response) throws IOException {
                         Gson gson = new GsonBuilder().create();
                         checkAds = gson.fromJson(response.body().string(), CheckAds.class);
+                        Log.d("caomui2",checkAds.isShow +"show");
                         if (checkAds.isShow == 1) {
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 public void run() {
@@ -205,7 +208,7 @@ public class MyService extends Service {
                 });
 
             }
-        }, 10, intervalService, TimeUnit.MINUTES);
+        }, 10, intervalService, TimeUnit.SECONDS);
 
 
     }

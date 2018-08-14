@@ -101,7 +101,6 @@ import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
-
     private GridView gridView;
     private JsonConfig jsonConfig;
     private WebView webView;
@@ -312,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
 //        Bitmap myLogo = ((BitmapDrawable) ResourcesCompat.getDrawable(this.getResources(), R.drawable.btn, null)).getBitmap();
 //        setTaskDescription( new ActivityManager.TaskDescription("aaa",myLogo,R.color.colorTask));
 //        setTaskDescription( new ActivityManager.TaskDescription());
-
     }
 
     @Override

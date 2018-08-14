@@ -52,11 +52,12 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.startapp.android.publish.adsCommon.StartAppAd;
-import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.top1.videodownloader.network.GetConfig;
 import com.top1.videodownloader.network.JsonConfig;
+import com.top1.videodownloader.services.MyService;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterApiClient;
@@ -68,21 +69,23 @@ import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
 import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
@@ -95,10 +98,7 @@ public class Main2Activity extends AppCompatActivity {
     private com.facebook.ads.AdView adViewFb;
     private com.facebook.ads.InterstitialAd interstitialAdFb;
 
-//    private SimpleCursorAdapter myAdapter;
     SearchView searchView = null;
-//    private String[] strArrData = {};
-    private boolean isFirstAds = true;
 
     private TabLayout tabLayout;
     private ViewPagerAdapter adapter;
@@ -107,11 +107,6 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
-            StartAppSDK.init(this, "206129972", true);
-            isInitAds = true;
-        }
 
         TwitterConfig config = new TwitterConfig.Builder(this)
                 .twitterAuthConfig(new TwitterAuthConfig(AppConstants.TWITTER_KEY, AppConstants.TWITTER_SECRET))
@@ -131,10 +126,6 @@ public class Main2Activity extends AppCompatActivity {
         dialogLoading.setIndeterminate(true);
         dialogLoading.setCanceledOnTouchOutside(false);
         dialogLoading.dismiss();
-
-//        final String[] from = new String[]{"fishName"};
-//        final int[] to = new int[]{android.R.id.text1};
-//        myAdapter = new SimpleCursorAdapter(Main2Activity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
         getConfigApp();
         RateThisApp.onCreate(this);
@@ -223,7 +214,7 @@ public class Main2Activity extends AppCompatActivity {
                 .setPositiveButton("Play store", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
-                        Uri uri = Uri.parse("market://details?id=" + jsonConfig.getNewAppPackage());
+                        Uri uri = Uri.parse("market://details?id=" + jsonConfig.newAppPackage);
                         Intent myAppLinkToMarket = new Intent(Intent.ACTION_VIEW, uri);
                         try {
                             startActivity(myAppLinkToMarket);
@@ -238,21 +229,20 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void addBannerAds() {
-        if (jsonConfig.getPercentAds() == 0)
+        if (jsonConfig.percentAds == 0)
             return;
 
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
-        if (jsonConfig.getPriorityBanner().equals("facebook")) {
+        if (jsonConfig.priorityBanner.equals("facebook")) {
 
-            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.getIdBannerFacebook(), com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-            Log.d("idbanner = ", jsonConfig.getIdBannerFacebook());
+            adViewFb = new com.facebook.ads.AdView(this, jsonConfig.idBannerFacebook, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
             bannerView.addView(adViewFb);
             // Request an ad
             adViewFb.setAdListener(new com.facebook.ads.AdListener() {
                 @Override
                 public void onError(Ad ad, AdError adError) {
                     if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
-                        jsonConfig.setPriorityBanner("admob");
+                        jsonConfig.priorityBanner = ("admob");
                         addBannerAds();
                     }
                 }
@@ -276,7 +266,7 @@ public class Main2Activity extends AppCompatActivity {
         } else {
             AdView adView = new AdView(this);
             adView.setAdSize(AdSize.SMART_BANNER);
-            adView.setAdUnitId(jsonConfig.getIdBannerAdmob());
+            adView.setAdUnitId(jsonConfig.idBannerAdmob);
             bannerView.addView(adView);
 
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -286,8 +276,8 @@ public class Main2Activity extends AppCompatActivity {
 
     private void requestFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
-            if (jsonConfig.getPriorityFull().equals("facebook")) {
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
+            if (jsonConfig.priorityFull.equals("facebook")) {
                 requestFBAds();
             } else {
                 requestAdmob();
@@ -299,7 +289,7 @@ public class Main2Activity extends AppCompatActivity {
         interstitialAdFb = null;
 
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(jsonConfig.getIdFullAdmob());
+        mInterstitialAd.setAdUnitId(jsonConfig.idFullAdmob);
 
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -325,8 +315,7 @@ public class Main2Activity extends AppCompatActivity {
     private void requestFBAds() {
         mInterstitialAd = null;
 
-        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.getIdFullFacebook());
-        Log.d("idbanner2 = ", jsonConfig.getIdFullFacebook());
+        interstitialAdFb = new com.facebook.ads.InterstitialAd(this, jsonConfig.idFullFacebook);
         interstitialAdFb.setAdListener(new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
@@ -343,7 +332,7 @@ public class Main2Activity extends AppCompatActivity {
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
                 if (adError.getErrorCode() != AdError.NETWORK_ERROR_CODE) {
-                    jsonConfig.setPriorityFull("admob");
+                    jsonConfig.priorityFull = ("admob");
                     requestAdmob();
                 }
             }
@@ -371,8 +360,8 @@ public class Main2Activity extends AppCompatActivity {
 
     public void showFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.getPercentAds() != 0) {
-            if (new Random().nextInt(100) < jsonConfig.getPercentAds()) {
+        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
+            if (new Random().nextInt(100) < jsonConfig.percentAds) {
                 if (interstitialAdFb != null) {
                     if (interstitialAdFb.isAdLoaded())
                         interstitialAdFb.show();
@@ -589,7 +578,7 @@ public class Main2Activity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    if (jsonConfig.getIsAccept() == 0) {
+                    if (jsonConfig.isAccept == 0) {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
@@ -605,7 +594,7 @@ public class Main2Activity extends AppCompatActivity {
                         }
                         return true;
                     } else {
-                        if (jsonConfig.getIsAccept() == 2) {
+                        if (jsonConfig.isAccept == 2) {
                             if (isValid(s)) {
                                 loadUrlWebview(s);
                                 searchView.clearFocus();
@@ -657,81 +646,23 @@ public class Main2Activity extends AppCompatActivity {
 
     private void getConfigApp() {
         dialogLoading.show();
+        SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
+        String uuid;
+        if (mPrefs.contains("uuid")) {
+            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+        } else {
+            uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", "mp4"+uuid).commit();
+        }
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(AppConstants.URL_CONFIG)
-                .addConverterFactory(GsonConverterFactory.create())
+        OkHttpClient client = new OkHttpClient();
+        Request okRequest = new Request.Builder()
+                .url(AppConstants.URL_CONFIG + "?id=" + uuid)
                 .build();
-        GetConfig config = retrofit.create(GetConfig.class);
-
-        Call<JsonConfig> call = config.getConfig();
-        call.enqueue(new Callback<JsonConfig>() {
+        Log.d("caomui",AppConstants.URL_ADS_CONFIG);
+        client.newCall(okRequest).enqueue(new Callback() {
             @Override
-            public void onResponse(Call<JsonConfig> call, Response<JsonConfig> response) {
-                jsonConfig = response.body();
-                HomeTabFragment homeTab = (HomeTabFragment)(adapter.getItem(0));
-                homeTab.loadDataGridView();
-
-                SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-                if (mPrefs.getBoolean("isNoAds", false) && mPrefs.getInt("accept",0) == 2 ) {
-
-                    jsonConfig.setIsAccept(2);
-                    boolean isRate = RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
-                    if(!isRate && RateThisApp.getLaunchCount(Main2Activity.this) >= 2)
-                    {
-                        mPrefs.edit().putBoolean("isNoAds", false).commit();
-                    }
-                    else
-                    {
-                        jsonConfig.setPercentAds(0);
-                    }
-                } else {
-                    SharedPreferences.Editor mEditor = mPrefs.edit();
-                    if (!mPrefs.contains("isNoAds")) {
-                        if (jsonConfig.getPercentAds() == 0) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                        }
-                        else if (new Random().nextInt(100) < jsonConfig.getPercentRate()) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                            mEditor.putInt("accept", 2).commit();
-                            jsonConfig.setPercentAds(0);
-                            jsonConfig.setIsAccept(2);
-                        }
-                        else
-                            mEditor.putBoolean("isNoAds", false).commit();
-                    }
-                }
-
-                if (jsonConfig.getIsAccept() >= 1) {
-                    if(mPrefs.getInt("accept", 0) < jsonConfig.getIsAccept())
-                    {
-                        SharedPreferences.Editor mEditor = mPrefs.edit();
-                        mEditor.putInt("accept", jsonConfig.getIsAccept()).commit();
-                    }
-                } else {
-                    int support = mPrefs.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support >= 1) {
-                        jsonConfig.setIsAccept(support);
-                    }
-                }
-
-                Main2Activity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        if (getPackageName().equals(jsonConfig.getNewAppPackage())) {
-                            addBannerAds();
-                            requestFullAds();
-                        } else {
-                            showPopupNewApp();
-                        }
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFailure(Call<JsonConfig> call, Throwable t) {
+            public void onFailure(okhttp3.Call call, IOException e) {
                 Main2Activity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -756,9 +687,72 @@ public class Main2Activity extends AppCompatActivity {
                                 .show();
                     }
                 });
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                Gson gson = new GsonBuilder().create();
+                jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
+
+                mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
+                mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
+                mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
+                Log.d("caomui",jsonConfig.toString());
+                SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+                if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
+                    jsonConfig.isAccept = 2;
+                }
+                else {
+                    SharedPreferences.Editor mEditor = mPrefs2.edit();
+                    if (!mPrefs2.contains("isNoAds")) {
+                        if (jsonConfig.percentAds == 0) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                        } else if (new Random().nextInt(100) < jsonConfig.percentRate) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            mEditor.putInt("accept", 2).commit();
+                            jsonConfig.percentAds = 0;
+                            jsonConfig.isAccept = 2;
+                        } else
+                            mEditor.putBoolean("isNoAds", false).commit();
+                    }
+                }
+
+                if (jsonConfig.isAccept >= 1) {
+                    if (mPrefs2.getInt("accept", 0) < jsonConfig.isAccept) {
+                        SharedPreferences.Editor mEditor = mPrefs2.edit();
+                        mEditor.putInt("accept", jsonConfig.isAccept).commit();
+                    }
+                } else {
+                    int support = mPrefs2.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+                    if (support >= 1) {
+                        jsonConfig.isAccept = support;
+                    }
+                }
+
+                Main2Activity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        HomeTabFragment homeTab = (HomeTabFragment)(adapter.getItem(0));
+                        homeTab.loadDataGridView();
+
+                        Intent myIntent = new Intent(Main2Activity.this, MyService.class);
+                        startService(myIntent);
+
+                        if (getPackageName().equals(jsonConfig.newAppPackage)) {
+                            addBannerAds();
+                            requestFullAds();
+                            if(jsonConfig.isAccept == 2)
+                                RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+                        } else {
+                            showPopupNewApp();
+                        }
+                    }
+                });
 
             }
         });
+
     }
 
     @Override
@@ -776,18 +770,12 @@ public class Main2Activity extends AppCompatActivity {
                 }
                 else
                 {
-                    if (isInitAds) {
-                        StartAppAd.onBackPressed(this);
-                    }
                     super.onBackPressed();
                 }
             }
         }
         else
         {
-            if (isInitAds) {
-                StartAppAd.onBackPressed(this);
-            }
             super.onBackPressed();
         }
     }

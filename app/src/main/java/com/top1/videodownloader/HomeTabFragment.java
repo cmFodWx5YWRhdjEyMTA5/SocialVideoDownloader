@@ -38,7 +38,7 @@ public class HomeTabFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Main2Activity main =(Main2Activity) getActivity();
-                main.loadUrlWebview(Main2Activity.jsonConfig.getUrlAccept().get(position).getUrl());
+                main.loadUrlWebview(Main2Activity.jsonConfig.urlAccept.get(position).getUrl());
             }
 
         });
@@ -50,7 +50,7 @@ public class HomeTabFragment extends Fragment {
     {
         if (Main2Activity.jsonConfig != null)
         {
-            ImageAdapter adapter = new ImageAdapter(getActivity(), Main2Activity.jsonConfig.getUrlAccept());
+            ImageAdapter adapter = new ImageAdapter(getActivity(), Main2Activity.jsonConfig.urlAccept);
             gridView.setAdapter(adapter);
         }
     }

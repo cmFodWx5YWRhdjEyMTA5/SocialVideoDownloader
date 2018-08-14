@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:required="false" android:name="android.hardware.faketouch"/>
 
     <application
         android:allowBackup="true"
@@ -44,6 +45,8 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+        <activity android:name=".ShowAds"/>
+
     </application>
 
 </manifest>

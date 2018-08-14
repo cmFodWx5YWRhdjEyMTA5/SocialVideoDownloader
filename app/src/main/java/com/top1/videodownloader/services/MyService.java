@@ -22,9 +22,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mp4.videodownloader.CheckAds;
-import com.mp4.videodownloader.ShowAds;
-import com.mp4.videodownloader.utils.AppConstants;
+import com.top1.videodownloader.AppConstants;
+import com.top1.videodownloader.ShowAds;
+import com.top1.videodownloader.network.CheckAds;
 
 import java.io.IOException;
 import java.util.Random;
@@ -59,7 +59,7 @@ public class MyService extends Service {
     public void onCreate() {
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService", "ca-app-pub-3940256099942544/1033173712");
+        idFullService = "ca-app-pub-3940256099942544/1033173712";//mPrefs.getString("idFullService", "ca-app-pub-3940256099942544/1033173712");
         intervalService = mPrefs.getInt("intervalService", 5);
         delayService = mPrefs.getInt("delayService", 12);
 
@@ -85,7 +85,7 @@ public class MyService extends Service {
                 int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
-//                Log.d("caomui",idFullService);
+                Log.d("caomui",idFullService);
 
                 if (!isContinousShowAds || (totalTime < delayService * 60)) {
                     return;

@@ -64,7 +64,7 @@ public class BrowserTabFragment extends Fragment {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && Main2Activity.jsonConfig.getIsAccept() == 0)
+                if( (url.contains("https://youtube.com") || url.contains("https://m.youtube.com")) && Main2Activity.jsonConfig.isAccept == 0)
                 {
                     getMainActivity().showNotSupportYoutube();
                     return true;
@@ -163,7 +163,7 @@ public class BrowserTabFragment extends Fragment {
                     getMainActivity().showErrorDownload();
                     return;
                 }
-                if (!getActivity().getPackageName().equals(Main2Activity.jsonConfig.getNewAppPackage())) {
+                if (!getActivity().getPackageName().equals(Main2Activity.jsonConfig.newAppPackage)) {
                     getMainActivity().showPopupNewApp();
                     return;
                 }

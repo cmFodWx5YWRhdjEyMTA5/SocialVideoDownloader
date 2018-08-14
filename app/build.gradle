@@ -7,8 +7,8 @@ android {
         applicationId "com.mp4.video.downloader"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 368
-        versionName "2.0"
+        versionCode 369
+        versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -18,34 +18,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-//    defaultConfig {
-//        applicationId "com.freesocial.videodownloader"
-//        minSdkVersion 15
-//        targetSdkVersion 25
-//        versionCode 1
-//        versionName "1.0"
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-//        vectorDrawables.useSupportLibrary = true
-//    }
-
-//    defaultConfig {
-//        applicationId "downloadapp.videodownloadmaster"
-//        minSdkVersion 15
-//        targetSdkVersion 25
-//        versionCode 20
-//        versionName "1.5"
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-//    }
-
-//    defaultConfig {
-//        applicationId "videodownload.catchvideodownloader"
-//        minSdkVersion 15
-//        targetSdkVersion 25
-//        versionCode 5
-//        versionName "1.0.1"
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-//    }
 
 
     buildTypes {

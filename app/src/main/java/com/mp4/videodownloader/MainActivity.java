@@ -3,6 +3,7 @@ package com.mp4.videodownloader;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.DownloadManager;
+import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -28,9 +30,12 @@ import android.util.Log;
 import android.util.Patterns;
 import android.util.SparseArray;
 import android.view.ContextMenu;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -895,7 +900,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_home:
                 webView.loadUrl("about:blank");
-
                 searchView.clearFocus();
                 isClearHistory = true;
                 return true;

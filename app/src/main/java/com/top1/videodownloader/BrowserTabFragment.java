@@ -15,9 +15,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -26,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
 
 
@@ -69,11 +73,6 @@ public class BrowserTabFragment extends Fragment {
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return  true;
-            }
-
-            @Override
             public void onPageFinished(WebView view, String url) {
                 urlDownloadOther = null;
                 if (clearHistory)
@@ -86,9 +85,55 @@ public class BrowserTabFragment extends Fragment {
 
             @Override
             public void onLoadResource(WebView view, String url) {
-                if (url.contains(".mp4")) {
+                if (url.contains(".mp4") || url.contains(".3gp")) {
+                    if (!isValidUrl(url))
+                        return;
+
                     urlDownloadOther = url;
-                    Toast.makeText( getActivity(), R.string.detect_download_link, Toast.LENGTH_SHORT).show();
+
+                    AlertDialog.Builder builder;
+                    builder = new AlertDialog.Builder(getMainActivity());
+                    AlertDialog show = builder.setTitle(R.string.new_video_found)
+                            .setMessage(urlDownloadOther)
+                            .setPositiveButton(R.string.action_download, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+
+                                    try
+                                    {
+                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
+                                        String fName = UUID.randomUUID().toString();
+                                        if (urlDownloadOther.contains(".mp4")) {
+                                            fName += ".mp4";
+
+                                        } else if (urlDownloadOther.contains(".3gp")) {
+                                            fName += ".3gp";
+                                        }
+
+                                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
+                                        r.allowScanningByMediaScanner();
+                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                                        DownloadManager dm = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+                                        dm.enqueue(r);
+                                        getMainActivity().logSiteDownloaded(webView.getUrl());
+                                        getMainActivity().showFullAds();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        getMainActivity().showPlayThenDownloadError();
+                                    }
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+
                 }
             }
         });
@@ -124,46 +169,38 @@ public class BrowserTabFragment extends Fragment {
                 }
 
                 if (webView.getUrl().contains("youtube.com")) {
-                    if (Main2Activity.jsonConfig.getIsAccept() == 0)
-                    {
-                        getMainActivity().showNotSupportYoutube();
-                    }
-                    else
-                    {
-                        getMainActivity().showFullAds();
-                        getMainActivity().downloadYoutube(webView.getUrl());
-                    }
+                    getMainActivity().downloadYoutube(webView.getUrl());
                 } else if (webView.getUrl().contains("vimeo.com")) {
-                    getMainActivity().showFullAds();
                     getMainActivity().downloadVimeo(webView.getUrl());
+                } else if (webView.getUrl().contains("twitter.com")) {
+                    getMainActivity().downloadTwitter(webView.getUrl());
                 } else {
                     if (urlDownloadOther == null) {
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(getMainActivity(), android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(getMainActivity());
-                        }
-                        builder.setTitle(R.string.title_error_facebook)
-                                .setMessage(R.string.message_error_facebook)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // continue with delete
-                                        dialog.cancel();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
+                        getMainActivity().showPlayThenDownloadError();
                     } else {
-                        getMainActivity().showFullAds();
-                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UUID.randomUUID().toString());
-                        r.allowScanningByMediaScanner();
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        DownloadManager dm = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-                        dm.enqueue(r);
+                        try
+                        {
+                            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
+                            String fName = UUID.randomUUID().toString();
+                            if (urlDownloadOther.contains(".mp4")) {
+                                fName += ".mp4";
 
-                        Toast.makeText(getMainActivity(), R.string.downloading, Toast.LENGTH_SHORT).show();
+                            } else if (urlDownloadOther.contains(".3gp")) {
+                                fName += ".3gp";
+                            }
+
+                            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
+                            r.allowScanningByMediaScanner();
+                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            DownloadManager dm = (DownloadManager)getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+                            dm.enqueue(r);
+                            getMainActivity().logSiteDownloaded(webView.getUrl());
+                            getMainActivity().showFullAds();
+                        }
+                        catch (Exception e)
+                        {
+                            getMainActivity().showPlayThenDownloadError();
+                        }
                     }
 
                 }
@@ -203,6 +240,15 @@ public class BrowserTabFragment extends Fragment {
     private Main2Activity getMainActivity()
     {
         return  (Main2Activity) getActivity();
+    }
+
+    private boolean isValidUrl(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            return URLUtil.isValidUrl(urlString) && Patterns.WEB_URL.matcher(urlString).matches();
+        } catch (MalformedURLException e) {
+        }
+        return false;
     }
 
 

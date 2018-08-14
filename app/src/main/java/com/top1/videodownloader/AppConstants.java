@@ -5,7 +5,8 @@ package com.top1.videodownloader;
  */
 
 public class AppConstants {
-    public final static String URL_CONFIG = "https://config-app-game-1.firebaseio.com";
-    public  final  static  String BASE_URL_SEARCH = "http://suggestqueries.google.com";
+    public final static String URL_CONFIG = "https://config-app-game-3.firebaseio.com";
+    public final static String TWITTER_KEY = "ZoBHzrmeualJpgTY55NlN2Zpo";
+    public final static String TWITTER_SECRET = "MSsthIrbg4EW2x4lHUSKn8CcPlceeuT2m2WxO4Aii3yAsPMm9X";
 
 }

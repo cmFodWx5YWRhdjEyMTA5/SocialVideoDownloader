@@ -38,7 +38,7 @@ public class HomeTabFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Main2Activity main =(Main2Activity) getActivity();
-                main.loadUrlWebview(Main2Activity.jsonConfig.getUrlAccept().get(position));
+                main.loadUrlWebview(Main2Activity.jsonConfig.getUrlAccept().get(position).getUrl());
             }
 
         });

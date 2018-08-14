@@ -10,6 +10,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.bumptech.glide.Glide;
 import com.top1.videodownloader.network.Site;
 
 import java.util.List;
@@ -20,10 +21,9 @@ import java.util.List;
 
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
-    private List<String> sites;
+    private List<Site> sites;
 
-    public  ImageAdapter(Context c, List<String> listSite)
-    {
+    public ImageAdapter(Context c, List<Site> listSite) {
         this.mContext = c;
         this.sites = listSite;
     }
@@ -31,7 +31,7 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         if (sites == null)
-            return  0;
+            return 0;
         return sites.size();
     }
 
@@ -42,7 +42,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return  position;//sites.get(position).hashCode();//position;
+        return position;//sites.get(position).hashCode();//position;
     }
 
     @Override
@@ -53,14 +53,14 @@ public class ImageAdapter extends BaseAdapter {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
 //            imageView.setLayoutParams(new GridView.LayoutParams(4,3));
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/3);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth() / 2, parent.getWidth() / 3);
             imageView.setLayoutParams(layout);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 //            imageView.setAdjustViewBounds(true);
             imageView.setPadding(8, 8, 8, 8);
         } else {
             imageView = (ImageView) convertView;
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth()/2,parent.getWidth()/3);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(parent.getWidth() / 2, parent.getWidth() / 3);
             imageView.setLayoutParams(layout);
         }
 
@@ -69,12 +69,18 @@ public class ImageAdapter extends BaseAdapter {
 //                AbsListView.LayoutParams.MATCH_PARENT));
 //        imageView.setImageResource(mThumbIds[position]);
 
-//        Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
-        Log.e("caomui","2222" + position);
-        if (position == 1)
+
+        if (sites.get(position).getUrl().contains("facebook"))
             imageView.setImageResource(R.drawable.facebook);
-        else if (position == 0)
+        else if (sites.get(position).getUrl().contains("vimeo"))
             imageView.setImageResource(R.drawable.vimeo);
+        else if (sites.get(position).getUrl().contains("twitter"))
+            imageView.setImageResource(R.drawable.twitter);
+        else if (sites.get(position).getUrl().contains("instagram"))
+            imageView.setImageResource(R.drawable.instagram);
+        else {
+            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
+        }
 
         return imageView;
 

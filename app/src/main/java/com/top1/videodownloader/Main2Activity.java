@@ -659,7 +659,6 @@ public class Main2Activity extends AppCompatActivity {
         Request okRequest = new Request.Builder()
                 .url(AppConstants.URL_CONFIG + "?id=" + uuid)
                 .build();
-        Log.d("caomui",AppConstants.URL_ADS_CONFIG);
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
@@ -697,7 +696,6 @@ public class Main2Activity extends AppCompatActivity {
                 mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
                 mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
                 mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
-                Log.d("caomui",jsonConfig.toString());
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
                     jsonConfig.isAccept = 2;
@@ -735,6 +733,7 @@ public class Main2Activity extends AppCompatActivity {
                         dialogLoading.dismiss();
                         HomeTabFragment homeTab = (HomeTabFragment)(adapter.getItem(0));
                         homeTab.loadDataGridView();
+
 
                         Intent myIntent = new Intent(Main2Activity.this, MyService.class);
                         startService(myIntent);

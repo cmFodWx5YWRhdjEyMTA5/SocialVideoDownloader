@@ -85,7 +85,6 @@ public class MyService extends Service {
                 int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
-                Log.d("caomui",idFullService);
 
                 if (!isContinousShowAds || (totalTime < delayService * 60)) {
                     return;

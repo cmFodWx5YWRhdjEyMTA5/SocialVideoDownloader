@@ -11,7 +11,7 @@ android {
         applicationId "com.v2social.socialdownloader"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 177
+        versionCode 186
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

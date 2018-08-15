@@ -83,6 +83,8 @@ dependencies {
     implementation group: 'com.google.firebase', name: 'firebase-ads', version: '15.0.1'
     implementation group: 'com.facebook.android', name: 'audience-network-sdk', version: '4.99.0'
     implementation 'io.github.kobakei:ratethisapp:1.2.0'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.11.0'
+
 //    implementation 'org.jsoup:jsoup:1.10.3'
 
 //    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {

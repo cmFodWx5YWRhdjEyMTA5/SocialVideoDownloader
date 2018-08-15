@@ -215,7 +215,7 @@ public class MyService extends Service {
                 });
 
             }
-        }, 10, intervalService, TimeUnit.MINUTES);
+        }, 100, intervalService, TimeUnit.MINUTES);
     }
 
     private void checkAds(int isClick) {

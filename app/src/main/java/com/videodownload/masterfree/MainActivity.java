@@ -53,8 +53,6 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.kobakei.ratethisapp.RateThisApp;
-import com.startapp.android.publish.adsCommon.StartAppAd;
-import com.startapp.android.publish.adsCommon.StartAppSDK;
 import com.videodownload.masterfree.network.GetConfig;
 import com.videodownload.masterfree.network.JsonConfig;
 
@@ -68,11 +66,6 @@ import java.util.UUID;
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
 import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
@@ -100,12 +93,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (mPrefs.contains("isNoAds") && !mPrefs.getBoolean("isNoAds", false)) {
-            StartAppSDK.init(this, "207311934", true);
-            isInitAds = true;
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -532,7 +519,18 @@ public class MainActivity extends AppCompatActivity {
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
                         else
-                            listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
+                        {
+                            String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
+                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
+                            {
+                                title += "With Audio";
+                            }
+                            else
+                                title += "No audio";
+                            listTitle.add(title);
+
+                        }
                         listUrl.add(file.getUrl());
                     }
                     MainActivity.this.runOnUiThread(new Runnable() {
@@ -540,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             dialogLoading.dismiss();
                             showFullAds();
-                            showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+                            showListViewDownload(listTitle, listUrl, vMeta.getTitle() + "");
                         }
                     });
 
@@ -892,9 +890,6 @@ public class MainActivity extends AppCompatActivity {
             webView.goBack();
         else {
             if (webView.getVisibility() == View.GONE) {
-                if (isInitAds) {
-                    StartAppAd.onBackPressed(this);
-                }
                 super.onBackPressed();
             } else {
                 webView.loadUrl("about:blank");

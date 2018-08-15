@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 
 //import com.bumptech.glide.Glide;
 
-import com.bumptech.glide.Glide;
+//import com.bumptech.glide.Glide;
 import com.videodownload.masterfree.network.Site;
 
 import java.util.List;
@@ -72,8 +72,8 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageResource(R.drawable.instagram);
 //        else if (position == 3)
 //            imageView.setImageResource(R.drawable.twitter);
-        else
-            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
+//        else
+//            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
 
         return imageView;
 

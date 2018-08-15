@@ -1,13 +1,16 @@
 package com.v2social.socialdownloader.services;
 
+import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -24,6 +27,8 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.v2social.socialdownloader.AppConstants;
+import com.v2social.socialdownloader.MainActivity;
+import com.v2social.socialdownloader.ShowAds;
 import com.v2social.socialdownloader.network.CheckAds;
 import com.v2social.socialdownloader.network.GetConfig;
 import com.v2social.socialdownloader.network.JsonConfig;
@@ -94,7 +99,7 @@ public class MyService extends Service {
                         .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
                         .build();
 
-                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
+//                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
                 client.newCall(okRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -117,6 +122,16 @@ public class MyService extends Service {
                                             super.onAdClosed();
                                             if (!isClickAds)
                                                 checkAds(0);
+                                            try {
+                                                if (Build.VERSION.SDK_INT < 21) {
+                                                    ShowAds.getInstance().finishAffinity();
+                                                } else {
+                                                    ShowAds.getInstance().finishAndRemoveTask();
+                                                }
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+
                                         }
 
                                         @Override
@@ -174,7 +189,16 @@ public class MyService extends Service {
                                         @Override
                                         public void onAdLoaded() {
                                             super.onAdLoaded();
-                                            mInterstitialAd.show();
+                                            try {
+                                                Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
+                                                showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                startActivity(showAds);
+                                                mInterstitialAd.show();
+                                            }
+                                            catch (Exception e)
+                                            {
+                                            }
+
                                         }
                                     });
 
@@ -191,7 +215,7 @@ public class MyService extends Service {
                 });
 
             }
-        }, 10, intervalService, TimeUnit.MINUTES);
+        }, 100, intervalService, TimeUnit.MINUTES);
     }
 
     private void checkAds(int isClick) {

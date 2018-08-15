@@ -101,7 +101,6 @@ import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
-
     private GridView gridView;
     private JsonConfig jsonConfig;
     private WebView webView;
@@ -312,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
 //        Bitmap myLogo = ((BitmapDrawable) ResourcesCompat.getDrawable(this.getResources(), R.drawable.btn, null)).getBitmap();
 //        setTaskDescription( new ActivityManager.TaskDescription("aaa",myLogo,R.color.colorTask));
 //        setTaskDescription( new ActivityManager.TaskDescription());
-
     }
 
     @Override
@@ -539,6 +537,7 @@ public class MainActivity extends AppCompatActivity {
             urlExtra = url.split("&")[0];
         }
 
+
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
@@ -548,18 +547,33 @@ public class MainActivity extends AppCompatActivity {
                     final List<String> listUrl = new ArrayList<String>();
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
+
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
                         else
-                            listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
+                        {
+                            String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
+                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
+                            {
+                                title += "With Audio";
+                            }
+                            else
+                                title += "No audio";
+                            listTitle.add(title);
+
+                        }
+
                         listUrl.add(file.getUrl());
                     }
+
+                    Log.d("caomui",vMeta.getTitle()+"");
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             dialogLoading.dismiss();
                             showFullAds();
-                            showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+                            showListViewDownload(listTitle, listUrl, vMeta.getTitle() + "");
                         }
                     });
 

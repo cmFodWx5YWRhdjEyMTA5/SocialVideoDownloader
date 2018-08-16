@@ -5,6 +5,6 @@ package com.videodownload.masterfree;
  */
 
 public class AppConstants {
-    public final static String URL_CONFIG = "https://ngoc1103-77ff9.firebaseio.com";
+    public final static String URL_CONFIG = "https://ngoc1103-77ff9.firebaseio.com/com_video_download_masterfree.json";
 
 }

@@ -70,8 +70,8 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageResource(R.drawable.vimeo);
         else if (position == 2)
             imageView.setImageResource(R.drawable.instagram);
-//        else if (position == 3)
-//            imageView.setImageResource(R.drawable.twitter);
+        else if (position == 3)
+            imageView.setImageResource(R.drawable.tube);
 //        else
 //            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
 

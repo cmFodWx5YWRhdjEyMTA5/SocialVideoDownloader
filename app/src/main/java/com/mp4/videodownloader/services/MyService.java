@@ -81,18 +81,21 @@ public class MyService extends Service {
         myTask.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
-                int totalTime = mPrefs.getInt("totalTime", 0);
-                totalTime += intervalService;
-                mPrefs.edit().putInt("totalTime", totalTime).commit();
+//                SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+//                int totalTime = mPrefs.getInt("totalTime", 0);
+//                totalTime += intervalService;
+//                mPrefs.edit().putInt("totalTime", totalTime).commit();
+//
+//                if (totalTime < delayService * 60) {
+//                    return;
+//                }
+//
+//                isContinousShowAds = true;
 
-                if (totalTime < delayService * 60) {
-                    return;
-                }
-
-                isContinousShowAds = true;
+                Log.d("caomui","kakakkakâ");
             }
-        }, 60, intervalService, TimeUnit.MINUTES);
+//        }, 60, intervalService, TimeUnit.MINUTES);
+        }, 10, 10, TimeUnit.SECONDS);
 
     }
 

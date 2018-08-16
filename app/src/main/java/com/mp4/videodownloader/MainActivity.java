@@ -1,12 +1,14 @@
 package com.mp4.videodownloader;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -298,6 +300,50 @@ public class MainActivity extends AppCompatActivity {
         RateThisApp.init(config1);
 
         getConfigApp();
+
+
+        if(!getSharedPreferences("test", Activity.MODE_PRIVATE).getBoolean("icon_created", false)){
+            addShortcut();
+
+            getSharedPreferences("test", Activity.MODE_PRIVATE).edit().putBoolean("icon_created", true);
+            Log.d("caomui","add loi tat thanh cong");
+        }
+        else {
+            Log.d("caomui","ko add");
+        }
+
+        try {
+            PackageManager p = getPackageManager();
+            ComponentName componentName = new ComponentName(this, com.mp4.videodownloader.MainActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
+            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            Log.d("caomui","111111111111");
+        }
+        catch (Exception e)
+        {
+            Log.d("caomui","123456");
+        }
+    }
+
+    private void addShortcut() {
+        //Adding shortcut for MainActivity
+        //on Home screen
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                SettingsActivity.class);
+
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent
+                .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "HelloWorldShortcut");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        R.drawable.tube));
+
+        addIntent
+                .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        addIntent.putExtra("duplicate", true);  //may it's already there so don't duplicate
+        getApplicationContext().sendBroadcast(addIntent);
     }
 
     public void downloadTwitter(String urlVideo) {

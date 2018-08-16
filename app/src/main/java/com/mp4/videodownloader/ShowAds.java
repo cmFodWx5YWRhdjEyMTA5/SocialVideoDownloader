@@ -25,7 +25,7 @@ public class ShowAds extends AppCompatActivity {
         try
         {
 
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.info);
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fbinfo);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
                         ContextCompat.getColor(getApplicationContext(), R.color.white)));

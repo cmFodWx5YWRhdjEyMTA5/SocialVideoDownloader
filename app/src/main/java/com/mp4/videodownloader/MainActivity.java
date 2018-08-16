@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         dialogLoading.dismiss();
                         showFullAds();
-                        showListViewDownload(listTitle, listUrl, filename);
+                        showListViewDownload(listTitle, listUrl, filename + ".mp4");
                     }
                 });
 
@@ -592,17 +592,31 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 if (ytFiles != null && ytFiles.size() > 0) {
-                    final List<String> listTitle = new ArrayList<String>();
-                    final List<String> listUrl = new ArrayList<String>();
+                     List<String> listTitle = new ArrayList<String>();
+                     List<String> listUrl = new ArrayList<String>();
+                    List<String> listExt = new ArrayList<String>();
+
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
                         else
-                            listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
+                        {
+                            String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
+                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
+                            {
+                                title += "With Audio";
+                            }
+                            else
+                                title += "No audio";
+                            listTitle.add(title);
+
+                        }
+                        listExt.add(file.getFormat().getExt());
                         listUrl.add(file.getUrl());
                     }
-                    showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+                    showListViewDownloadYoutube(listTitle, listUrl,listExt, vMeta.getTitle() + "");
                 } else {
                     showErrorDownload();
                 }
@@ -610,6 +624,39 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }.extract(urlExtra, false, false);
+    }
+
+    private void showListViewDownloadYoutube( List<String> listTitle,  List<String> listUrl,List<String> listExt,  String fileName) {
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.popup_download);
+                ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+                myQualities.setAdapter(adapter);
+                myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        dialog.dismiss();
+                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + listExt.get(position));
+                        r.allowScanningByMediaScanner();
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        dm.enqueue(r);
+                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+
+                        RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                    }
+                });
+
+                dialog.setCancelable(true);
+                dialog.show();
+            }
+        });
+
     }
 
     private void downloadVimeo(String url) {
@@ -659,7 +706,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         dialogLoading.dismiss();
                         showFullAds();
-                        showListViewDownload(listTitle, listUrl, video.getTitle());
+                        showListViewDownload(listTitle, listUrl, video.getTitle() + ".mp4");
                     }
                 });
 
@@ -698,7 +745,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         dialog.dismiss();
                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
-                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + ".mp4");
+                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
                         r.allowScanningByMediaScanner();
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
@@ -990,6 +1037,11 @@ public class MainActivity extends AppCompatActivity {
                 mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+                if(mPrefs.getInt("totalTime", 0) > 24 *60)
+                {
+                    jsonConfig.isAccept = 2;
+                }
+
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
                     jsonConfig.isAccept = 2;
                 }
@@ -1038,7 +1090,7 @@ public class MainActivity extends AppCompatActivity {
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2)
+                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
                                 RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();

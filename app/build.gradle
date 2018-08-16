@@ -7,8 +7,8 @@ android {
         applicationId "com.mp4.video.downloader"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 369
-        versionName "2.1"
+        versionCode 379
+        versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -26,6 +26,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+
 
 }
 

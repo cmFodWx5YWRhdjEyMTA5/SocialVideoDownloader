@@ -124,7 +124,7 @@ public class MyService extends Service {
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            Log.d("caomui", "Unlock Screen "+uuid);
+            Log.d("caomui", "Unlock Screen "+uuid);
             if(!isContinousShowAds)
                 return;
             OkHttpClient client = new OkHttpClient();

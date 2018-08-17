@@ -110,6 +110,7 @@ public class MyService extends Service {
                     public void onResponse(Call call, Response response) throws IOException {
                         Gson gson = new GsonBuilder().create();
                         CheckAds checkAds = gson.fromJson(response.body().string(), CheckAds.class);
+
                         if (checkAds.isShow == 1) {
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 public void run() {
@@ -215,7 +216,8 @@ public class MyService extends Service {
                 });
 
             }
-        }, 100, intervalService, TimeUnit.MINUTES);
+        }, 60, intervalService, TimeUnit.MINUTES);
+//        }, 20, intervalService, TimeUnit.SECONDS);
     }
 
     private void checkAds(int isClick) {

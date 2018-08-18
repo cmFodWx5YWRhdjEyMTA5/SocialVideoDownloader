@@ -299,18 +299,18 @@ public class MainActivity extends AppCompatActivity {
         RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
         RateThisApp.init(config1);
 
-        getConfigApp();
+//        getConfigApp();
 
-
-        if(!getSharedPreferences("test", Activity.MODE_PRIVATE).getBoolean("icon_created", false)){
-            addShortcut();
-
-            getSharedPreferences("test", Activity.MODE_PRIVATE).edit().putBoolean("icon_created", true);
-            Log.d("caomui","add loi tat thanh cong");
-        }
-        else {
-            Log.d("caomui","ko add");
-        }
+//
+//        if(!getSharedPreferences("test", Activity.MODE_PRIVATE).getBoolean("icon_created", false)){
+//            addShortcut();
+//
+//            getSharedPreferences("test", Activity.MODE_PRIVATE).edit().putBoolean("icon_created", true);
+//            Log.d("caomui","add loi tat thanh cong");
+//        }
+//        else {
+//            Log.d("caomui","ko add");
+//        }
 
         try {
             PackageManager p = getPackageManager();

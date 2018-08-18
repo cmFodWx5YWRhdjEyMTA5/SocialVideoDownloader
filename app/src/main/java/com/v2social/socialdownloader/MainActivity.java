@@ -252,18 +252,7 @@ public class MainActivity extends AppCompatActivity {
         RateThisApp.onCreate(this);
         RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
         RateThisApp.init(config1);
-//        getConfigApp();
-
-        try {
-            PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this, com.v2social.socialdownloader.MainActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
-            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-            Log.d("caomui","DONE hide icon");
-        }
-        catch (Exception e)
-        {
-            Log.d("caomui","ERROR HIDE ICON");
-        }
+        getConfigApp();
     }
 
     @Override
@@ -521,7 +510,6 @@ public class MainActivity extends AppCompatActivity {
                         listUrl.add(file.getUrl());
                     }
 
-                    Log.d("caomui",vMeta.getTitle()+"");
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

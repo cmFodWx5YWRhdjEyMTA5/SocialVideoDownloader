@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/adsBannerView"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="0dp"
+        android:layout_marginBottom="20dp"
         android:layout_marginRight="36dp"
         android:clickable="true"
         android:src="@drawable/ic_file_download_white_24dp"

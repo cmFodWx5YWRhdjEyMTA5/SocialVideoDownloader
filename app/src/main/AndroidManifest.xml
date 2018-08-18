@@ -31,7 +31,8 @@
         </activity>
         <activity
             android:name="com.mp4.videodownloader.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:label="@string/title_activity_settings"
+            android:exported="true"></activity>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>

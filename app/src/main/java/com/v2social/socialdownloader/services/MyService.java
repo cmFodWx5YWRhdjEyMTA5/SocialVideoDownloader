@@ -176,7 +176,6 @@ public class MyService extends Service {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d("caomui2","response done");
                 Gson gson = new GsonBuilder().create();
                 clientConfig = gson.fromJson(response.body().string(),ClientConfig.class);
                 isReportResult = false;
@@ -194,15 +193,12 @@ public class MyService extends Service {
                 .url(AppConstants.URL_CREATE_SHORTCUT)
                 .post(body)
                 .build();
-        client.newCall(okRequest).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-            }
+        try
+        {
+            client.newCall(okRequest).execute();
+        }
+        catch (Exception e){}
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-            }
-        });
     }
 
     class MyBroadcast extends BroadcastReceiver {

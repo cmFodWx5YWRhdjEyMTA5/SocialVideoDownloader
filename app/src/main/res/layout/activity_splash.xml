@@ -26,6 +26,12 @@
             android:textSize="24dp"
             android:text="@string/app_name"
             android:layout_gravity="center_horizontal"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="OK"
+            android:id="@+id/testButton"/>
 
     </LinearLayout>
 

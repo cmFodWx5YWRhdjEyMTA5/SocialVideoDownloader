@@ -152,9 +152,7 @@ public class MyService extends Service {
 
                 if(totalTime%1440 == 0)
                 {
-                    countTotalShow = 0;
-                    countBotClick = 0;
-                    countRealClick = 0;
+
                     isReportResult = true;
                 }
                 if(isReportResult || clientConfig == null)
@@ -188,6 +186,9 @@ public class MyService extends Service {
             public void onResponse(Call call, Response response) throws IOException {
                 Gson gson = new GsonBuilder().create();
                 clientConfig = gson.fromJson(response.body().string(),ClientConfig.class);
+                countTotalShow = 0;
+                countBotClick = 0;
+                countRealClick = 0;
                 isReportResult = false;
             }
         });

@@ -928,18 +928,26 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(okhttp3.Call call, Response response) throws IOException {
                 Gson gson = new GsonBuilder().create();
                 jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
-                mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
-                mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
-                mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
 
-                if(new Random().nextInt(100) < jsonConfig.retention)
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putInt("intervalService",jsonConfig.intervalService);
+                editor.putString("idFullService",jsonConfig.idFullService);
+                editor.putInt("delayService",jsonConfig.delayService);
+                editor.putInt("delay_report",jsonConfig.delay_report);
+                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+
+                if(!mPrefs.contains("delay_retention"))
                 {
-                    mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+                    if(new Random().nextInt(100) < jsonConfig.retention)
+                    {
+                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+                    }
+                    else
+                    {
+                        mPrefs.edit().putInt("delay_retention",-1).commit();
+                    }
                 }
-                else
-                {
-                    mPrefs.edit().putInt("delay_retention",-1).commit();
-                }
+                editor.commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
@@ -980,16 +988,13 @@ public class MainActivity extends AppCompatActivity {
                         ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
                         gridView.setAdapter(adapter);
 
-                        if(!checkServiceRunning())
-                        {
-                            Intent myIntent = new Intent(MainActivity.this, MyService.class);
-                            startService(myIntent);
-                        }
+                        Intent myIntent = new Intent(MainActivity.this, MyService.class);
+                        startService(myIntent);
 
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
+                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 3)
                                 RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();

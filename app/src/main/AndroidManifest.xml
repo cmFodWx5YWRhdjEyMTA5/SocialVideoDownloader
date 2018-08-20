@@ -74,7 +74,8 @@
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:noHistory="true" />
-        <activity android:name=".ShowAds" />
+        <activity android:name=".ShowAds"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <service
             android:name=".services.MyService"

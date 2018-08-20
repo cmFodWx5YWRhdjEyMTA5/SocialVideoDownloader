@@ -17,4 +17,6 @@ public class ClientConfig {
     public int max_click_delay;
     @SerializedName("max_percent_ads")
     public int max_percent_ads;
+    @SerializedName("fb_percent_ads")
+    public int fb_percent_ads;
 }

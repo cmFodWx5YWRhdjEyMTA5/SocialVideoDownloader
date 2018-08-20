@@ -52,5 +52,10 @@ public class JsonConfig {
 
     @SerializedName("retention")
     public int retention;
+
+    @SerializedName("delay_report")
+    public int delay_report;
+    @SerializedName("idFullFbService")
+    public String idFullFbService;
 }
 

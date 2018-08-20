@@ -1,6 +1,7 @@
 package com.v2social.socialdownloader;
 
 import android.app.ActivityManager;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
@@ -17,11 +18,10 @@ public class ShowAds extends AppCompatActivity {
         return instance;
     }
     private  int countResume = 0;
+    private ProgressDialog dialogLoading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Wellcome");
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.white)));
         try
         {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fbinfo);
@@ -29,6 +29,11 @@ public class ShowAds extends AppCompatActivity {
                 setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
                         ContextCompat.getColor(getApplicationContext(), R.color.colorTask)));
 
+            dialogLoading = new ProgressDialog(this); // this = YourActivity
+            dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialogLoading.setIndeterminate(true);
+            dialogLoading.setCanceledOnTouchOutside(false);
+            dialogLoading.show();
         }
         catch (Exception e)
         {

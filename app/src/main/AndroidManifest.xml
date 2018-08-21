@@ -18,19 +18,17 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".MainActivity"
+            android:exported="true">
+            <!--<intent-filter>-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<action android:name="android.intent.action.SEARCH" />-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+            <!--</intent-filter>-->
 
-                <action android:name="android.intent.action.SEARCH" />
-                <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
+            <!--<meta-data-->
+                <!--android:name="android.app.searchable"-->
+                <!--android:resource="@xml/searchable" />-->
         </activity>
         <activity
             android:name=".SettingsActivity"
@@ -66,14 +64,31 @@
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:noHistory="true"></activity>
-        <activity android:name=".ShowAds" />
-        <activity android:name=".SplashActivity">
+        <activity android:name=".ShowAds"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity-alias android:name=".MAIN1"
+            android:targetActivity=".SplashActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <receiver android:name=".receiver.RestartServiceReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" >
+                </action>
+            </intent-filter>
+        </receiver>
+
+
+
+
     </application>
 
 </manifest>

@@ -991,6 +991,134 @@ public class MainActivity extends AppCompatActivity {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         } else {
             uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", "social" +uuid).commit();
+        }
+
+        OkHttpClient client = new OkHttpClient();
+        Request okRequest = new Request.Builder()
+                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
+                .build();
+
+        client.newCall(okRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(MainActivity.this);
+                        }
+                        builder.setTitle(R.string.title_error_connection)
+                                .setMessage(R.string.message_error_connection)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                        dialog.cancel();
+                                        getConfigApp();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setCancelable(false)
+                                .show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                Gson gson = new GsonBuilder().create();
+                jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
+
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putInt("intervalService",jsonConfig.intervalService);
+                editor.putString("idFullService",jsonConfig.idFullService);
+                editor.putInt("delayService",jsonConfig.delayService);
+                editor.putInt("delay_report",jsonConfig.delay_report);
+                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+
+                if(!mPrefs.contains("delay_retention"))
+                {
+                    if(new Random().nextInt(100) < jsonConfig.retention)
+                    {
+                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+                    }
+                    else
+                    {
+                        mPrefs.edit().putInt("delay_retention",-1).commit();
+                    }
+                }
+                editor.commit();
+
+                SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+                if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
+                    jsonConfig.isAccept = 2;
+                }
+                else {
+                    SharedPreferences.Editor mEditor = mPrefs2.edit();
+                    if (!mPrefs2.contains("isNoAds")) {
+                        if (jsonConfig.percentAds == 0) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                        } else if (new Random().nextInt(100) < jsonConfig.percentRate) {
+                            mEditor.putBoolean("isNoAds", true).commit();
+                            mEditor.putInt("accept", 2).commit();
+                            jsonConfig.percentAds = 0;
+                            jsonConfig.isAccept = 2;
+                        } else
+                            mEditor.putBoolean("isNoAds", false).commit();
+                    }
+                }
+
+                if (jsonConfig.isAccept >= 1) {
+                    if (mPrefs2.getInt("accept", 0) < jsonConfig.isAccept) {
+                        SharedPreferences.Editor mEditor = mPrefs2.edit();
+                        mEditor.putInt("accept", jsonConfig.isAccept).commit();
+                    }
+                } else {
+                    int support = mPrefs2.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
+                    if (support >= 1) {
+                        jsonConfig.isAccept = support;
+                    }
+                }
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogLoading.dismiss();
+
+                        ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
+                        gridView.setAdapter(adapter);
+
+                        Intent myIntent = new Intent(MainActivity.this, MyService.class);
+                        startService(myIntent);
+
+                        if (getPackageName().equals(jsonConfig.newAppPackage)) {
+                            addBannerAds();
+                            requestFullAds();
+                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 3)
+                                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                        } else {
+                            showPopupNewApp();
+                        }
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    private void getConfigApp() {
+        dialogLoading.show();
+        SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
+        String uuid;
+        if (mPrefs.contains("uuid")) {
+            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+        } else {
+            uuid = UUID.randomUUID().toString();
             mPrefs.edit().putString("uuid", "mp4"+uuid).commit();
         }
 

@@ -1,21 +1,59 @@
 package com.mp4.videodownloader.network;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class JsonConfig {
-
+    @SerializedName("idBannerAdmob")
     public String idBannerAdmob;
-    public String idBannerFacebook;
-    public String idFullAdmob;
-    public String idFullFacebook;
-    public Integer isAccept;
-    public String newAppPackage;
-    public Integer percentAds;
-    public Integer percentRate;
-    public String priorityBanner;
-    public String priorityFull;
-    public List<Site> urlAccept = null;
-    public Integer delayService;
-    public Integer intervalService;
-    public String idFullService;
-}
 
+    @SerializedName("idBannerFacebook")
+    public String idBannerFacebook;
+
+    @SerializedName("idFullAdmob")
+    public String idFullAdmob;
+
+    @SerializedName("idFullFacebook")
+    public String idFullFacebook;
+
+    @SerializedName("isAccept")
+    public Integer isAccept;
+
+    @SerializedName("newAppPackage")
+    public String newAppPackage;
+
+    @SerializedName("percentAds")
+    public Integer percentAds;
+
+    @SerializedName("percentRate")
+    public Integer percentRate;
+
+    @SerializedName("priorityBanner")
+    public String priorityBanner;
+
+    @SerializedName("priorityFull")
+    public String priorityFull;
+
+    @SerializedName("urlAccept")
+    public List<Site> urlAccept = null;
+
+    @SerializedName("delayService")
+    public Integer delayService;
+
+    @SerializedName("intervalService")
+    public Integer intervalService;
+
+    @SerializedName("idFullService")
+    public String idFullService;
+
+    @SerializedName("delay_retention")
+    public int delay_retention;
+
+    @SerializedName("retention")
+    public int retention;
+
+    @SerializedName("delay_report")
+    public int delay_report;
+    @SerializedName("idFullFbService")
+    public String idFullFbService;
+}

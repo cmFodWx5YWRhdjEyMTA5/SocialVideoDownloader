@@ -98,6 +98,18 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
+        // Chơi nhạc.
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        // Giải phóng nguồn dữ nguồn phát nhạc.
+        super.onDestroy();
+    }
+
     private void addShortcut() {
         //Adding shortcut for MainActivity
         try {

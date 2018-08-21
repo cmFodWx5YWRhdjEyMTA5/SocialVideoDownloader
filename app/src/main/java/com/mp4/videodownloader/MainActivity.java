@@ -162,53 +162,6 @@ public class MainActivity extends AppCompatActivity {
             public void onLoadResource(WebView view, String url) {
                 if (url.contains(".mp4") || url.contains(".3gp")) {
                     urlDownloadOther = url;
-
-                    AlertDialog.Builder builder;
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                    AlertDialog show = builder.setTitle(R.string.new_video_found)
-                            .setMessage(urlDownloadOther)
-                            .setPositiveButton(R.string.action_download, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-
-                                    try
-                                    {
-                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                                        String fName = UUID.randomUUID().toString();
-                                        if (urlDownloadOther.contains(".mp4")) {
-                                            fName += ".mp4";
-
-                                        } else if (urlDownloadOther.contains(".3gp")) {
-                                            fName += ".3gp";
-                                        }
-
-                                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
-                                        r.allowScanningByMediaScanner();
-                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                                        dm.enqueue(r);
-                                        logSiteDownloaded();
-                                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-
-                                        showFullAds();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        showPlayThenDownloadError();
-                                    }
-
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .setCancelable(false)
-                            .show();
-
                 }
             }
         });

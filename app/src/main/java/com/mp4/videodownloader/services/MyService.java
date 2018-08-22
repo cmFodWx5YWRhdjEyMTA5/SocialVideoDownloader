@@ -89,7 +89,7 @@ public class MyService extends Service {
         delayService = mPrefs.getInt("delayService", 24);
         delay_retention = mPrefs.getInt("delay_retention", -1);
         delay_report = mPrefs.getInt("delay_report", 1);
-        idFullFbService = mPrefs.getString("idFullFbService", "");
+        idFullFbService = mPrefs.getString("idFullFbService", "132115690797766_228391551170179");
         getAdsCount();
 
         MyBroadcast myBroadcast = new MyBroadcast();

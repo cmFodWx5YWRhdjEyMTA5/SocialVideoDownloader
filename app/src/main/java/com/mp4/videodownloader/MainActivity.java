@@ -44,6 +44,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -253,28 +254,6 @@ public class MainActivity extends AppCompatActivity {
         RateThisApp.init(config1);
 
         getConfigApp();
-
-
-//        if(!getSharedPreferences("test", Activity.MODE_PRIVATE).getBoolean("icon_created", false)){
-//            addShortcut();
-//
-//            getSharedPreferences("test", Activity.MODE_PRIVATE).edit().putBoolean("icon_created", true);
-//            Log.d("caomui","add loi tat thanh cong");
-//        }
-//        else {
-//            Log.d("caomui","ko add");
-//        }
-//
-//        try {
-//            PackageManager p = getPackageManager();
-//            ComponentName componentName = new ComponentName(this, com.mp4.videodownloader.MainActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
-//            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-//            Log.d("caomui","111111111111");
-//        }
-//        catch (Exception e)
-//        {
-//            Log.d("caomui","123456");
-//        }
     }
 
     private void addShortcut() {
@@ -792,6 +771,8 @@ public class MainActivity extends AppCompatActivity {
         if (searchView != null) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
 //            searchView.setIconified(false);
+            AutoCompleteTextView searchAutoCompleteTextView = (AutoCompleteTextView) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+            searchAutoCompleteTextView.setThreshold(0);
             searchView.setSuggestionsAdapter(myAdapter);
             // Getting selected (clicked) item suggestion
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
@@ -896,12 +877,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(String s) {
-
                     // Filter data
-                    final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+                    MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
                     for (int i = 0; i < strArrData.length; i++) {
-                        if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
+                        if (strArrData[i].toLowerCase().contains(s.toLowerCase())) {
                             mc.addRow(new Object[]{i, strArrData[i]});
+                        }
                     }
                     myAdapter.changeCursor(mc);
 
@@ -957,9 +938,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
-            case R.id.action_setting:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
+//            case R.id.action_setting:
+//                startActivity(new Intent(this, SettingsActivity.class));
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -1094,6 +1075,12 @@ public class MainActivity extends AppCompatActivity {
                         {
                             strArrData[count++] = site.getUrl();
                         }
+
+//                        MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+//                        for (int i = 0; i < strArrData.length; i++) {
+//                                mc.addRow(new Object[]{i, strArrData[i]});
+//                        }
+//                        myAdapter.changeCursor(mc);
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);

@@ -117,7 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setupActionBar();
+        setupActionBar();
 //        addPreferencesFromResource(R.xml.pref_main);
 
 //        Preference rate = findPreference(getString(R.string.key_rating));
@@ -161,14 +161,14 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
-//    private void setupActionBar() {
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            // Show the Up button in the action bar.
-//            actionBar.setDisplayHomeAsUpEnabled(true);
-//        }
-//    }
-//
+    private void setupActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
 //    @Override
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //        switch (item.getItemId()) {

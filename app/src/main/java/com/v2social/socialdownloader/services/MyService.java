@@ -71,10 +71,15 @@ public class MyService extends Service {
     private CheckAds checkAds;
 
     private static final Point [] points = {new Point(50,50),new Point(51,57),new Point(79,85),new Point(72,74),
-            new Point(70,92),new Point(48,80),new Point(48,65),new Point(53,40)};
+            new Point(70,92),new Point(71,91),new Point(71,93),new Point(72,92),new Point(48,80),new Point(48,65),new Point(53,40)};
 
     @Override
     public void onCreate() {
+        Log.d("cao","onCreate");
+    }
+
+    private void initService()
+    {
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21734809637");
@@ -100,15 +105,18 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        // Chơi nhạc.
+        Log.d("cao","onStartCommand");
+        if(myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
+            initService();
+        }
         return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        // Giải phóng nguồn dữ nguồn phát nhạc.
-        super.onDestroy();
-    }
+//    @Override
+//    public String getPackageName() {
+//
+//
+//    }
 
     private void addShortcut() {
         //Adding shortcut for MainActivity
@@ -134,7 +142,7 @@ public class MyService extends Service {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Social video downloader");
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        com.v2social.socialdownloader.R.drawable.icon));
+                        R.mipmap.ic_launcher));
 
         addIntent
                 .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -160,10 +168,6 @@ public class MyService extends Service {
                     addShortcut();
                     delay_retention = -1;
                     mPrefs.edit().putInt("delay_retention",-1).commit();
-                }
-
-                if (totalTime < delayService * 60) {
-                    return;
                 }
 
                 if(totalTime == 4000)

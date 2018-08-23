@@ -82,6 +82,12 @@
             android:enabled="true"
             android:exported="true" />
 
+        <receiver android:name=".receiver.RestartServiceReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" >
+                </action>
+            </intent-filter>
+        </receiver>
 
     </application>
 

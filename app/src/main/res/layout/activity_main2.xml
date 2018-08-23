@@ -7,33 +7,34 @@
     android:orientation="vertical"
     tools:context="com.all2.videodownloader.Main2Activity">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:tabMode="fixed"
-        app:tabGravity="fill"/>
+    <!--<android.support.design.widget.TabLayout-->
+        <!--android:id="@+id/tabs"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:tabMode="fixed"-->
+        <!--app:tabGravity="fill"/>-->
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/tabs"
-        android:layout_above="@+id/startAppBanner"
-        />
-    <com.startapp.android.publish.ads.banner.Banner
-        android:id="@+id/startAppBanner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"/>
-
-    <!--<RelativeLayout-->
-        <!--android:id="@+id/adsBannerView"-->
+    <!--<android.support.v4.view.ViewPager-->
+        <!--android:id="@+id/pager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_below="@id/tabs"-->
+        <!--android:layout_above="@+id/adsBannerView"-->
+        <!--/>-->
+    <!--<com.startapp.android.publish.ads.banner.Banner-->
+        <!--android:id="@+id/startAppBanner"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
         <!--android:layout_centerHorizontal="true"-->
-        <!--/>-->
+        <!--android:layout_alignParentBottom="true"/>-->
+
+
+    <RelativeLayout
+        android:id="@+id/adsBannerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
 
 </RelativeLayout>

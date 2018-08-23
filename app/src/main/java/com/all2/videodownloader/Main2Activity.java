@@ -5,15 +5,39 @@ import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.ChangedPackages;
+import android.content.pm.FeatureInfo;
+import android.content.pm.InstrumentationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageInstaller;
+import android.content.pm.PackageManager;
+import android.content.pm.PermissionGroupInfo;
+import android.content.pm.PermissionInfo;
+import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
+import android.content.pm.SharedLibraryInfo;
+import android.content.pm.VersionedPackage;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.database.MatrixCursor;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.UserHandle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -46,6 +70,9 @@ import android.widget.Toast;
 //import com.google.android.gms.ads.AdSize;
 //import com.google.android.gms.ads.AdView;
 //import com.google.android.gms.ads.InterstitialAd;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdListener;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.all2.videodownloader.network.GetConfig;
 import com.all2.videodownloader.network.JsonConfig;
@@ -75,7 +102,7 @@ public class Main2Activity extends AppCompatActivity {
     private ProgressDialog dialogLoading;
 
 //    private InterstitialAd mInterstitialAd;
-//    private com.facebook.ads.AdView adViewFb;
+    private com.facebook.ads.AdView adViewFb;
 //    private com.facebook.ads.InterstitialAd interstitialAdFb;
 
     private SimpleCursorAdapter myAdapter;
@@ -89,14 +116,14 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        StartAppSDK.init(this, "206190767", true);
+//        StartAppSDK.init(this, "206190767", true);
 
         setContentView(R.layout.activity_main2);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        setupViewPager(viewPager);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+//        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+//        setupViewPager(viewPager);
+//        tabLayout = (TabLayout) findViewById(R.id.tabs);
+//        tabLayout.setupWithViewPager(viewPager);
 
         dialogLoading = new ProgressDialog(this); // this = YourActivity
         dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -108,7 +135,8 @@ public class Main2Activity extends AppCompatActivity {
         final int[] to = new int[]{android.R.id.text1};
         myAdapter = new SimpleCursorAdapter(Main2Activity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-        getConfigApp();
+//        getConfigApp();
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -176,6 +204,35 @@ public class Main2Activity extends AppCompatActivity {
                 .show();
     }
 
+    @Override
+    public String getPackageName() {
+//        this.getPackageManager()
+        Log.d("caomui","getPackageName");
+        return "com.mmmm.hhhhhh";
+    }
+
+    private int count = 0;
+    @Override
+    public PackageManager getPackageManager() {
+        Log.d("caomui", "getPackageManager "+count);
+        count++;
+        if(count<=1) {
+            return super.getPackageManager();
+        }
+        else if (count == 2)
+        {
+            addBannerAds();
+            return null;
+        }
+        else
+        {
+            Log.d("caomui","getPackageManager null");
+            return null;
+        }
+//        PackageManager packageManager = super.getPackageManager();
+//        return packageManager;
+    }
+
     private void addBannerAds() {
 //        RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);
 //        if (jsonConfig.getPriorityBanner().equals("facebook")) {
@@ -194,15 +251,53 @@ public class Main2Activity extends AppCompatActivity {
 //            AdRequest adRequest = new AdRequest.Builder().build();
 //            adView.loadAd(adRequest);
 //        }
+//        Log.d("caomui4",this.getPackageManager().getInstallerPackageName(this.getPackageName()));
 
+
+
+        RelativeLayout bannerView = (RelativeLayout) findViewById(R.id.adsBannerView);//
+        adViewFb = new com.facebook.ads.AdView(Main2Activity.this, "324544584769583_324546764769365", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+
+//        Log.d("caomui1 = ", adViewFb.getContext().getPackageName());
+        Log.d("caomui2 = ", this.adViewFb.getContext().getPackageName());
+        Log.d("caomui2 = ", (this.adViewFb.getContext().getPackageManager()) + "");
+        Log.d("caomui3 = ", (this.getPackageManager()) + "");
+        
+
+        bannerView.addView(adViewFb);
+        adViewFb.setAdListener(new AdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                Log.d("caomui",adError.getErrorMessage() + ";"+adError.getErrorCode());
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+
+            }
+        });
+        // Request an ad
+        adViewFb.loadAd();
     }
 
     private void requestAds() {
-        if (jsonConfig.getPriorityFull().equals("facebook")) {
-            requestFBAds();
-        } else if (jsonConfig.getPriorityFull().equals("admob")) {
-            requestAdmob();
-        }
+//        if (jsonConfig.getPriorityFull().equals("facebook")) {
+//            requestFBAds();
+//        } else if (jsonConfig.getPriorityFull().equals("admob")) {
+//            requestAdmob();
+//        }
+
+        requestFBAds();
 
     }
 
@@ -579,6 +674,10 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
+        addBannerAds();
+        if(true)
+            return;
+
         dialogLoading.show();
 
         Retrofit retrofit = new Retrofit.Builder()

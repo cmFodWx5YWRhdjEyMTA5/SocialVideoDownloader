@@ -1,17 +1,21 @@
 package com.mp4.videodownloader;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 
-public class ShowAds extends AppCompatActivity {
+public class ShowAds extends Activity {
     private static ShowAds instance;
 
     public static ShowAds getInstance() {
@@ -48,7 +52,11 @@ public class ShowAds extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
+
         countResume++;
+
+        Log.d("caomui","resume="+countResume);
+
         try {
             if(countResume >= 2)
             {

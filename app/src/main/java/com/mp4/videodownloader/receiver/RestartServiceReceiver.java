@@ -12,7 +12,7 @@ import com.mp4.videodownloader.services.MyService;
 public class RestartServiceReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Log.e("caomui", "onReceive");
+        Log.e("caomui", "onReceive");
         if (!checkServiceRunning(context))
             context.startService(new Intent(context.getApplicationContext(), MyService.class));
 //        Intent select = new Intent(context, MainActivity.class);

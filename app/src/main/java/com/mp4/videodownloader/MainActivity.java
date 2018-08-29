@@ -967,7 +967,9 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid;
+        String uuid = "";
+//        mPrefs.edit().putString("uuid", "mp4" +uuid).commit();
+
         if (mPrefs.contains("uuid")) {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         } else {
@@ -1075,12 +1077,6 @@ public class MainActivity extends AppCompatActivity {
                         {
                             strArrData[count++] = site.getUrl();
                         }
-
-//                        MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-//                        for (int i = 0; i < strArrData.length; i++) {
-//                                mc.addRow(new Object[]{i, strArrData[i]});
-//                        }
-//                        myAdapter.changeCursor(mc);
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);

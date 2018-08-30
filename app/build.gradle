@@ -26,18 +26,6 @@ android {
         }
     }
 
-//    productFlavors {
-//        catchvideodownload {
-//            applicationId "com.mui.catchvideodownload"
-//            resValue "string", "app_name", "Catch Video"
-//            versionName "1.0"
-//        }
-//        socialvideodownloader {
-//            applicationId "com.best.socialvideodownloader"
-//            resValue "string", "app_name", "Social Download"
-//            versionName "1.0"
-//        }
-//    }
 }
 
 dependencies {
@@ -54,7 +42,6 @@ dependencies {
     implementation group: 'com.facebook.android', name: 'audience-network-sdk', version: '4.99.0'
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
-
 //    implementation 'org.jsoup:jsoup:1.10.3'
 
     implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
@@ -68,6 +55,7 @@ dependencies {
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.11.0'
 }
+
 
 
 

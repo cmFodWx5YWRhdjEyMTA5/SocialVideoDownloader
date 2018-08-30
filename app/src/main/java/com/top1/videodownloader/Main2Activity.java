@@ -129,7 +129,7 @@ public class Main2Activity extends AppCompatActivity {
 
         getConfigApp();
         RateThisApp.onCreate(this);
-        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 0);
         RateThisApp.init(config1);
     }
 

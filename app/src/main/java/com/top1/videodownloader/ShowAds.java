@@ -1,6 +1,7 @@
 package com.top1.videodownloader;
 
 import android.app.ActivityManager;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 
 public class ShowAds extends AppCompatActivity {
@@ -17,21 +19,23 @@ public class ShowAds extends AppCompatActivity {
         return instance;
     }
     private int countResume = 0;
+    private ProgressDialog dialogLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Wellcome");
         try
         {
-
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.info);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
                         ContextCompat.getColor(getApplicationContext(), R.color.white)));
 
-
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.white)));
+            dialogLoading = new ProgressDialog(this); // this = YourActivity
+            dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialogLoading.setIndeterminate(true);
+            dialogLoading.setCanceledOnTouchOutside(false);
+            dialogLoading.show();
         }
         catch (Exception e){}
 
@@ -42,19 +46,30 @@ public class ShowAds extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        // put your code here...
         countResume++;
-        if(countResume >= 2)
-        {
-            try {
+        Log.d("cao","resume="+countResume);
+
+        try {
+            if(countResume >= 2)
+            {
                 if (Build.VERSION.SDK_INT < 21) {
                     finishAffinity();
                 } else {
                     finishAndRemoveTask();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if ( dialogLoading!=null)
+        {
+            dialogLoading.cancel();
         }
     }
 

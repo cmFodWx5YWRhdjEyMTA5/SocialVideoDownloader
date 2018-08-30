@@ -7,7 +7,7 @@ android {
         applicationId "com.top1.videodownloader"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 512
+        versionCode 516
         versionName "3.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

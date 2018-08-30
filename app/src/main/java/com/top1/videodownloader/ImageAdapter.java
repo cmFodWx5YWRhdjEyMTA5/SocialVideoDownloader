@@ -70,16 +70,16 @@ public class ImageAdapter extends BaseAdapter {
 //        imageView.setImageResource(mThumbIds[position]);
 
 
-        if (sites.get(position).getUrl().contains("facebook"))
+        if (sites.get(position).url.contains("facebook"))
             imageView.setImageResource(R.drawable.facebook);
-        else if (sites.get(position).getUrl().contains("vimeo"))
+        else if (sites.get(position).url.contains("vimeo"))
             imageView.setImageResource(R.drawable.vimeo);
-        else if (sites.get(position).getUrl().contains("twitter"))
+        else if (sites.get(position).url.contains("twitter"))
             imageView.setImageResource(R.drawable.twitter);
-        else if (sites.get(position).getUrl().contains("instagram"))
+        else if (sites.get(position).url.contains("instagram"))
             imageView.setImageResource(R.drawable.instagram);
         else {
-            Glide.with(mContext).load(sites.get(position).getImage()).into(imageView);
+            Glide.with(mContext).load(sites.get(position).image).into(imageView);
         }
 
         return imageView;

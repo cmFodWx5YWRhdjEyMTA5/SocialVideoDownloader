@@ -16,7 +16,7 @@
         android:title="@string/action_share"
         />
     <Preference
-        android:summary="3.0"
+        android:summary="3.5"
         android:title="@string/app_version" />
 
 </PreferenceScreen>

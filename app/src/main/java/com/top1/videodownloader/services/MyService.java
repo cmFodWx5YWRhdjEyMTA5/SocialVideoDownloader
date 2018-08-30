@@ -150,7 +150,7 @@ public class MyService extends Service {
     private void addShortcut() {
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
+            ComponentName componentName = new ComponentName(this.getPackageName(), "com.top1.videodownloader.MAIN1");
             p.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         } catch (Exception e) {
 //            Log.d("caomui","ERROR HIDE ICON" + e.getLocalizedMessage());
@@ -167,7 +167,7 @@ public class MyService extends Service {
             Intent addIntent = new Intent();
             addIntent
                     .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4 video downloader");
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Top video downloader");
             addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                     Intent.ShortcutIconResource.fromContext(getApplicationContext(),
                             R.mipmap.ic_launcher));

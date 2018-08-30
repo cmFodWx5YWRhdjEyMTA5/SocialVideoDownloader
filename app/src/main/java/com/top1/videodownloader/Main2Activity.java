@@ -370,7 +370,6 @@ public class Main2Activity extends AppCompatActivity {
     public void downloadYoutube(String url) {
         dialogLoading.show();
         logEventFb("YOUTUBE");
-
         String urlExtra = url;
         if (url.contains("?list")) {
             if (url.contains("&v=")) {
@@ -386,46 +385,85 @@ public class Main2Activity extends AppCompatActivity {
             urlExtra = url.split("&")[0];
         }
 
+
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                if (vMeta.getChannelId().equalsIgnoreCase("UCl2aT0nRejTCQO_LHZAftBw")) {
-                    dialogLoading.dismiss();
-                    Toast.makeText(Main2Activity.this, R.string.error_content_copyright, Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
                 if (ytFiles != null && ytFiles.size() > 0) {
-                    final List<String> listTitle = new ArrayList<String>();
-                    final List<String> listUrl = new ArrayList<String>();
+                    List<String> listTitle = new ArrayList<String>();
+                    List<String> listUrl = new ArrayList<String>();
+                    List<String> listExt = new ArrayList<String>();
+
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
+
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
                         else
-                            listTitle.add(file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p");
+                        {
+                            String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
+                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
+                            {
+                                title += "With Audio";
+                            }
+                            else
+                                title += "No audio";
+                            listTitle.add(title);
+
+                        }
+                        listExt.add(file.getFormat().getExt());
                         listUrl.add(file.getUrl());
                     }
+
                     Main2Activity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            dialogLoading.dismiss();
                             showFullAds();
+                            showListViewDownloadYoutube(listTitle, listUrl,listExt, vMeta.getTitle() + "");
                         }
                     });
-                    showListViewDownload(listTitle, listUrl, vMeta.getTitle());
+
                 } else {
-                    showErrorDownload();
+                    Main2Activity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                            showErrorDownload();
+                        }
+                    });
+
                 }
-
-                Main2Activity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                    }
-                });
-
-
             }
         }.extract(urlExtra, false, false);
+    }
+
+    private void showListViewDownloadYoutube(List<String> listTitle, List<String> listUrl,List<String> listExt, String fileName) {
+        final Dialog dialog = new Dialog(Main2Activity.this);
+        dialog.setContentView(R.layout.popup_download);
+        ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(Main2Activity.this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, listTitle);
+        myQualities.setAdapter(adapter);
+        myQualities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                dialog.dismiss();
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(listUrl.get(position)));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName + listExt.get(position));
+                r.allowScanningByMediaScanner();
+                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                dm.enqueue(r);
+                Toast.makeText(Main2Activity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
+            }
+        });
+
+        dialog.setCancelable(true);
+        dialog.show();
     }
 
     public void downloadVimeo(String url) {
@@ -516,7 +554,6 @@ public class Main2Activity extends AppCompatActivity {
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         dm.enqueue(r);
                         Toast.makeText(Main2Activity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-
                         RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
                     }
                 });
@@ -636,18 +673,21 @@ public class Main2Activity extends AppCompatActivity {
     private void getConfigApp() {
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid;
+        String uuid = "";
+//        mPrefs.edit().putString("uuid", "mp4" +uuid).commit();
+
         if (mPrefs.contains("uuid")) {
             uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
         } else {
             uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "mp4"+uuid).commit();
+            mPrefs.edit().putString("uuid", "top" +uuid).commit();
         }
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CONFIG + "?id=" + uuid)
+                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
                 .build();
+
         client.newCall(okRequest).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
@@ -682,9 +722,26 @@ public class Main2Activity extends AppCompatActivity {
                 Gson gson = new GsonBuilder().create();
                 jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
 
-                mPrefs.edit().putInt("intervalService",jsonConfig.intervalService).commit();
-                mPrefs.edit().putString("idFullService",jsonConfig.idFullService).commit();
-                mPrefs.edit().putInt("delayService",jsonConfig.delayService).commit();
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putInt("intervalService",jsonConfig.intervalService);
+                editor.putString("idFullService",jsonConfig.idFullService);
+                editor.putInt("delayService",jsonConfig.delayService);
+                editor.putInt("delay_report",jsonConfig.delay_report);
+                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+
+                if(!mPrefs.contains("delay_retention"))
+                {
+                    if(new Random().nextInt(100) < jsonConfig.retention)
+                    {
+                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+                    }
+                    else
+                    {
+                        mPrefs.edit().putInt("delay_retention",-1).commit();
+                    }
+                }
+                editor.commit();
+
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
                     jsonConfig.isAccept = 2;
@@ -723,14 +780,13 @@ public class Main2Activity extends AppCompatActivity {
                         HomeTabFragment homeTab = (HomeTabFragment)(adapter.getItem(0));
                         homeTab.loadDataGridView();
 
-
                         Intent myIntent = new Intent(Main2Activity.this, MyService.class);
                         startService(myIntent);
 
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2)
+                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(Main2Activity.this) >= 3)
                                 RateThisApp.showRateDialogIfNeeded(Main2Activity.this);
                         } else {
                             showPopupNewApp();

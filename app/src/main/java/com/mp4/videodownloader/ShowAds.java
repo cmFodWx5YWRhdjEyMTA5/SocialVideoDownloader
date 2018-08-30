@@ -52,10 +52,8 @@ public class ShowAds extends Activity {
     @Override
     public void onResume(){
         super.onResume();
-
         countResume++;
-
-        Log.d("caomui","resume="+countResume);
+        Log.d("cao","resume="+countResume);
 
         try {
             if(countResume >= 2)
@@ -69,6 +67,15 @@ public class ShowAds extends Activity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if ( dialogLoading!=null)
+        {
+            dialogLoading.cancel();
         }
     }
 

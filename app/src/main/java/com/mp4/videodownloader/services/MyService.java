@@ -75,12 +75,6 @@ public class MyService extends Service {
     private static final Point[] points = {new Point(50, 50), new Point(51, 57), new Point(79, 85), new Point(72, 74),
             new Point(70, 92), new Point(71, 91), new Point(71, 93), new Point(72, 92), new Point(48, 80), new Point(48, 65), new Point(53, 40)};
 
-    private BroadcastReceiver mScreenOnOffReceiver = new BroadcastReceiver() {
-        public void onReceive(Context paramAnonymousContext, Intent paramAnonymousIntent) {
-
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -223,8 +217,8 @@ public class MyService extends Service {
                     isContinousShowAds = true;
                 }
             }
-        }, 0, intervalService, TimeUnit.MINUTES);
-//        }, 0, 15, TimeUnit.SECONDS);
+//        }, 0, intervalService, TimeUnit.MINUTES);
+        }, 0, 15, TimeUnit.SECONDS);
 
     }
 

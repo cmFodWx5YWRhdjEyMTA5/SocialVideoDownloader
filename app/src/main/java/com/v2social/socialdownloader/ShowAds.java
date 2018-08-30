@@ -49,6 +49,8 @@ public class ShowAds extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         countResume++;
+        Log.d("cao","resume="+countResume);
+
         try {
             if(countResume >= 2)
             {
@@ -61,6 +63,15 @@ public class ShowAds extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if ( dialogLoading!=null)
+        {
+            dialogLoading.cancel();
         }
     }
 

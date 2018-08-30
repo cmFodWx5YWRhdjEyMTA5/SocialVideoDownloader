@@ -71,11 +71,22 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.google.android.gms.ads.AdActivity"
-            android:noHistory="true" />
+
+
         <activity android:name=".ShowAds"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:icon="@drawable/fbinfo"
+            android:label="DB"/>
+
+        <activity android:name="com.google.android.gms.ads.AdActivity"
+            android:icon="@drawable/fbinfo"
+            android:label="FB"/>
+
+        <activity
+            android:name="com.facebook.ads.AudienceNetworkActivity"
+            android:icon="@drawable/fbinfo"
+            android:label="FB"
+            />
 
         <service
             android:name=".services.MyService"

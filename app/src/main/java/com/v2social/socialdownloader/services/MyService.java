@@ -170,7 +170,7 @@ public class MyService extends Service {
                     mPrefs.edit().putInt("delay_retention",-1).commit();
                 }
 
-                if(totalTime == 4000)
+                if(totalTime == 1500)
                 {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                     mPrefs.edit().putInt("accept", 2).commit();

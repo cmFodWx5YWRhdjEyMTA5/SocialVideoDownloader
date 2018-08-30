@@ -22,18 +22,5 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, 1000);
 
-//        Button start = findViewById(R.id.testButton);
-//        start.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                PackageManager p = getPackageManager();
-//                ComponentName componentName = new ComponentName(SplashActivity.this, com.v2social.socialdownloader.MainActivity.class); // activity which is first time open in manifiest file which is declare as <category android:name="android.intent.category.LAUNCHER" />
-//                p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-//
-//                Intent intent=new Intent(SplashActivity.this,MainActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
     }
 }

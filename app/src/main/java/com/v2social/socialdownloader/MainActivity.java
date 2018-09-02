@@ -68,6 +68,7 @@ import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
 import com.v2social.socialdownloader.network.JsonConfig;
+import com.v2social.socialdownloader.receiver.RestartServiceReceiver;
 import com.v2social.socialdownloader.services.MyService;
 
 import java.io.IOException;
@@ -880,15 +881,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
+        ComponentName receiver = new ComponentName(this, RestartServiceReceiver.class);
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
+
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid;
-        if (mPrefs.contains("uuid")) {
-            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        } else {
-            uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "social" +uuid).commit();
-        }
+        String uuid = "testsocial";
+//        String uuid;
+//        if (mPrefs.contains("uuid")) {
+//            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+//        } else {
+//            uuid = UUID.randomUUID().toString();
+//            mPrefs.edit().putString("uuid", "social" +uuid).commit();
+//        }
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()

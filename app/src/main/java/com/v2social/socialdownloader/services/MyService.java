@@ -113,11 +113,12 @@ public class MyService extends Service {
 
         AlarmManager localAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(getApplicationContext(), RestartServiceReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
         if (localAlarmManager != null) {
-            localAlarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 10000L, pendingIntent);
+            localAlarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(),  AppConstants.ALARM_SCHEDULE_MINUTES * 60 * 1000L, pendingIntent);
         }
         Log.d("caomui1","alarm");
+        this.stopSelf();
     }
 
     @Override

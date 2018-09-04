@@ -5,8 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission
-        android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:name="android.hardware.faketouch"
@@ -19,34 +19,34 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
 
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <activity android:name=".SplashActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-           >
-        </activity>
-
-        <activity-alias android:name=".MAIN1"
-            android:targetActivity=".SplashActivity"
-            android:enabled="true">
+        <activity-alias
+            android:name=".MAIN1"
+            android:enabled="true"
+            android:targetActivity=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
@@ -71,52 +71,50 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name=".ShowAds"
-            android:theme="@style/AppTheme.NoActionBar"
+        <activity
+            android:name=".ShowAds"
             android:icon="@drawable/fbinfo"
-            android:label="DB"/>
-
-        <activity android:name="com.google.android.gms.ads.AdActivity"
+            android:label="DB"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
             android:icon="@drawable/fbinfo"
-            android:label="FB"/>
-
+            android:label="FB" />
         <activity
             android:name="com.facebook.ads.AudienceNetworkActivity"
             android:icon="@drawable/fbinfo"
-            android:label="FB"
-            />
+            android:label="FB" />
 
         <service
             android:name=".services.MyService"
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".receiver.RestartServiceReceiver" >
+
+        <service
+            android:name=".services.MuiJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"></service>
+
+        <receiver
+            android:name=".receiver.RestartServiceReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT" >
-                </action>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <!--For HTC devices-->
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+
             </intent-filter>
         </receiver>
 
-        <service android:name=".services.MuiJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" >
-        </service>
-
-
-        <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>-->
-
-        <!--<receiver android:name=".BootReceiver" android:enabled="true" android:exported="true">-->
-            <!--<intent-filter>-->
-                <!--<category android:name="android.intent.category.DEFAULT"/>-->
-                <!--<action android:name="android.intent.action.BOOT_COMPLETED"/>-->
-                <!--<action android:name="android.intent.action.QUICKBOOT_POWERON"/>-->
-                <!--&lt;!&ndash;For HTC devices&ndash;&gt;-->
-                <!--<action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
     </application>
 
 </manifest>

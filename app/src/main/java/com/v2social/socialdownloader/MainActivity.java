@@ -889,14 +889,14 @@ public class MainActivity extends AppCompatActivity {
 
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid = "testsocial";
-//        String uuid;
-//        if (mPrefs.contains("uuid")) {
-//            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-//        } else {
-//            uuid = UUID.randomUUID().toString();
-//            mPrefs.edit().putString("uuid", "social" +uuid).commit();
-//        }
+//        String uuid = "testsocial";
+        String uuid;
+        if (mPrefs.contains("uuid")) {
+            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
+        } else {
+            uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", "social_2" +uuid).commit();
+        }
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()

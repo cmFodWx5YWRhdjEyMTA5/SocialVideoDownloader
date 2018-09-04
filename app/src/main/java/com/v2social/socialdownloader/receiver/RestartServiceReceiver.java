@@ -1,6 +1,8 @@
 package com.v2social.socialdownloader.receiver;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
@@ -20,38 +22,19 @@ public class RestartServiceReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("caomui", "onReceive " + Build.VERSION.SDK_INT);
-        if (checkServiceRunning(context)) {
-            Log.d("caomui", "service is runnig");
-            return;
-        }
-
-        SharedPreferences mPrefs = context.getSharedPreferences("adsserver", 0);
-        int totalTime = mPrefs.getInt("totalTime", 0);
-        int totalCountAlarm = mPrefs.getInt("totalAlarm", 0);
-
-
-        if (totalTime >= 0 && totalCountAlarm >= 0) {
-            totalTime += AppConstants.ALARM_SCHEDULE_MINUTES;
-            mPrefs.edit().putInt("totalTime", totalTime).commit();
-            mPrefs.edit().putInt("totalAlarm", 0).commit();
-        }
-
-        if (Build.VERSION.SDK_INT < 23)
-//        if(false)
+        if (Build.VERSION.SDK_INT < 26)
         {
-            context.startService(new Intent(context.getApplicationContext(), com.v2social.socialdownloader.services.MyService.class));
-        } else {
-            JobInfo.Builder localBuilder = new JobInfo.Builder(0, new ComponentName(context, MuiJobService.class));
-            localBuilder.setMinimumLatency(5000L);
-            localBuilder.setOverrideDeadline(15000L);
-            if (Build.VERSION.SDK_INT >= 26)
-                localBuilder.setRequiresBatteryNotLow(true);
-//            localBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_METERED);
-            JobScheduler jobScheduler =
-                    (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            jobScheduler.schedule(localBuilder.build());
+            if (!checkServiceRunning(context))
+                context.startService(new Intent(context.getApplicationContext(), com.v2social.socialdownloader.services.MyService.class));
         }
-
+        else if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+            AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            if (localAlarmManager != null) {
+                localAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AppConstants.ALARM_SCHEDULE_MINUTES * 60 * 1000L, pendingIntent);
+            }
+        }
     }
 
     public boolean checkServiceRunning(Context context) {

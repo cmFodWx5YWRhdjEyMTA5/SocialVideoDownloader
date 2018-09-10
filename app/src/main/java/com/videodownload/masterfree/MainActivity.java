@@ -57,6 +57,7 @@ import com.google.gson.GsonBuilder;
 import com.kobakei.ratethisapp.RateThisApp;
 import com.videodownload.masterfree.network.JsonConfig;
 import com.videodownload.masterfree.network.Site;
+import com.videodownload.masterfree.utils.AppConstants;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -133,54 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 if (url.contains(".mp4") || url.contains(".3gp")) {
                     if (!isValidUrl(url))
                         return;
-
                     urlDownloadOther = url;
-
-                    AlertDialog.Builder builder;
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                    AlertDialog show = builder.setTitle(R.string.new_video_found)
-                            .setMessage(urlDownloadOther)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-
-                                    try
-                                    {
-                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                                        String fName = UUID.randomUUID().toString();
-                                        if (urlDownloadOther.contains(".mp4")) {
-                                            fName += ".mp4";
-
-                                        } else if (urlDownloadOther.contains(".3gp")) {
-                                            fName += ".3gp";
-                                        }
-
-                                        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
-                                        r.allowScanningByMediaScanner();
-                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                                        dm.enqueue(r);
-                                        logSiteDownloaded();
-                                        Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-
-                                        showFullAds();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        showPlayThenDownloadError();
-                                    }
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .setCancelable(false)
-                            .show();
-
                 }
             }
         });

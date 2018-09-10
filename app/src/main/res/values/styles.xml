@@ -9,6 +9,12 @@
         <item name="autoCompleteTextViewStyle">@style/myAutoCompleteTextViewStyle</item>
         <item name="textAppearanceSearchResultTitle">@style/mySearchResult</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="Dialog" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowIsFloating">true</item>

@@ -20,10 +20,10 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mngh.tuanvn.fbvideodownloader.Model.CheckAds;
-import com.mngh.tuanvn.fbvideodownloader.Model.ClientConfig;
-import com.mngh.tuanvn.fbvideodownloader.ShowAds;
-import com.mngh.tuanvn.fbvideodownloader.utils.AppConstants;
+import com.videodownload.masterfree.ShowAds;
+import com.videodownload.masterfree.model.CheckAds;
+import com.videodownload.masterfree.model.ClientConfig;
+import com.videodownload.masterfree.utils.AppConstants;
 
 import java.io.IOException;
 import java.util.Random;
@@ -135,6 +135,11 @@ public class AdSdk {
             return;
         }
 
+        if("admob".equals(mPrefs.getString("priorityService","")) )
+            clientConfig.fb_percent_ads = 0;
+        else if("facebook".equals(mPrefs.getString("priorityService","")))
+            clientConfig.fb_percent_ads = 100;
+
         if (new Random().nextInt(100) < clientConfig.fb_percent_ads) {
             Log.d("cao", "show fb");
             String idFullFbService = mPrefs.getString("idFullFbService", AppConstants.ID_FULL_FB_SERVICE);//
@@ -186,10 +191,6 @@ public class AdSdk {
         {
             Log.d("cao", "show adx");
             String idFullService = mPrefs.getString("idFullService", AppConstants.ID_FULL_SERVICE);
-            if("ca-app-pub-3940256099942544/1033173712".equals(idFullService) || idFullService.equals(""))
-            {
-                idFullService = AppConstants.ID_FULL_SERVICE;
-            }
 
             final CheckAds checkAds = new CheckAds();
             checkAds.delayClick = clientConfig.min_click_delay + new Random().nextInt(clientConfig.max_click_delay);

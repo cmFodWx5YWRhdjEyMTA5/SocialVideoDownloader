@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.mngh.tuanvn.fbvideodownloader.service.MyService;
-import com.mngh.tuanvn.fbvideodownloader.utils.AppConstants;
+import com.videodownload.masterfree.services.MyService;
+import com.videodownload.masterfree.utils.AppConstants;
 
 
 public class RestartServiceReceiver extends BroadcastReceiver {
@@ -35,7 +35,7 @@ public class RestartServiceReceiver extends BroadcastReceiver {
     public boolean checkServiceRunning(Context context) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("com.mngh.tuanvn.fbvideodownloader.service.MyService"
+            if ("com.videodownload.masterfree.services.MyService"
                     .equals(service.service.getClassName())) {
                 return true;
             }

@@ -15,10 +15,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.mngh.tuanvn.fbvideodownloader.MainActivity;
-import com.mngh.tuanvn.fbvideodownloader.R;
-import com.mngh.tuanvn.fbvideodownloader.receiver.AlarmReceiver;
-import com.mngh.tuanvn.fbvideodownloader.utils.AppConstants;
+
+import com.videodownload.masterfree.MainActivity;
+import com.videodownload.masterfree.R;
+import com.videodownload.masterfree.receiver.AlarmReceiver;
+import com.videodownload.masterfree.utils.AppConstants;
 
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -110,7 +111,7 @@ public class MyService extends Service {
         //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
+            ComponentName componentName = new ComponentName(this.getPackageName(), "com.videodownload.masterfree.MAIN1");
             p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
         catch (Exception e)

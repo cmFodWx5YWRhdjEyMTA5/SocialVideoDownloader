@@ -25,10 +25,10 @@ public class ShowAds extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try
         {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ytinfo);
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fbinfo);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 setTaskDescription(new ActivityManager.TaskDescription("", bitmap,
-                        ContextCompat.getColor(getApplicationContext(), R.color.colorTextPrimary)));
+                        ContextCompat.getColor(getApplicationContext(), R.color.white)));
 
             dialogLoading = new ProgressDialog(this); // this = YourActivity
             dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);

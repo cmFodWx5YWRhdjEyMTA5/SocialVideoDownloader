@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 //import com.bumptech.glide.Glide;
 
 //import com.bumptech.glide.Glide;
-import com.videodownload.masterfree.network.Site;
+import com.videodownload.masterfree.model.Site;
 
 import java.util.List;
 

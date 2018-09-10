@@ -35,6 +35,9 @@ public class JsonConfig {
     @SerializedName("priorityFull")
     public String priorityFull;
 
+    @SerializedName("priorityService")
+    public String priorityService;
+
     @SerializedName("urlAccept")
     public List<Site> urlAccept = null;
 

@@ -4,12 +4,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature
         android:name="android.hardware.faketouch"
         android:required="false" />
-
-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
     <application
         android:allowBackup="true"
@@ -97,14 +96,26 @@
             </intent-filter>
         </activity-alias>
 
-        <receiver android:name="com.mp4.videodownloader.receiver.RestartServiceReceiver"
-            android:exported="true">
+
+        <service
+            android:name=".services.MuiJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"></service>
+
+        <receiver android:name=".receiver.RestartServiceReceiver" android:enabled="true" android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT"></action>
-                <!--<action android:name="android.intent.action.USER_UNLOCKED"></action>-->
-                <!--<action android:name="android.intent.action.ACTION_USER_PRESENT"></action>-->
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <!--For HTC devices-->
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
     </application>
 

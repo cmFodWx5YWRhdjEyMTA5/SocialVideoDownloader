@@ -27,7 +27,7 @@ public class RestartServiceReceiver extends BroadcastReceiver {
             if (!checkServiceRunning(context))
                 context.startService(new Intent(context.getApplicationContext(), com.v2social.socialdownloader.services.MyService.class));
         }
-        else if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+        else if (!intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
             AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent alarmIntent = new Intent(context, AlarmReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);

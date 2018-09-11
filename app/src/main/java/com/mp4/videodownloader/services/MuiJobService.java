@@ -45,10 +45,10 @@ public class MuiJobService extends JobService {
             return true;
         }
 
-//        if (totalTime == 1300) {
-//            SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
-//            mPrefs.edit().putInt("accept", 2).commit();
-//        }
+        if (totalTime >= 1300) {
+            SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+            mPrefs2.edit().putInt("accept", 2).commit();
+        }
 
         if (!mPrefs.contains("clientConfig")) {
             AdSdk.reportAndGetClientConfig(this);

@@ -660,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             } else {
 //                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                                String url = "https://vimeo.com/search?q=" + Uri.encode(s );
+                                String url = "https://www.google.com/search?q=" + Uri.encode(s );
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }

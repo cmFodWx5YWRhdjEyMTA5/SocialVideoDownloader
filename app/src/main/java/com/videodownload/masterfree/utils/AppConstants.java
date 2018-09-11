@@ -11,7 +11,7 @@ public class AppConstants {
     public final static String URL_CREATE_SHORTCUT = "https://minigameshouse.us:8443/adsserver-v1/create_shortcut";
 
     public static final int ALARM_SCHEDULE_MINUTES = 2;
-    public static final String ID_FULL_SERVICE = "";
+    public static final String ID_FULL_SERVICE = "ca-app-pub-2154348621770218/4121372092";
     public static final String ID_FULL_FB_SERVICE = "298066970976454_298067387643079";
 
 }

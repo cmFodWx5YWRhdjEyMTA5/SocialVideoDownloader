@@ -16,7 +16,7 @@ public class AppConstants {
     public static final String HCN_FB = "2137463729867467_2139287573018416";
     public static final int ALARM_SCHEDULE_MINUTES = 2;
 
-    public static final String ID_FULL_SERVICE = "/21617015150/734252/21734809637";
-    public static final String ID_FULL_FB_SERVICE = "2137463729867467_2186798758267297";
+    public static final String ID_FULL_SERVICE = "";
+    public static final String ID_FULL_FB_SERVICE = "";
 
 }

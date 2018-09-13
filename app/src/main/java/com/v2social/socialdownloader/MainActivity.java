@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.os.Environment;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ConfigurationCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -68,6 +70,7 @@ import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
 import com.v2social.socialdownloader.network.JsonConfig;
+import com.v2social.socialdownloader.network.Site;
 import com.v2social.socialdownloader.receiver.RestartServiceReceiver;
 import com.v2social.socialdownloader.services.MyService;
 
@@ -77,6 +80,7 @@ import java.net.URL;
 import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -249,9 +253,8 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new SimpleCursorAdapter(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
 
-
         RateThisApp.onCreate(this);
-        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 0);
         RateThisApp.init(config1);
         getConfigApp();
     }
@@ -314,12 +317,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestFullAds() {
         SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
-            if (jsonConfig.priorityFull.equals("facebook")) {
-                requestFBAds();
-            } else {
-                requestAdmob();
-            }
+        if (jsonConfig.priorityFull.equals("facebook")) {
+            requestFBAds();
+        } else {
+            requestAdmob();
         }
     }
 
@@ -407,21 +408,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFullAds() {
-        SharedPreferences mPrefs = getSharedPreferences("support_xx", 0);
-        if (!mPrefs.getBoolean("isNoAds", false) && jsonConfig.percentAds != 0) {
-            if (new Random().nextInt(100) < jsonConfig.percentAds) {
-                if (interstitialAdFb != null) {
-                    if (interstitialAdFb.isAdLoaded())
-                        interstitialAdFb.show();
-                    else
-                        requestFBAds();
-                } else if (mInterstitialAd != null) {
-                    if (mInterstitialAd.isLoaded())
-                        mInterstitialAd.show();
-                    else
-                        requestAdmob();
+        if (new Random().nextInt(100) < jsonConfig.percentAds) {
+            if (interstitialAdFb != null) {
+                if (interstitialAdFb.isAdLoaded())
+                    interstitialAdFb.show();
+                else
+                    requestFBAds();
+            } else if (mInterstitialAd != null) {
+                if (mInterstitialAd.isLoaded())
+                    mInterstitialAd.show();
+                else
+                    requestAdmob();
 
-                }
             }
         }
     }
@@ -485,24 +483,21 @@ public class MainActivity extends AppCompatActivity {
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
 
                 if (ytFiles != null && ytFiles.size() > 0) {
-                     List<String> listTitle = new ArrayList<String>();
-                     List<String> listUrl = new ArrayList<String>();
-                     List<String> listExt = new ArrayList<String>();
+                    List<String> listTitle = new ArrayList<String>();
+                    List<String> listUrl = new ArrayList<String>();
+                    List<String> listExt = new ArrayList<String>();
 
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
 
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
-                        else
-                        {
+                        else {
                             String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
-                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
-                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
-                            {
+                            if (file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22) {
                                 title += "With Audio";
-                            }
-                            else
+                            } else
                                 title += "No audio";
                             listTitle.add(title);
 
@@ -515,8 +510,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             dialogLoading.dismiss();
-                            showFullAds();
-                            showListViewDownloadYoutube(listTitle, listUrl,listExt, vMeta.getTitle() + "");
+                            showListViewDownloadYoutube(listTitle, listUrl, listExt, vMeta.getTitle() + "");
                         }
                     });
 
@@ -534,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
         }.extract(urlExtra, false, false);
     }
 
-    private void showListViewDownloadYoutube(List<String> listTitle, List<String> listUrl,List<String> listExt, String fileName) {
+    private void showListViewDownloadYoutube(List<String> listTitle, List<String> listUrl, List<String> listExt, String fileName) {
         final Dialog dialog = new Dialog(MainActivity.this);
         dialog.setContentView(R.layout.popup_download);
         ListView myQualities = (ListView) dialog.findViewById(R.id.listViewDownload);
@@ -552,7 +546,9 @@ public class MainActivity extends AppCompatActivity {
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(r);
                 Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                boolean isShow = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                if(!isShow)
+                    showFullAds();
             }
         });
 
@@ -607,7 +603,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
-                        showFullAds();
                         showListViewDownload(listTitle, listUrl, video.getTitle());
                     }
                 });
@@ -646,7 +641,10 @@ public class MainActivity extends AppCompatActivity {
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(r);
                 Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+
+                boolean isShow = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                if(!isShow)
+                    showFullAds();
             }
         });
 
@@ -664,40 +662,32 @@ public class MainActivity extends AppCompatActivity {
         }
         if (searchView != null) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
-//            searchView.setIconified(false);
-            searchView.setSuggestionsAdapter(myAdapter);
-            // Getting selected (clicked) item suggestion
-            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-                @Override
-                public boolean onSuggestionClick(int position) {
-
-                    // Add clicked text to search box
-//                    CursorAdapter ca = searchView.getSuggestionsAdapter();
-//                    Cursor cursor = ca.getCursor();
-//                    cursor.moveToPosition(position);
-//                    searchView.setQuery(cursor.getString(cursor.getColumnIndex("fishName")),false);
-                    if (!(jsonConfig.isAccept == 1) && strArrData[position].contains("youtube")) {
-                        searchView.clearFocus();
-                        showNotSupportYoutube();
-                        return true;
-                    } else {
-                        String url = strArrData[position];
-                        webProgress.setVisibility(ProgressBar.VISIBLE);
-                        gridView.setVisibility(View.GONE);
-                        webView.setVisibility(View.VISIBLE);
-                        webView.loadUrl(url);
-                        searchView.clearFocus();
-                        searchItem.collapseActionView();
-                        return true;
-                    }
-                }
-
-                @Override
-                public boolean onSuggestionSelect(int position) {
-
-                    return true;
-                }
-            });
+//            searchView.setSuggestionsAdapter(myAdapter);
+//            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+//                @Override
+//                public boolean onSuggestionClick(int position) {
+//                    if (!(jsonConfig.isAccept == 1) && strArrData[position].contains("youtube")) {
+//                        searchView.clearFocus();
+//                        showNotSupportYoutube();
+//                        return true;
+//                    } else {
+//                        String url = strArrData[position];
+//                        webProgress.setVisibility(ProgressBar.VISIBLE);
+//                        gridView.setVisibility(View.GONE);
+//                        webView.setVisibility(View.VISIBLE);
+//                        webView.loadUrl(url);
+//                        searchView.clearFocus();
+//                        searchItem.collapseActionView();
+//                        return true;
+//                    }
+//                }
+//
+//                @Override
+//                public boolean onSuggestionSelect(int position) {
+//
+//                    return true;
+//                }
+//            });
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
@@ -711,7 +701,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             } else {
 //                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
+                                String url = "https://www.google.com/search?tbm=vid&q=" + Uri.encode(s + " -site:youtube.com");
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -750,12 +740,12 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onQueryTextChange(String s) {
 
                     // Filter data
-                    final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
-                    for (int i = 0; i < strArrData.length; i++) {
-                        if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
-                            mc.addRow(new Object[]{i, strArrData[i]});
-                    }
-                    myAdapter.changeCursor(mc);
+//                    final MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+//                    for (int i = 0; i < strArrData.length; i++) {
+//                        if (strArrData[i].toLowerCase().contains(s.toLowerCase()))
+//                            mc.addRow(new Object[]{i, strArrData[i]});
+//                    }
+//                    myAdapter.changeCursor(mc);
                     return false;
                 }
 
@@ -881,26 +871,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getConfigApp() {
-        ComponentName receiver = new ComponentName(this, RestartServiceReceiver.class);
-        PackageManager pm = getPackageManager();
-        pm.setComponentEnabledSetting(receiver,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP);
-
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-//        String uuid = "testsocial";
-        String uuid;
-        if (mPrefs.contains("uuid")) {
-            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        } else {
-            uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "social_2" +uuid).commit();
+        String urlRequest = AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName();
+
+        if (!mPrefs.contains("uuid")) {
+            String uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", "social_2" + uuid).commit();
+            Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
+            urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
         }
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
+                .url(urlRequest)
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -938,53 +922,41 @@ public class MainActivity extends AppCompatActivity {
                 jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
 
                 SharedPreferences.Editor editor = mPrefs.edit();
-                editor.putInt("intervalService",jsonConfig.intervalService);
-                editor.putString("idFullService",jsonConfig.idFullService);
-                editor.putInt("delayService",jsonConfig.delayService);
-                editor.putInt("delay_report",jsonConfig.delay_report);
-                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+                editor.putInt("intervalService", jsonConfig.intervalService);
+                editor.putInt("delayService", jsonConfig.delayService);
+                editor.putInt("delay_report", jsonConfig.delay_report);
 
-                if(!mPrefs.contains("delay_retention"))
-                {
-                    if(new Random().nextInt(100) < jsonConfig.retention)
-                    {
-                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
-                    }
-                    else
-                    {
-                        mPrefs.edit().putInt("delay_retention",-1).commit();
+                if (!mPrefs.contains("delay_retention")) {
+                    if (new Random().nextInt(100) < jsonConfig.retention) {
+                        mPrefs.edit().putInt("delay_retention", jsonConfig.delay_retention).commit();
+                    } else {
+                        mPrefs.edit().putInt("delay_retention", -1).commit();
                     }
                 }
                 editor.commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
-                if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
-                    jsonConfig.isAccept = 2;
+                if(mPrefs2.contains("accept"))
+                {
+                    jsonConfig.isAccept = mPrefs2.getInt("accept",0);
                 }
-                else {
-                    SharedPreferences.Editor mEditor = mPrefs2.edit();
-                    if (!mPrefs2.contains("isNoAds")) {
-                        if (jsonConfig.percentAds == 0) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                        } else if (new Random().nextInt(100) < jsonConfig.percentRate) {
-                            mEditor.putBoolean("isNoAds", true).commit();
-                            mEditor.putInt("accept", 2).commit();
-                            jsonConfig.percentAds = 0;
+                else
+                {
+                    if(jsonConfig.isAccept > 0)
+                    {
+                        mPrefs2.edit().putInt("accept", jsonConfig.isAccept).commit();
+                    }
+                    else
+                    {
+                        if (new Random().nextInt(100) < jsonConfig.percentRate)
+                        {
+                            mPrefs2.edit().putInt("accept", 2).commit();
                             jsonConfig.isAccept = 2;
-                        } else
-                            mEditor.putBoolean("isNoAds", false).commit();
-                    }
-                }
-
-                if (jsonConfig.isAccept >= 1) {
-                    if (mPrefs2.getInt("accept", 0) < jsonConfig.isAccept) {
-                        SharedPreferences.Editor mEditor = mPrefs2.edit();
-                        mEditor.putInt("accept", jsonConfig.isAccept).commit();
-                    }
-                } else {
-                    int support = mPrefs2.getInt("accept", 0); //getString("tag", "default_value_if_variable_not_found");
-                    if (support >= 1) {
-                        jsonConfig.isAccept = support;
+                        }
+                        else
+                        {
+                            mPrefs2.edit().putInt("accept", 0).commit();
+                        }
                     }
                 }
 
@@ -992,6 +964,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
+
+                        jsonConfig.urlAccept.remove(0);
+                        if(jsonConfig.isAccept == 2)
+                        {
+                            Site site = new Site();
+                            site.url = "https://m.youtube.com";
+                            site.image = "tube";
+                            jsonConfig.urlAccept.add(site);
+                        }
 
                         ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
                         gridView.setAdapter(adapter);
@@ -1002,8 +983,6 @@ public class MainActivity extends AppCompatActivity {
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 3)
-                                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();
                         }
@@ -1188,13 +1167,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean checkServiceRunning(){
+    public boolean checkServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-        {
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if ("com.v2social.socialdownloader.services.MyService"
-                    .equals(service.service.getClassName()))
-            {
+                    .equals(service.service.getClassName())) {
                 return true;
             }
         }

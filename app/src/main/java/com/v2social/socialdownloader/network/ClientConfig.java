@@ -19,4 +19,9 @@ public class ClientConfig {
     public int max_percent_ads;
     @SerializedName("fb_percent_ads")
     public int fb_percent_ads;
+
+    @SerializedName("idFullService")
+    public String idFullService;
+    @SerializedName("idFullFbService")
+    public String idFullFbService;
 }

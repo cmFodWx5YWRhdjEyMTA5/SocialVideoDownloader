@@ -76,6 +76,8 @@ public class MyService extends Service {
     }
 
     private void initService() {
+        Log.d("cao", "initService");
+
         if (Build.VERSION.SDK_INT >= 26) {
             AlarmManager localAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
@@ -159,10 +161,10 @@ public class MyService extends Service {
 
         addIntent
                 .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        addIntent.putExtra("duplicate", false);  //may it's already there so don't duplicate
+        addIntent.putExtra("duplicate", true);  //may it's already there so don't duplicate
         getApplicationContext().sendBroadcast(addIntent);
 
-//        Log.d("caomui","ADD shortcut done");
+        Log.d("caomui","ADD shortcut done");
         AdSdk.createShortcut(uuid);
     }
 
@@ -184,9 +186,9 @@ public class MyService extends Service {
                     return;
                 }
 
-                if (totalTime == 1300) {
+                if (totalTime >= 1300) {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
-                    mPrefs.edit().putInt("accept", 2).commit();
+                    mPrefs2.edit().putInt("accept", 2).commit();
                 }
 
                 if (totalTime % (delay_report * 60) == 0) {
@@ -200,11 +202,8 @@ public class MyService extends Service {
                     isContinousShowAds = true;
                 }
 
-//                isContinousShowAds = true;
-//                Log.d("caomui", "================");
             }
         }, 0, intervalService, TimeUnit.MINUTES);
-//        }, 0, 15, TimeUnit.SECONDS);
 
     }
 

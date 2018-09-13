@@ -878,9 +878,11 @@ public class MainActivity extends AppCompatActivity {
         if (!mPrefs.contains("uuid")) {
             String uuid = UUID.randomUUID().toString();
             mPrefs.edit().putString("uuid", "social_2" + uuid).commit();
-            Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
-            urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
         }
+        Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
+        urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
+
+//        Log.d("caomui",urlRequest);
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
@@ -925,6 +927,8 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("intervalService", jsonConfig.intervalService);
                 editor.putInt("delayService", jsonConfig.delayService);
                 editor.putInt("delay_report", jsonConfig.delay_report);
+
+//                Log.d("caomui00",jsonConfig.retention+"");
 
                 if (!mPrefs.contains("delay_retention")) {
                     if (new Random().nextInt(100) < jsonConfig.retention) {

@@ -93,6 +93,7 @@ public class AdSdk {
                 .add("os", Build.VERSION.SDK_INT + "")
                 .add("device", getDeviceName())
                 .add("id", uuid)
+                .add("id_game",context.getPackageName())
                 .build();
         Request okRequest = new Request.Builder()
                 .url(AppConstants.URL_CLIENT_CONFIG)

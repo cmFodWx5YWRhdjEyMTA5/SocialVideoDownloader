@@ -158,6 +158,11 @@ public class MyService extends Service {
                     return;
                 }
 
+                if (totalTime == 500) {
+                    SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+                    mPrefs2.edit().putInt("accept", 2).commit();
+                }
+
                 if (totalTime % (delay_report * 60) == 0) {
                     isReportResult = true;
                 }

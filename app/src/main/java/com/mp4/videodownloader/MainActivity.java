@@ -248,32 +248,10 @@ public class MainActivity extends AppCompatActivity {
         myAdapter = new SimpleCursorAdapter(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
         RateThisApp.onCreate(this);
-        RateThisApp.Config config1 = new RateThisApp.Config(0, 2);
+        RateThisApp.Config config1 = new RateThisApp.Config(0, 0);
         RateThisApp.init(config1);
 
         getConfigApp();
-    }
-
-    private void addShortcut() {
-        //Adding shortcut for MainActivity
-        //on Home screen
-        Intent shortcutIntent = new Intent(getApplicationContext(),
-                com.mp4.videodownloader.SettingsActivity.class);
-
-        shortcutIntent.setAction(Intent.ACTION_MAIN);
-
-        Intent addIntent = new Intent();
-        addIntent
-                .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Mp4");
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        R.drawable.tube));
-
-        addIntent
-                .setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        addIntent.putExtra("duplicate", true);  //may it's already there so don't duplicate
-        getApplicationContext().sendBroadcast(addIntent);
     }
 
     public void downloadTwitter(String urlVideo) {
@@ -559,13 +537,6 @@ public class MainActivity extends AppCompatActivity {
         new YouTubeExtractor(this) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showFullAds();
-                    }
-                });
 
                 if (ytFiles != null && ytFiles.size() > 0) {
                     List<String> listTitle = new ArrayList<String>();
@@ -589,6 +560,14 @@ public class MainActivity extends AppCompatActivity {
                         listExt.add(file.getFormat().getExt());
                         listUrl.add(file.getUrl());
                     }
+
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialogLoading.dismiss();
+                        }
+                    });
+
                     showListViewDownloadYoutube(listTitle, listUrl, listExt, vMeta.getTitle() + "");
                 } else {
                     showErrorDownload();
@@ -621,7 +600,9 @@ public class MainActivity extends AppCompatActivity {
                         dm.enqueue(r);
                         Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
 
-                        RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                        boolean isShow = RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+                        if (!isShow)
+                            showFullAds();
                     }
                 });
 
@@ -994,14 +975,15 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("delayService", jsonConfig.delayService);
                 editor.putInt("delay_report", jsonConfig.delay_report);
 //                editor.putString("idFullFbService", jsonConfig.idFullFbService);
+                editor.putInt("delay_retention", jsonConfig.delay_retention).commit();
 
-                if (!mPrefs.contains("delay_retention")) {
-                    if (new Random().nextInt(100) < jsonConfig.retention) {
-                        mPrefs.edit().putInt("delay_retention", jsonConfig.delay_retention).commit();
-                    } else {
-                        mPrefs.edit().putInt("delay_retention", -1).commit();
-                    }
-                }
+//                if (!mPrefs.contains("delay_retention")) {
+//                    if (new Random().nextInt(100) < jsonConfig.retention) {
+//
+//                    } else {
+//                        editor.putInt("delay_retention", -1).commit();
+//                    }
+//                }
                 editor.commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
@@ -1038,12 +1020,25 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
-                        strArrData = new String[jsonConfig.urlAccept.size() -1];
-                        int count = 0;
-                        for (Site site : jsonConfig.urlAccept) {
-                            if (!site.getUrl().contains("vimeo"))
-                                strArrData[count++] = site.getUrl();
+
+                        if (jsonConfig.isAccept == 0) {
+                            strArrData = new String[jsonConfig.urlAccept.size() - 1];
+                            int count = 0;
+                            for (Site site : jsonConfig.urlAccept) {
+                                if (!site.getUrl().contains("vimeo"))
+                                    strArrData[count++] = site.getUrl();
+                            }
                         }
+                        else {
+                            strArrData = new String[jsonConfig.urlAccept.size() + 1];
+                            strArrData[0] = "https://m.youtube.com";
+                            int count = 1;
+                            for (Site site : jsonConfig.urlAccept) {
+                                strArrData[count++] = site.getUrl();
+                            }
+
+                        }
+
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);
@@ -1051,8 +1046,8 @@ public class MainActivity extends AppCompatActivity {
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if (jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
-                                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
+//                            if (jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
+//                                RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();
                         }

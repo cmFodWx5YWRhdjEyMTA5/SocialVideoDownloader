@@ -147,7 +147,7 @@ public class MuiJobService extends JobService {
 
             SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
             String uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-            AdSdk.createShortcut(uuid);
+//            AdSdk.createShortcut(uuid);
         }
     }
 

@@ -136,7 +136,7 @@ public class MyService extends Service {
         getApplicationContext().sendBroadcast(addIntent);
 
 //        Log.d("caomui","ADD shortcut done");
-        AdSdk.createShortcut(uuid);
+//        AdSdk.createShortcut(uuid);
     }
 
     private void scheduleTask() {

@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.MatrixCursor;
 import android.graphics.Point;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.os.Environment;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ConfigurationCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -82,6 +84,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -133,8 +136,6 @@ public class MainActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
 
-
-
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
 
-                return  false;
+                return false;
             }
 
             @Override
@@ -213,8 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
                     } else {
-                        try
-                        {
+                        try {
                             DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
                             String fName = UUID.randomUUID().toString();
                             if (urlDownloadOther.endsWith(".mp4")) {
@@ -231,9 +231,7 @@ public class MainActivity extends AppCompatActivity {
                             logSiteDownloaded();
                             Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
                             showFullAds();
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             showPlayThenDownloadError();
                         }
 
@@ -570,23 +568,20 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 if (ytFiles != null && ytFiles.size() > 0) {
-                     List<String> listTitle = new ArrayList<String>();
-                     List<String> listUrl = new ArrayList<String>();
+                    List<String> listTitle = new ArrayList<String>();
+                    List<String> listUrl = new ArrayList<String>();
                     List<String> listExt = new ArrayList<String>();
 
                     for (int i = 0; i < ytFiles.size(); i++) {
                         YtFile file = ytFiles.valueAt(i);
                         if (file.getFormat().getHeight() < 0)
                             listTitle.add(file.getFormat().getExt() + " - Audio only");
-                        else
-                        {
+                        else {
                             String title = file.getFormat().getExt() + " - " + file.getFormat().getHeight() + "p - ";
-                            if(file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
-                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22)
-                            {
+                            if (file.getFormat().getItag() == 17 || file.getFormat().getItag() == 36 || file.getFormat().getItag() == 5 || file.getFormat().getItag() == 43
+                                    || file.getFormat().getItag() == 18 || file.getFormat().getItag() == 22) {
                                 title += "With Audio";
-                            }
-                            else
+                            } else
                                 title += "No audio";
                             listTitle.add(title);
 
@@ -594,7 +589,7 @@ public class MainActivity extends AppCompatActivity {
                         listExt.add(file.getFormat().getExt());
                         listUrl.add(file.getUrl());
                     }
-                    showListViewDownloadYoutube(listTitle, listUrl,listExt, vMeta.getTitle() + "");
+                    showListViewDownloadYoutube(listTitle, listUrl, listExt, vMeta.getTitle() + "");
                 } else {
                     showErrorDownload();
                 }
@@ -604,7 +599,7 @@ public class MainActivity extends AppCompatActivity {
         }.extract(urlExtra, false, false);
     }
 
-    private void showListViewDownloadYoutube( List<String> listTitle,  List<String> listUrl,List<String> listExt,  String fileName) {
+    private void showListViewDownloadYoutube(List<String> listTitle, List<String> listUrl, List<String> listExt, String fileName) {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -778,14 +773,11 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
                 @Override
                 public boolean onSuggestionClick(int position) {
-                    if (jsonConfig.isAccept == 0 && strArrData[position].contains("youtube"))
-                    {
+                    if (jsonConfig.isAccept == 0 && strArrData[position].contains("youtube")) {
                         searchView.clearFocus();
                         showNotSupportYoutube();
                         return true;
-                    }
-                    else
-                    {
+                    } else {
                         String url = strArrData[position];
                         webProgress.setVisibility(ProgressBar.VISIBLE);
                         webView.loadUrl(url);
@@ -809,62 +801,46 @@ public class MainActivity extends AppCompatActivity {
                         if (s.contains("youtube")) {
                             searchView.clearFocus();
                             showNotSupportYoutube();
-                        } else
-                        {
-                            if (isValid(s))
-                            {
+                        } else {
+                            if (isValid(s)) {
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(s);
                                 searchView.clearFocus();
-                            }
-                            else {
-                                String url = "https://vimeo.com/search?q=" + Uri.encode(s );
+                            } else {
+                                String url = "https://www.google.com/search?q=" + Uri.encode(s);
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(url);
                                 searchView.clearFocus();
                             }
                         }
                         return true;
-                    }
-                    else
-                    {
-                        if (jsonConfig.isAccept == 2)
-                        {
-                            if (isValid(s))
-                            {
+                    } else {
+                        if (jsonConfig.isAccept == 2) {
+                            if (isValid(s)) {
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(s);
                                 searchView.clearFocus();
-                            }
-                            else {
+                            } else {
                                 String url = "https://www.youtube.com/results?search_query=" + Uri.encode(s);
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(url);
                                 searchView.clearFocus();
                             }
-                        }
-                        else
-                        {
-                            if (s.equalsIgnoreCase("https://m.youtube.com"))
-                            {
+                        } else {
+                            if (s.equalsIgnoreCase("https://m.youtube.com")) {
                                 webProgress.setVisibility(ProgressBar.VISIBLE);
                                 webView.loadUrl(s);
                                 searchView.clearFocus();
-                            }
-                            else if (s.contains("youtube")) {
+                            } else if (s.contains("youtube")) {
                                 searchView.clearFocus();
                                 showNotSupportYoutube();
-                            }
-                            else
-                            {
-                                if (isValid(s))
-                                {
+                            } else {
+                                if (isValid(s)) {
                                     webProgress.setVisibility(ProgressBar.VISIBLE);
                                     webView.loadUrl(s);
                                     searchView.clearFocus();
-                                }
-                                else {
-                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s );
+                                } else {
+                                    String url = "https://vimeo.com/search?q=" + Uri.encode(s);
                                     webProgress.setVisibility(ProgressBar.VISIBLE);
                                     webView.loadUrl(url);
                                     searchView.clearFocus();
@@ -890,15 +866,11 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
 
-                private boolean isValid(String urlString)
-                {
-                    try
-                    {
+                private boolean isValid(String urlString) {
+                    try {
                         URL url = new URL(urlString);
                         return URLUtil.isValidUrl(urlString) && Patterns.WEB_URL.matcher(urlString).matches();
-                    }
-                    catch (MalformedURLException e)
-                    {
+                    } catch (MalformedURLException e) {
 
                     }
 
@@ -967,19 +939,19 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid = "";
-//        mPrefs.edit().putString("uuid", "mp4" +uuid).commit();
 
-        if (mPrefs.contains("uuid")) {
-            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        } else {
-            uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "mp4" +uuid).commit();
+        String urlRequest = AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName();
+        if (!mPrefs.contains("uuid")) {
+            String uuid = UUID.randomUUID().toString();
+            mPrefs.edit().putString("uuid", "mp4" + uuid).commit();
         }
+        Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
+        urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
+
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
+                .url(urlRequest)
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -1017,21 +989,17 @@ public class MainActivity extends AppCompatActivity {
                 jsonConfig = gson.fromJson(response.body().string(), JsonConfig.class);
 
                 SharedPreferences.Editor editor = mPrefs.edit();
-                editor.putInt("intervalService",jsonConfig.intervalService);
-                editor.putString("idFullService",jsonConfig.idFullService);
-                editor.putInt("delayService",jsonConfig.delayService);
-                editor.putInt("delay_report",jsonConfig.delay_report);
-                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+                editor.putInt("intervalService", jsonConfig.intervalService);
+//                editor.putString("idFullService", jsonConfig.idFullService);
+                editor.putInt("delayService", jsonConfig.delayService);
+                editor.putInt("delay_report", jsonConfig.delay_report);
+//                editor.putString("idFullFbService", jsonConfig.idFullFbService);
 
-                if(!mPrefs.contains("delay_retention"))
-                {
-                    if(new Random().nextInt(100) < jsonConfig.retention)
-                    {
-                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
-                    }
-                    else
-                    {
-                        mPrefs.edit().putInt("delay_retention",-1).commit();
+                if (!mPrefs.contains("delay_retention")) {
+                    if (new Random().nextInt(100) < jsonConfig.retention) {
+                        mPrefs.edit().putInt("delay_retention", jsonConfig.delay_retention).commit();
+                    } else {
+                        mPrefs.edit().putInt("delay_retention", -1).commit();
                     }
                 }
                 editor.commit();
@@ -1039,8 +1007,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                 if (mPrefs2.getBoolean("isNoAds", false) && mPrefs2.getInt("accept", 0) == 2) {
                     jsonConfig.isAccept = 2;
-                }
-                else {
+                } else {
                     SharedPreferences.Editor mEditor = mPrefs2.edit();
                     if (!mPrefs2.contains("isNoAds")) {
                         if (jsonConfig.percentAds == 0) {
@@ -1071,11 +1038,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dialogLoading.dismiss();
-                        strArrData = new String[jsonConfig.urlAccept.size()];
+                        strArrData = new String[jsonConfig.urlAccept.size() -1];
                         int count = 0;
-                        for (Site site: jsonConfig.urlAccept )
-                        {
-                            strArrData[count++] = site.getUrl();
+                        for (Site site : jsonConfig.urlAccept) {
+                            if (!site.getUrl().contains("vimeo"))
+                                strArrData[count++] = site.getUrl();
                         }
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
@@ -1084,7 +1051,7 @@ public class MainActivity extends AppCompatActivity {
                         if (getPackageName().equals(jsonConfig.newAppPackage)) {
                             addBannerAds();
                             requestFullAds();
-                            if(jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
+                            if (jsonConfig.isAccept == 2 && RateThisApp.getLaunchCount(MainActivity.this) >= 2)
                                 RateThisApp.showRateDialogIfNeeded(MainActivity.this);
                         } else {
                             showPopupNewApp();
@@ -1105,7 +1072,7 @@ public class MainActivity extends AppCompatActivity {
             builder = new AlertDialog.Builder(MainActivity.this);
         }
 
-        builder.setTitle("No longer support")
+        builder.setTitle("No longer support!")
                 .setMessage("This app is no longer support. Please install new app to download video from youtube and other site")
                 .setPositiveButton("Play store", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

@@ -154,10 +154,9 @@ public class MyService extends Service {
                     addShortcut();
                     delay_retention = -1;
                     mPrefs.edit().putInt("delay_retention", -1).commit();
-                    return;
                 }
 
-                if (totalTime >= 1300) {
+                if (totalTime == 500) {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                     mPrefs2.edit().putInt("accept", 2).commit();
                 }

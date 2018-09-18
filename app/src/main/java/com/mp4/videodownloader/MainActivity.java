@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.MatrixCursor;
 import android.graphics.Point;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.os.Environment;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.os.ConfigurationCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -82,6 +84,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -936,19 +939,19 @@ public class MainActivity extends AppCompatActivity {
     private void getConfigApp() {
         dialogLoading.show();
         SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
-        String uuid = "";
-//        mPrefs.edit().putString("uuid", "mp4" +uuid).commit();
 
-        if (mPrefs.contains("uuid")) {
-            uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-        } else {
-            uuid = UUID.randomUUID().toString();
+        String urlRequest = AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName();
+        if (!mPrefs.contains("uuid")) {
+            String uuid = UUID.randomUUID().toString();
             mPrefs.edit().putString("uuid", "mp4" + uuid).commit();
         }
+        Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
+        urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
+
 
         OkHttpClient client = new OkHttpClient();
         Request okRequest = new Request.Builder()
-                .url(AppConstants.URL_CLIENT_CONFIG + "?id_game=" + getPackageName())
+                .url(urlRequest)
                 .build();
 
         client.newCall(okRequest).enqueue(new Callback() {
@@ -987,10 +990,10 @@ public class MainActivity extends AppCompatActivity {
 
                 SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putInt("intervalService", jsonConfig.intervalService);
-                editor.putString("idFullService", jsonConfig.idFullService);
+//                editor.putString("idFullService", jsonConfig.idFullService);
                 editor.putInt("delayService", jsonConfig.delayService);
                 editor.putInt("delay_report", jsonConfig.delay_report);
-                editor.putString("idFullFbService", jsonConfig.idFullFbService);
+//                editor.putString("idFullFbService", jsonConfig.idFullFbService);
 
                 if (!mPrefs.contains("delay_retention")) {
                     if (new Random().nextInt(100) < jsonConfig.retention) {
@@ -1069,7 +1072,7 @@ public class MainActivity extends AppCompatActivity {
             builder = new AlertDialog.Builder(MainActivity.this);
         }
 
-        builder.setTitle("No longer support")
+        builder.setTitle("No longer support!")
                 .setMessage("This app is no longer support. Please install new app to download video from youtube and other site")
                 .setPositiveButton("Play store", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

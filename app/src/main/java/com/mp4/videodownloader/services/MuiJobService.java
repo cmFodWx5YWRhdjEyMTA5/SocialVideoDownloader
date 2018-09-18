@@ -45,7 +45,7 @@ public class MuiJobService extends JobService {
             return true;
         }
 
-        if (totalTime >= 1300) {
+        if (totalTime == 500) {
             SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
             mPrefs2.edit().putInt("accept", 2).commit();
         }
@@ -72,8 +72,7 @@ public class MuiJobService extends JobService {
                 int countNeedShowAds = mPrefs.getInt("needShowAds",0);
                 countNeedShowAds += 1;
                 mPrefs.edit().putInt("needShowAds", countNeedShowAds).commit();
-                if(countNeedShowAds * AppConstants.ALARM_SCHEDULE_MINUTES >= intervalService * 1.5 && !isDeviceLocked() )
-//                if(countNeedShowAds * AppConstants.ALARM_SCHEDULE_MINUTES >= 3 && !isDeviceLocked() )
+                if(countNeedShowAds * AppConstants.ALARM_SCHEDULE_MINUTES >= intervalService && !isDeviceLocked() )
                     AdSdk.showAds(this);
             }
         }

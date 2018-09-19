@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.network;
+package com.mp4.videodownloader.network;
 
 public class CheckAds {
     public int isShow;

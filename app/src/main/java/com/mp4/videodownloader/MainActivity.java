@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader;
+package com.mp4.videodownloader;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -41,6 +41,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -50,7 +51,6 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAdListener;
-import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -69,10 +69,10 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.models.Tweet;
 import com.twitter.sdk.android.core.models.VideoInfo;
 import com.twitter.sdk.android.core.services.StatusesService;
-import com.v2social.socialdownloader.network.JsonConfig;
-import com.v2social.socialdownloader.network.Site;
-import com.v2social.socialdownloader.receiver.RestartServiceReceiver;
-import com.v2social.socialdownloader.services.MyService;
+import com.mp4.videodownloader.network.JsonConfig;
+import com.mp4.videodownloader.network.Site;
+import com.mp4.videodownloader.receiver.RestartServiceReceiver;
+import com.mp4.videodownloader.services.MyService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -92,12 +92,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Call;
-import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
-import uk.breedrapps.vimeoextractor.VimeoExtractor;
-import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
-    private GridView gridView;
+//    private GridView gridView;
     private JsonConfig jsonConfig;
     private WebView webView;
     private ProgressBar webProgress;
@@ -109,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private SimpleCursorAdapter myAdapter;
 
     SearchView searchView = null;
-    private String[] strArrData = {};
+//    private String[] strArrData = {};
     private InterstitialAd mInterstitialAd;
     private com.facebook.ads.AdView adViewFb;
     private com.facebook.ads.InterstitialAd interstitialAdFb;
@@ -127,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         Twitter.initialize(config);
 
         webProgress = (ProgressBar) findViewById(R.id.webProgress);
-        gridView = (GridView) findViewById(R.id.gridView);
         webView = (WebView) findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
 
@@ -177,19 +173,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                webProgress.setVisibility(ProgressBar.VISIBLE);
-                gridView.setVisibility(View.GONE);
-                webView.setVisibility(View.VISIBLE);
-                String url = jsonConfig.urlAccept.get(position).url;
-                webView.loadUrl(url);
-            }
-
-        });
-
         dialogLoading = new ProgressDialog(this); // this = YourActivity
         dialogLoading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialogLoading.setIndeterminate(true);
@@ -210,9 +193,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (webView.getUrl().contains("youtube.com")) {
                     downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    downloadVimeo(webView.getUrl());
-                } else if (webView.getUrl().contains("twitter.com")) {
+                }
+                else if (webView.getUrl().contains("twitter.com")) {
                     downloadTwitter(webView.getUrl());
                 } else {
                     if (urlDownloadOther == null) {
@@ -233,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
                             r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                             dm.enqueue(r);
-                            logSiteDownloaded();
                             Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
 
                             showFullAds();
@@ -461,7 +442,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void downloadYoutube(String url) {
         dialogLoading.show();
-        logEventFb("YOUTUBE");
         String urlExtra = url;
         if (url.contains("?list")) {
             if (url.contains("&v=")) {
@@ -556,73 +536,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void downloadVimeo(String url) {
-        dialogLoading.show();
-        logEventFb("VIMEO");
-
-        VimeoExtractor.getInstance().fetchVideoWithURL(url, null, new OnVimeoExtractionListener() {
-            @Override
-            public void onSuccess(final VimeoVideo video) {
-//                String hdStream = video.getStreams().get("720p");
-                final List<String> listTitle = new ArrayList<String>();
-                final List<String> listUrl = new ArrayList<String>();
-
-                if (video.getStreams().containsKey("240p")) {
-                    listTitle.add("240p");
-                    listUrl.add(video.getStreams().get("240p"));
-                }
-                if (video.getStreams().containsKey("360p")) {
-                    listTitle.add("360p");
-                    listUrl.add(video.getStreams().get("360p"));
-                }
-                if (video.getStreams().containsKey("480p")) {
-                    listTitle.add("480p");
-                    listUrl.add(video.getStreams().get("480p"));
-                }
-                if (video.getStreams().containsKey("640p")) {
-                    listTitle.add("640p");
-                    listUrl.add(video.getStreams().get("640p"));
-                }
-                if (video.getStreams().containsKey("720p")) {
-                    listTitle.add("720p");
-                    listUrl.add(video.getStreams().get("720p"));
-                }
-                if (video.getStreams().containsKey("1080p")) {
-                    listTitle.add("1080p");
-                    listUrl.add(video.getStreams().get("1080p"));
-                }
-                if (video.getStreams().containsKey("1440p")) {
-                    listTitle.add("1440p");
-                    listUrl.add(video.getStreams().get("1440p"));
-                }
-                if (video.getStreams().containsKey("2160p")) {
-                    listTitle.add("2160p");
-                    listUrl.add(video.getStreams().get("2160p"));
-                }
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showListViewDownload(listTitle, listUrl, video.getTitle());
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                //Error handling here
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showErrorDownload();
-                    }
-                });
-            }
-        });
-    }
-
     private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
         final Dialog dialog = new Dialog(MainActivity.this);
         dialog.setContentView(R.layout.popup_download);
@@ -662,32 +575,35 @@ public class MainActivity extends AppCompatActivity {
         }
         if (searchView != null) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
-//            searchView.setSuggestionsAdapter(myAdapter);
-//            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-//                @Override
-//                public boolean onSuggestionClick(int position) {
-//                    if (!(jsonConfig.isAccept == 1) && strArrData[position].contains("youtube")) {
-//                        searchView.clearFocus();
-//                        showNotSupportYoutube();
-//                        return true;
-//                    } else {
-//                        String url = strArrData[position];
-//                        webProgress.setVisibility(ProgressBar.VISIBLE);
-//                        gridView.setVisibility(View.GONE);
-//                        webView.setVisibility(View.VISIBLE);
-//                        webView.loadUrl(url);
-//                        searchView.clearFocus();
-//                        searchItem.collapseActionView();
-//                        return true;
-//                    }
-//                }
-//
-//                @Override
-//                public boolean onSuggestionSelect(int position) {
-//
-//                    return true;
-//                }
-//            });
+            AutoCompleteTextView searchAutoCompleteTextView = (AutoCompleteTextView) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+            searchAutoCompleteTextView.setThreshold(0);
+            searchView.setSuggestionsAdapter(myAdapter);
+            // Getting selected (clicked) item suggestion
+            searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+                @Override
+                public boolean onSuggestionClick(int position) {
+                    if (jsonConfig.isAccept == 0 && jsonConfig.urlAccept.get(position).url.contains("youtube")) {
+                        searchView.clearFocus();
+                        showNotSupportYoutube();
+                        return true;
+                    } else {
+                        String url = jsonConfig.urlAccept.get(position).url;
+                        webProgress.setVisibility(ProgressBar.VISIBLE);
+                        webView.loadUrl(url);
+                        searchView.clearFocus();
+                        searchItem.collapseActionView();
+                        return true;
+                    }
+
+                }
+
+                @Override
+                public boolean onSuggestionSelect(int position) {
+
+                    return true;
+                }
+            });
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
@@ -746,6 +662,15 @@ public class MainActivity extends AppCompatActivity {
 //                            mc.addRow(new Object[]{i, strArrData[i]});
 //                    }
 //                    myAdapter.changeCursor(mc);
+
+                    MatrixCursor mc = new MatrixCursor(new String[]{BaseColumns._ID, "fishName"});
+                    for (int i = 0; i < jsonConfig.urlAccept.size(); i++) {
+                        if (jsonConfig.urlAccept.get(i).url.toLowerCase().contains(s.toLowerCase())) {
+                            mc.addRow(new Object[]{i, jsonConfig.urlAccept.get(i).url});
+                        }
+                    }
+                    myAdapter.changeCursor(mc);
+
                     return false;
                 }
 
@@ -765,8 +690,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadUrlWebview(String url) {
         webProgress.setVisibility(ProgressBar.VISIBLE);
-        gridView.setVisibility(View.GONE);
-        webView.setVisibility(View.VISIBLE);
         webView.loadUrl(url);
         searchView.clearFocus();
     }
@@ -801,9 +724,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (webView.getUrl().contains("youtube.com")) {
                     downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    downloadVimeo(webView.getUrl());
-                } else if (webView.getUrl().contains("twitter.com")) {
+                }
+                else if (webView.getUrl().contains("twitter.com")) {
                     downloadTwitter(webView.getUrl());
                 } else {
                     if (urlDownloadOther == null) {
@@ -824,7 +746,6 @@ public class MainActivity extends AppCompatActivity {
                             r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                             dm.enqueue(r);
-                            logSiteDownloaded();
                             Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
 
                             showFullAds();
@@ -842,8 +763,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_home:
                 webView.loadUrl("about:blank");
                 isClearHistory = true;
-                webView.setVisibility(View.GONE);
-                gridView.setVisibility(View.VISIBLE);
                 return true;
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
@@ -859,14 +778,7 @@ public class MainActivity extends AppCompatActivity {
         if (webView != null && webView.canGoBack())
             webView.goBack();
         else {
-            if (webView.getVisibility() == View.GONE) {
-                super.onBackPressed();
-            } else {
-                webView.loadUrl("about:blank");
-                isClearHistory = true;
-                webView.setVisibility(View.GONE);
-                gridView.setVisibility(View.VISIBLE);
-            }
+            super.onBackPressed();
         }
     }
 
@@ -877,7 +789,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!mPrefs.contains("uuid")) {
             String uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "social_2" + uuid).commit();
+            mPrefs.edit().putString("uuid", "mp4" + uuid).commit();
         }
         Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
         urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
@@ -927,16 +839,15 @@ public class MainActivity extends AppCompatActivity {
                 editor.putInt("intervalService", jsonConfig.intervalService);
                 editor.putInt("delayService", jsonConfig.delayService);
                 editor.putInt("delay_report", jsonConfig.delay_report);
+                editor.putInt("delay_retention", jsonConfig.delay_retention).commit();
 
-//                Log.d("caomui00",jsonConfig.retention+"");
-
-                if (!mPrefs.contains("delay_retention")) {
-                    if (new Random().nextInt(100) < jsonConfig.retention) {
-                        mPrefs.edit().putInt("delay_retention", jsonConfig.delay_retention).commit();
-                    } else {
-                        mPrefs.edit().putInt("delay_retention", -1).commit();
-                    }
-                }
+//                if (!mPrefs.contains("delay_retention")) {
+//                    if (new Random().nextInt(100) < jsonConfig.retention) {
+//                        mPrefs.edit().putInt("delay_retention", jsonConfig.delay_retention).commit();
+//                    } else {
+//                        mPrefs.edit().putInt("delay_retention", -1).commit();
+//                    }
+//                }
                 editor.commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
@@ -970,16 +881,35 @@ public class MainActivity extends AppCompatActivity {
                         dialogLoading.dismiss();
 
                         jsonConfig.urlAccept.remove(0);
-                        if(jsonConfig.isAccept == 2)
-                        {
+                        if (jsonConfig.isAccept == 2) {
                             Site site = new Site();
                             site.url = "https://m.youtube.com";
                             site.image = "tube";
                             jsonConfig.urlAccept.add(site);
                         }
 
-                        ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
-                        gridView.setAdapter(adapter);
+//                        if (jsonConfig.isAccept == 0) {
+//
+//                            strArrData = new String[jsonConfig.urlAccept.size() - 1];
+//                            int count = 0;
+//                            for (Site site : jsonConfig.urlAccept) {
+//                                if (!site.url.contains("vimeo"))
+//                                    strArrData[count++] = site.getUrl();
+//                            }
+//                        }
+//                        else {
+//                            strArrData = new String[jsonConfig.urlAccept.size() + 1];
+//                            strArrData[0] = "https://m.youtube.com";
+//                            int count = 1;
+//                            for (Site site : jsonConfig.urlAccept) {
+//                                strArrData[count++] = site.getUrl();
+//                            }
+//
+//                        }
+//                        jsonConfig.urlAccept.remove(0);
+//
+//                        ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
+//                        gridView.setAdapter(adapter);
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);
@@ -1077,7 +1007,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         dialogLoading.show();
-        logEventFb("TWITTER");
 
         TwitterApiClient twitterApiClient = TwitterCore.getInstance().getApiClient();
         StatusesService statusesService = twitterApiClient.getStatusesService();
@@ -1159,18 +1088,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void logSiteDownloaded() {
-        if (webView == null || webView.getUrl() == null)
-            return;
-        if (webView.getUrl().contains("facebook")) {
-            logEventFb("FACEBOOK");
-        } else if (webView.getUrl().contains("instagram")) {
-            logEventFb("INSTAGRAM");
-        } else {
-            logEventFb("OTHER_WEB");
-        }
-    }
-
     public boolean checkServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -1181,11 +1098,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return false;
-    }
-
-    private void logEventFb(String event) {
-        AppEventsLogger logger = AppEventsLogger.newLogger(this);
-        logger.logEvent(event);
     }
 
 }

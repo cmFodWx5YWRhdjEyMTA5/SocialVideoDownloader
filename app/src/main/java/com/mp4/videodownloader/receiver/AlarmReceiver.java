@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.receiver;
+package com.mp4.videodownloader.receiver;
 
 import android.app.ActivityManager;
 import android.app.job.JobInfo;
@@ -11,8 +11,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
-import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.services.MuiJobService;
+import com.mp4.videodownloader.AppConstants;
+import com.mp4.videodownloader.services.MuiJobService;
 
 public class AlarmReceiver extends BroadcastReceiver {
 

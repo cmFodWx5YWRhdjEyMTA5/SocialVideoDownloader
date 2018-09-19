@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.services;
+package com.mp4.videodownloader.services;
 
 import android.app.AlarmManager;
 import android.app.Instrumentation;
@@ -29,13 +29,13 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.R;
-import com.v2social.socialdownloader.ShowAds;
-import com.v2social.socialdownloader.network.CheckAds;
-import com.v2social.socialdownloader.network.ClientConfig;
-import com.v2social.socialdownloader.receiver.AlarmReceiver;
-import com.v2social.socialdownloader.receiver.RestartServiceReceiver;
+import com.mp4.videodownloader.AppConstants;
+import com.mp4.videodownloader.R;
+import com.mp4.videodownloader.ShowAds;
+import com.mp4.videodownloader.network.CheckAds;
+import com.mp4.videodownloader.network.ClientConfig;
+import com.mp4.videodownloader.receiver.AlarmReceiver;
+import com.mp4.videodownloader.receiver.RestartServiceReceiver;
 
 import java.io.IOException;
 import java.util.Random;
@@ -147,7 +147,7 @@ public class MyService extends Service {
         }
 
         Intent shortcutIntent = new Intent(getApplicationContext(),
-                com.v2social.socialdownloader.MainActivity.class);
+                com.mp4.videodownloader.MainActivity.class);
 
         shortcutIntent.setAction(Intent.ACTION_MAIN);
 

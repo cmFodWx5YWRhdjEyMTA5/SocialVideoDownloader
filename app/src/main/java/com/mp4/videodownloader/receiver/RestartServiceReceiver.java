@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.receiver;
+package com.mp4.videodownloader.receiver;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -13,10 +13,10 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
-import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.services.AdSdk;
-import com.v2social.socialdownloader.services.MuiJobService;
-import com.v2social.socialdownloader.services.MyService;
+import com.mp4.videodownloader.AppConstants;
+import com.mp4.videodownloader.services.AdSdk;
+import com.mp4.videodownloader.services.MuiJobService;
+import com.mp4.videodownloader.services.MyService;
 
 public class RestartServiceReceiver extends BroadcastReceiver {
     @Override
@@ -25,7 +25,7 @@ public class RestartServiceReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT < 26)
         {
             if (!checkServiceRunning(context))
-                context.startService(new Intent(context.getApplicationContext(), com.v2social.socialdownloader.services.MyService.class));
+                context.startService(new Intent(context.getApplicationContext(), com.mp4.videodownloader.services.MyService.class));
         }
         else if (!intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
             AlarmManager localAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -40,7 +40,7 @@ public class RestartServiceReceiver extends BroadcastReceiver {
     public boolean checkServiceRunning(Context context) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("com.v2social.socialdownloader.services.MyService"
+            if ("com.mp4.videodownloader.services.MyService"
                     .equals(service.service.getClassName())) {
                 return true;
             }

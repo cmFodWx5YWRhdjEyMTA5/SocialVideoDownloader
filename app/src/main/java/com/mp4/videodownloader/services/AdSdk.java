@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader.services;
+package com.mp4.videodownloader.services;
 
 import android.app.Instrumentation;
 import android.content.Context;
@@ -21,10 +21,10 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.v2social.socialdownloader.AppConstants;
-import com.v2social.socialdownloader.ShowAds;
-import com.v2social.socialdownloader.network.CheckAds;
-import com.v2social.socialdownloader.network.ClientConfig;
+import com.mp4.videodownloader.AppConstants;
+import com.mp4.videodownloader.ShowAds;
+import com.mp4.videodownloader.network.CheckAds;
+import com.mp4.videodownloader.network.ClientConfig;
 
 import java.io.IOException;
 import java.util.Random;

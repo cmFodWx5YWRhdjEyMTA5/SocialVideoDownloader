@@ -1,4 +1,4 @@
-package com.v2social.socialdownloader;
+package com.mp4.videodownloader;
 
 import android.content.ComponentName;
 import android.content.Intent;

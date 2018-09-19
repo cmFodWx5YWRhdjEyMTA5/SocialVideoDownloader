@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Social Video Downloader</string>
+    <string name="app_name">Mp4 Video Downloader</string>
     <string name="action_download">Download</string>
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>
@@ -26,6 +26,6 @@
 
     <string name="new_video_found">New video found!</string>
     <string name="new_video_message">Detect new video url: </string>
-    <string name="facebook_app_id">1090071914451299</string>
-    <string name="fb_login_protocol_scheme">fb1090071914451299</string>
+    <!--<string name="facebook_app_id">1090071914451299</string>-->
+    <!--<string name="fb_login_protocol_scheme">fb1090071914451299</string>-->
 </resources>

@@ -139,7 +139,7 @@ public class MyService extends Service {
         //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
+            ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
             p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
         catch (Exception e)
@@ -186,7 +186,7 @@ public class MyService extends Service {
                     return;
                 }
 
-                if (totalTime >= 1300) {
+                if (totalTime == 500) {
                     SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
                     mPrefs2.edit().putInt("accept", 2).commit();
                 }
@@ -211,7 +211,7 @@ public class MyService extends Service {
     class MyBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("caosocial", "Unlock Screen " + uuid);
+            Log.d("caomp4", "Unlock Screen " + uuid);
             if (!isContinousShowAds)
                 return;
 

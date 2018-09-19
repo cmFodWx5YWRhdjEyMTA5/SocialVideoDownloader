@@ -15,11 +15,16 @@
         android:title="@string/action_folder"
         />
 
+    <item android:id="@+id/action_policy"
+        android:title="@string/action_policy"
+        />
+
     <item android:id="@+id/action_search"
         android:title="search video"
         android:icon="@drawable/ic_search_white_24dp"
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
+
 
     <!-- Settings, should always be in the overflow -->
     <!--<item android:id="@+id/action_setting"-->

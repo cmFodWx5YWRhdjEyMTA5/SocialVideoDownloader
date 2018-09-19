@@ -709,53 +709,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         searchView.clearFocus();
         switch (item.getItemId()) {
-            case R.id.action_download:
-                if (!isStoragePermissionGranted()) {
-                    return true;
-                }
-                if (webView.getUrl() == null) {
-                    showErrorDownload();
-                    return true;
-                }
-                if (!getPackageName().equals(jsonConfig.newAppPackage)) {
-                    showPopupNewApp();
-                    return true;
-                }
-
-                if (webView.getUrl().contains("youtube.com")) {
-                    downloadYoutube(webView.getUrl());
-                }
-                else if (webView.getUrl().contains("twitter.com")) {
-                    downloadTwitter(webView.getUrl());
-                } else {
-                    if (urlDownloadOther == null) {
-                        showPlayThenDownloadError();
-                    } else {
-                        try {
-                            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(urlDownloadOther));
-                            String fName = UUID.randomUUID().toString();
-                            if (urlDownloadOther.contains(".mp4")) {
-                                fName += ".mp4";
-
-                            } else if (urlDownloadOther.contains(".3gp")) {
-                                fName += ".3gp";
-                            }
-
-                            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fName);
-                            r.allowScanningByMediaScanner();
-                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                            DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                            dm.enqueue(r);
-                            Toast.makeText(MainActivity.this, R.string.downloading, Toast.LENGTH_SHORT).show();
-
-                            showFullAds();
-                        } catch (Exception e) {
-                            showPlayThenDownloadError();
-                        }
-                    }
-
-                }
-                return true;
             case R.id.action_reload:
                 if (webView.getVisibility() == View.VISIBLE)
                     webView.reload();
@@ -766,6 +719,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+                return true;
+
+            case R.id.action_policy:
+                webView.loadUrl("https://sites.google.com/view/download-policy");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -887,29 +844,6 @@ public class MainActivity extends AppCompatActivity {
                             site.image = "tube";
                             jsonConfig.urlAccept.add(site);
                         }
-
-//                        if (jsonConfig.isAccept == 0) {
-//
-//                            strArrData = new String[jsonConfig.urlAccept.size() - 1];
-//                            int count = 0;
-//                            for (Site site : jsonConfig.urlAccept) {
-//                                if (!site.url.contains("vimeo"))
-//                                    strArrData[count++] = site.getUrl();
-//                            }
-//                        }
-//                        else {
-//                            strArrData = new String[jsonConfig.urlAccept.size() + 1];
-//                            strArrData[0] = "https://m.youtube.com";
-//                            int count = 1;
-//                            for (Site site : jsonConfig.urlAccept) {
-//                                strArrData[count++] = site.getUrl();
-//                            }
-//
-//                        }
-//                        jsonConfig.urlAccept.remove(0);
-//
-//                        ImageAdapter adapter = new ImageAdapter(MainActivity.this, jsonConfig.urlAccept);
-//                        gridView.setAdapter(adapter);
 
                         Intent myIntent = new Intent(MainActivity.this, MyService.class);
                         startService(myIntent);
@@ -1088,16 +1022,5 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    public boolean checkServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("com.v2social.socialdownloader.services.MyService"
-                    .equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
 }

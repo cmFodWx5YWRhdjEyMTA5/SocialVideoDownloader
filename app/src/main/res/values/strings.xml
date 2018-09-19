@@ -4,6 +4,7 @@
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>
     <string name="action_folder">Download Folder</string>
+    <string name="action_policy">Privacy policy</string>
     <string name="action_rating">Rating and Review</string>
     <string name="action_feedback">Feedback</string>
     <string name="error_download_title">Not support</string>

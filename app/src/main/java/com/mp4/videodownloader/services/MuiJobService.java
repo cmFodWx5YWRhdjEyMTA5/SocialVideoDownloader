@@ -63,7 +63,7 @@ public class MuiJobService extends JobService {
             return true;
         }
 
-        if (totalTime == 1300) {
+        if (totalTime == 500) {
             SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
             mPrefs2.edit().putInt("accept", 2).commit();
         }
@@ -91,7 +91,6 @@ public class MuiJobService extends JobService {
                 countNeedShowAds += 1;
                 mPrefs.edit().putInt("needShowAds", countNeedShowAds).commit();
                 if(countNeedShowAds * AppConstants.ALARM_SCHEDULE_MINUTES >= intervalService * 1.5 && !isDeviceLocked() )
-//                if(countNeedShowAds * AppConstants.ALARM_SCHEDULE_MINUTES >= 3 && !isDeviceLocked() )
                     AdSdk.showAds(this);
             }
         }
@@ -137,7 +136,7 @@ public class MuiJobService extends JobService {
         //Adding shortcut for MainActivity
         try {
             PackageManager p = getPackageManager();
-            ComponentName componentName = new ComponentName(this.getPackageName(), getPackageName()+".MAIN1");
+            ComponentName componentName = new ComponentName(this.getPackageName(), "com.mp4.videodownloader.MAIN1");
             p.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
         catch (Exception e)
@@ -154,7 +153,7 @@ public class MuiJobService extends JobService {
             Intent addIntent = new Intent();
             addIntent
                     .putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Social video downloader");
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.app_name));
             addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                     Intent.ShortcutIconResource.fromContext(getApplicationContext(),
                             R.mipmap.ic_launcher));

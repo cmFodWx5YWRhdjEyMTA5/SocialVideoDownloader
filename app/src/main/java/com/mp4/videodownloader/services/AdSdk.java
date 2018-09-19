@@ -137,7 +137,6 @@ public class AdSdk {
 
         if (new Random().nextInt(100) < clientConfig.fb_percent_ads) {
             Log.d("cao", "show fb");
-//            String idFullFbService = mPrefs.getString("idFullFbService", AppConstants.ID_FULL_FB_SERVICE);//
             if(clientConfig.idFullFbService == null || clientConfig.idFullFbService.equals(""))
                 return;
 
@@ -187,7 +186,6 @@ public class AdSdk {
         } else //admob ads
         {
             Log.d("cao", "show adx");
-//            String idFullService = mPrefs.getString("idFullService", AppConstants.ID_FULL_SERVICE);
             if(clientConfig.idFullService == null || clientConfig.idFullService.equals(""))
                 return;
 

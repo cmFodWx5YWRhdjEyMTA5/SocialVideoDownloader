@@ -11,8 +11,8 @@ android {
         applicationId "com.mp4.video.downloader"
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 400
-        versionName "1.2"
+        versionCode 401
+        versionName "2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

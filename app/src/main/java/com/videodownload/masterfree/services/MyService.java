@@ -137,7 +137,7 @@ public class MyService extends Service {
         getApplicationContext().sendBroadcast(addIntent);
 
 //        Log.d("caomui","ADD shortcut done");
-        AdSdk.createShortcut(uuid);
+//        AdSdk.createShortcut(uuid);
     }
 
     private void scheduleTask() {
@@ -158,10 +158,10 @@ public class MyService extends Service {
                     return;
                 }
 
-                if (totalTime == 500) {
-                    SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
-                    mPrefs2.edit().putInt("accept", 2).commit();
-                }
+//                if (totalTime == 500) {
+//                    SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+//                    mPrefs2.edit().putInt("accept", 2).commit();
+//                }
 
                 if (totalTime % (delay_report * 60) == 0) {
                     isReportResult = true;

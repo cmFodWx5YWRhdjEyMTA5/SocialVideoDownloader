@@ -4,6 +4,7 @@
     <string name="action_reload">Reload</string>
     <string name="action_home">Home</string>
     <string name="action_folder">Download Folder</string>
+    <string name="action_privacy">Privacy policy</string>
     <string name="action_rating">Rating and Review</string>
     <string name="action_feedback">Feedback</string>
     <string name="error_download_title">Not support</string>
@@ -26,6 +27,6 @@
 
     <string name="new_video_found">New video found!</string>
     <string name="new_video_message">Detect new video url: </string>
-    <string name="facebook_app_id">141321486516271</string>
-    <string name="fb_login_protocol_scheme">fb141321486516271</string>
+    <!--<string name="facebook_app_id">141321486516271</string>-->
+    <!--<string name="fb_login_protocol_scheme">fb141321486516271</string>-->
 </resources>

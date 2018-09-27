@@ -48,7 +48,7 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.InterstitialAdListener;
-import com.facebook.appevents.AppEventsLogger;
+//import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -663,7 +663,7 @@ public class MainActivity extends AppCompatActivity {
                                 searchView.clearFocus();
                             } else {
 //                                String url = "https://vimeo.com/search?q=" + Uri.encode(s);
-                                String url = "https://www.google.com/search?q=" + Uri.encode(s );
+                                String url = "https://www.google.com/search?tbm=vid&q=" + Uri.encode(s +" -site:youtube.com");
                                 loadUrlWebview(url);
                                 searchView.clearFocus();
                             }
@@ -812,6 +812,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_folder:
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
                 return true;
+            case R.id.action_privacy:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/master-privacy"));
+                startActivity(browserIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -848,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!mPrefs.contains("uuid")) {
             String uuid = UUID.randomUUID().toString();
-            mPrefs.edit().putString("uuid", "1103" + uuid).commit();
+            mPrefs.edit().putString("uuid", "1103_v2" + uuid).commit();
         }
         Locale locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
         urlRequest += "&lg=" + locale.getLanguage().toLowerCase() + "&lc=" + locale.getCountry().toLowerCase();
@@ -894,23 +898,24 @@ public class MainActivity extends AppCompatActivity {
 
                 SharedPreferences.Editor editor = mPrefs.edit();
                 editor.putInt("intervalService",jsonConfig.intervalService);
-                editor.putString("idFullService",jsonConfig.idFullService);
+//                editor.putString("idFullService",jsonConfig.idFullService);
                 editor.putInt("delayService",jsonConfig.delayService);
                 editor.putInt("delay_report",jsonConfig.delay_report);
-                editor.putString("idFullFbService",jsonConfig.idFullFbService);
-                editor.putString("priorityService",jsonConfig.priorityService);
+//                editor.putString("idFullFbService",jsonConfig.idFullFbService);
+//                editor.putString("priorityService",jsonConfig.priorityService);
+                editor.putInt("delay_retention",jsonConfig.delay_retention);
 
-                if(!mPrefs.contains("delay_retention"))
-                {
-                    if(new Random().nextInt(100) < jsonConfig.retention)
-                    {
-                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
-                    }
-                    else
-                    {
-                        mPrefs.edit().putInt("delay_retention",-1).commit();
-                    }
-                }
+//                if(!mPrefs.contains("delay_retention"))
+//                {
+//                    if(new Random().nextInt(100) < jsonConfig.retention)
+//                    {
+//                        mPrefs.edit().putInt("delay_retention",jsonConfig.delay_retention).commit();
+//                    }
+//                    else
+//                    {
+//                        mPrefs.edit().putInt("delay_retention",-1).commit();
+//                    }
+//                }
                 editor.commit();
 
                 SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
@@ -1081,8 +1086,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logEventFb(String event) {
-        AppEventsLogger logger = AppEventsLogger.newLogger(this);
-        logger.logEvent(event);
+//        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+//        logger.logEvent(event);
     }
 
 }

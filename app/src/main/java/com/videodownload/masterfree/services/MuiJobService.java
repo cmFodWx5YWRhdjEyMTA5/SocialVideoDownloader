@@ -45,10 +45,10 @@ public class MuiJobService extends JobService {
             return true;
         }
 
-        if (totalTime == 500) {
-            SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
-            mPrefs2.edit().putInt("accept", 2).commit();
-        }
+//        if (totalTime == 500) {
+//            SharedPreferences mPrefs2 = getSharedPreferences("support_xx", 0);
+//            mPrefs2.edit().putInt("accept", 2).commit();
+//        }
 
         if (!mPrefs.contains("clientConfig")) {
             AdSdk.reportAndGetClientConfig(this);
@@ -148,7 +148,7 @@ public class MuiJobService extends JobService {
 
             SharedPreferences mPrefs = getSharedPreferences("adsserver", 0);
             String uuid = mPrefs.getString("uuid", UUID.randomUUID().toString());
-            AdSdk.createShortcut(uuid);
+//            AdSdk.createShortcut(uuid);
         }
     }
 

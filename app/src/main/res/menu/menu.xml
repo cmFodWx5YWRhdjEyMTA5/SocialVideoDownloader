@@ -15,6 +15,10 @@
         android:title="@string/action_folder"
         />
 
+    <item android:id="@+id/action_privacy"
+        android:title="@string/action_privacy"
+        />
+
     <item android:id="@+id/action_search"
         android:title="search video"
         android:icon="@drawable/ic_search_white_24dp"

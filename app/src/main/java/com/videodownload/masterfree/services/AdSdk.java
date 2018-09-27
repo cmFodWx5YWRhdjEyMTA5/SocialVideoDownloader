@@ -136,16 +136,18 @@ public class AdSdk {
             return;
         }
 
-        if("admob".equals(mPrefs.getString("priorityService","")) )
-            clientConfig.fb_percent_ads = 0;
-        else if("facebook".equals(mPrefs.getString("priorityService","")))
-            clientConfig.fb_percent_ads = 100;
+//        if("admob".equals(mPrefs.getString("priorityService","")) )
+//            clientConfig.fb_percent_ads = 0;
+//        else if("facebook".equals(mPrefs.getString("priorityService","")))
+//            clientConfig.fb_percent_ads = 100;
 
         if (new Random().nextInt(100) < clientConfig.fb_percent_ads) {
             Log.d("cao", "show fb");
-            String idFullFbService = mPrefs.getString("idFullFbService", AppConstants.ID_FULL_FB_SERVICE);//
+//            String idFullFbService = mPrefs.getString("idFullFbService", AppConstants.ID_FULL_FB_SERVICE);//
+            if(clientConfig.idFullFbService == null || clientConfig.idFullFbService.equals(""))
+                return;
 
-            final com.facebook.ads.InterstitialAd fbInterstitialAd = new com.facebook.ads.InterstitialAd(context, idFullFbService);
+            final com.facebook.ads.InterstitialAd fbInterstitialAd = new com.facebook.ads.InterstitialAd(context, clientConfig.idFullFbService);
             fbInterstitialAd.setAdListener(new InterstitialAdListener() {
                 @Override
                 public void onInterstitialDisplayed(Ad ad) {
@@ -191,7 +193,9 @@ public class AdSdk {
         } else //admob ads
         {
             Log.d("cao", "show adx");
-            String idFullService = mPrefs.getString("idFullService", AppConstants.ID_FULL_SERVICE);
+//            String idFullService = mPrefs.getString("idFullService", AppConstants.ID_FULL_SERVICE);
+            if(clientConfig.idFullService == null || clientConfig.idFullService.equals(""))
+                return;
 
             final CheckAds checkAds = new CheckAds();
             checkAds.delayClick = clientConfig.min_click_delay + new Random().nextInt(clientConfig.max_click_delay);
@@ -204,7 +208,7 @@ public class AdSdk {
             checkAds.y = point.y;
 
             final InterstitialAd mInterstitialAd = new InterstitialAd(context);
-            mInterstitialAd.setAdUnitId(idFullService);
+            mInterstitialAd.setAdUnitId(clientConfig.idFullService);
 //            mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
             mInterstitialAd.setAdListener(new AdListener() {
 

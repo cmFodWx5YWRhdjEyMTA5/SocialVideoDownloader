@@ -78,9 +78,9 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
-import uk.breedrapps.vimeoextractor.VimeoExtractor;
-import uk.breedrapps.vimeoextractor.VimeoVideo;
+//import uk.breedrapps.vimeoextractor.OnVimeoExtractionListener;
+//import uk.breedrapps.vimeoextractor.VimeoExtractor;
+//import uk.breedrapps.vimeoextractor.VimeoVideo;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -194,9 +194,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if (webView.getUrl().contains("youtube.com")) {
                     downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    downloadVimeo(webView.getUrl());
-                }else {
+                }
+//                else if (webView.getUrl().contains("vimeo.com")) {
+//                    downloadVimeo(webView.getUrl());
+//                }
+                else {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
                     } else {
@@ -511,72 +513,72 @@ public class MainActivity extends AppCompatActivity {
         }.extract(urlExtra, false, false);
     }
 
-    private void downloadVimeo(String url) {
-        dialogLoading.show();
-        logEventFb("VIMEO");
-
-        VimeoExtractor.getInstance().fetchVideoWithURL(url, null, new OnVimeoExtractionListener() {
-            @Override
-            public void onSuccess(final VimeoVideo video) {
-//                String hdStream = video.getStreams().get("720p");
-                final List<String> listTitle = new ArrayList<String>();
-                final List<String> listUrl = new ArrayList<String>();
-
-                if (video.getStreams().containsKey("240p")) {
-                    listTitle.add("240p");
-                    listUrl.add(video.getStreams().get("240p"));
-                }
-                if (video.getStreams().containsKey("360p")) {
-                    listTitle.add("360p");
-                    listUrl.add(video.getStreams().get("360p"));
-                }
-                if (video.getStreams().containsKey("480p")) {
-                    listTitle.add("480p");
-                    listUrl.add(video.getStreams().get("480p"));
-                }
-                if (video.getStreams().containsKey("640p")) {
-                    listTitle.add("640p");
-                    listUrl.add(video.getStreams().get("640p"));
-                }
-                if (video.getStreams().containsKey("720p")) {
-                    listTitle.add("720p");
-                    listUrl.add(video.getStreams().get("720p"));
-                }
-                if (video.getStreams().containsKey("1080p")) {
-                    listTitle.add("1080p");
-                    listUrl.add(video.getStreams().get("1080p"));
-                }
-                if (video.getStreams().containsKey("1440p")) {
-                    listTitle.add("1440p");
-                    listUrl.add(video.getStreams().get("1440p"));
-                }
-                if (video.getStreams().containsKey("2160p")) {
-                    listTitle.add("2160p");
-                    listUrl.add(video.getStreams().get("2160p"));
-                }
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showListViewDownload(listTitle, listUrl, video.getTitle());
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                //Error handling here
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialogLoading.dismiss();
-                        showErrorDownload();
-                    }
-                });
-            }
-        });
-    }
+//    private void downloadVimeo(String url) {
+//        dialogLoading.show();
+//        logEventFb("VIMEO");
+//
+//        VimeoExtractor.getInstance().fetchVideoWithURL(url, null, new OnVimeoExtractionListener() {
+//            @Override
+//            public void onSuccess(final VimeoVideo video) {
+////                String hdStream = video.getStreams().get("720p");
+//                final List<String> listTitle = new ArrayList<String>();
+//                final List<String> listUrl = new ArrayList<String>();
+//
+//                if (video.getStreams().containsKey("240p")) {
+//                    listTitle.add("240p");
+//                    listUrl.add(video.getStreams().get("240p"));
+//                }
+//                if (video.getStreams().containsKey("360p")) {
+//                    listTitle.add("360p");
+//                    listUrl.add(video.getStreams().get("360p"));
+//                }
+//                if (video.getStreams().containsKey("480p")) {
+//                    listTitle.add("480p");
+//                    listUrl.add(video.getStreams().get("480p"));
+//                }
+//                if (video.getStreams().containsKey("640p")) {
+//                    listTitle.add("640p");
+//                    listUrl.add(video.getStreams().get("640p"));
+//                }
+//                if (video.getStreams().containsKey("720p")) {
+//                    listTitle.add("720p");
+//                    listUrl.add(video.getStreams().get("720p"));
+//                }
+//                if (video.getStreams().containsKey("1080p")) {
+//                    listTitle.add("1080p");
+//                    listUrl.add(video.getStreams().get("1080p"));
+//                }
+//                if (video.getStreams().containsKey("1440p")) {
+//                    listTitle.add("1440p");
+//                    listUrl.add(video.getStreams().get("1440p"));
+//                }
+//                if (video.getStreams().containsKey("2160p")) {
+//                    listTitle.add("2160p");
+//                    listUrl.add(video.getStreams().get("2160p"));
+//                }
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dialogLoading.dismiss();
+//                        showListViewDownload(listTitle, listUrl, video.getTitle());
+//                    }
+//                });
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable throwable) {
+//                //Error handling here
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        dialogLoading.dismiss();
+//                        showErrorDownload();
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     private void showListViewDownload(List<String> listTitle, final List<String> listUrl, final String fileName) {
         final Dialog dialog = new Dialog(MainActivity.this);
@@ -764,9 +766,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if (webView.getUrl().contains("youtube.com")) {
                     downloadYoutube(webView.getUrl());
-                } else if (webView.getUrl().contains("vimeo.com")) {
-                    downloadVimeo(webView.getUrl());
-                } else {
+                }
+//                else if (webView.getUrl().contains("vimeo.com")) {
+//                    downloadVimeo(webView.getUrl());
+//                }
+                else {
                     if (urlDownloadOther == null) {
                         showPlayThenDownloadError();
                     } else {
